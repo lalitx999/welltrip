@@ -12,17 +12,16 @@ import {
   Info,
   MapPin,
   Music,
-  Newspaper,
   Phone,
   Share2,
   Sparkles,
   Store,
   Trophy,
   Truck,
-  Users,
 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { SISAKET_TRADITIONAL_FESTIVALS } from "@/lib/sisaket-tourism-data";
 
 const SISAKET_EVENTS_2026 = [
   {
@@ -297,6 +296,58 @@ export default function NewsPage() {
         </div>
       </div>
 
+      {/* Full 12-Month Traditional Sisaket Festivals Section */}
+      <div className="rounded-3xl border border-border/80 bg-card p-6 sm:p-8 shadow-sm space-y-6">
+        <div className="border-b border-border/60 pb-4">
+          <span className="text-xs font-bold uppercase tracking-wider text-forest-800 flex items-center gap-1.5">
+            <Calendar className="h-4 w-4 text-gold-600" />
+            <span>ปฏิทินประเพณีตลอดปี 12 เดือน</span>
+          </span>
+          <h2 className="font-serif text-2xl font-bold text-foreground mt-1">
+            เทศกาลและงานประเพณีประจำปี จังหวัดศรีสะเกษ
+          </h2>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            รวบรวมงานประเพณีสำคัญ เทศกาลดอกลำดวนบาน ทุเรียนภูเขาไฟ GI แซนโฎนตา และประเพณี 4 ชนเผ่าตลอดปี
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {SISAKET_TRADITIONAL_FESTIVALS.map((fest) => (
+            <div
+              key={fest.id}
+              className="rounded-2xl border border-border/70 bg-cream-50/40 p-5 space-y-3 transition-all hover:border-gold-500/50 hover:bg-card hover:shadow-xs"
+            >
+              <div className="flex items-center justify-between gap-2">
+                <span className="rounded-full bg-forest-900 px-3 py-0.5 text-xs font-bold text-gold-300">
+                  {fest.month}
+                </span>
+                <span className="text-[11px] font-semibold text-muted-foreground">
+                  {fest.organizer}
+                </span>
+              </div>
+
+              <h3 className="font-serif text-base font-bold text-foreground">
+                {fest.title}
+              </h3>
+
+              <div className="flex items-center gap-1 text-xs text-forest-800 font-medium">
+                <MapPin className="h-3.5 w-3.5 text-gold-600 shrink-0" />
+                <span className="line-clamp-1">{fest.location}</span>
+              </div>
+
+              <div className="pt-1 border-t border-border/60 space-y-1">
+                {fest.activities.map((act, idx) => (
+                  <div key={idx} className="text-[11px] text-muted-foreground flex items-center gap-1.5">
+                    <span className="h-1.5 w-1.5 rounded-full bg-gold-500 shrink-0" />
+                    <span>{act}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
       {/* Featured Community Shop Showcase Card: COCOA CrafT */}
       <div className="rounded-3xl border border-amber-300/60 bg-gradient-to-br from-amber-50/60 via-card to-cream-100 p-6 sm:p-8 shadow-sm space-y-6">
         <div className="flex items-center justify-between border-b border-amber-200/80 pb-4">
@@ -364,7 +415,7 @@ export default function NewsPage() {
               </div>
               <div className="flex items-center gap-2 text-foreground font-medium">
                 <Share2 className="h-4 w-4 text-amber-600 shrink-0" />
-                <span>FB / TikTok / IG: โกโก้คราฟท์ COCOA CrafT</span>
+                <span>FB / TikTok / IG: โโก้คราฟท์ COCOA CrafT</span>
               </div>
             </div>
           </div>
