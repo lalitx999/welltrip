@@ -19,8 +19,10 @@ import { tokenManager } from "@/lib/token-manager";
 import type { ApiSuccess } from "@/types/api";
 import type { RefreshResponse } from "@/types/auth";
 
-export const API_BASE_URL =
+const rawBaseUrl =
   process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:8000";
+
+export const API_BASE_URL = rawBaseUrl.replace(/\/api\/v1\/?$/, "");
 
 export const apiClient = axios.create({
   baseURL: API_BASE_URL,
