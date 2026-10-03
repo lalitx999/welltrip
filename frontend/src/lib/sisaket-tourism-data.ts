@@ -735,3 +735,54 @@ export const SISAKET_TRADITIONAL_FESTIVALS: SisaketFestival[] = [
     ],
   },
 ];
+
+export interface SisaketFeaturedProduct {
+  id: string;
+  name: string;
+  category: string;
+  price: number;
+  priceText: string;
+  unit: string;
+  description: string;
+  highlights: string[];
+  images: {
+    label: string;
+    url: string;
+  }[];
+}
+
+export const SISAKET_FEATURED_PRODUCTS: SisaketFeaturedProduct[] = [
+  {
+    id: "otop-prod-1",
+    name: "เสื้อยืดอัตลักษณ์ศรีสะเกษ (Sound of Sisaket T-Shirt)",
+    category: "TEXTILE",
+    price: 290,
+    priceText: "290 บาท / ตัว",
+    unit: "ตัว",
+    description:
+      "เสื้อยืดคอตตอน 100% ลายสัญลักษณ์ 'ศรีสะเกษ เมืองแห่งโอกาส' และ Sound of Sisaket 2026 เนื้อผ้านุ่ม ระบายอากาศดีเยี่ยม มีให้เลือกทั้งสีขาวมินิมอลและสีเขียวพรีเมียม (ทุกไซส์ S / M / L / XL / 2XL)",
+    highlights: ["ผ้าคอตตอน 100% สัมผัสนุ่ม", "สกรีนลายอัตลักษณ์เมืองศรีสะเกษ", "มีให้เลือกสีขาว และสีเขียวพรีเมียม"],
+    images: [
+      { label: "สีขาว (ด้านหน้า)", url: "/images/otop/sisaket-tshirt-white-front.jpg" },
+      { label: "สีเขียว (ด้านหน้า)", url: "/images/otop/sisaket-tshirt-green-front.jpg" },
+      { label: "สีขาว (ด้านหลัง)", url: "/images/otop/sisaket-tshirt-white-back.jpg" },
+      { label: "สีเขียว (ด้านหลัง)", url: "/images/otop/sisaket-tshirt-green-back.jpg" },
+    ],
+  },
+  {
+    id: "otop-prod-2",
+    name: "กาแฟโรบัสต้าขุนหาญ ดินภูเขาไฟ GI (500 กรัม)",
+    category: "PROCESSED_FOOD",
+    price: 250,
+    priceText: "250 บาท / ถุง (500 กรัม)",
+    unit: "ถุง (500 กรัม)",
+    description:
+      "เมล็ดกาแฟโรบัสต้าแท้ 100% คั่วเข้มอมหวาน ปลูกบนพื้นที่ดินภูเขาไฟ GI อุดมด้วยแร่ธาตุธรรมชาติ อำเภอขุนหาญ จังหวัดศรีสะเกษ ขนาดบรรจุ 500 กรัม หอมกลมกล่อม เอกลักษณ์กาแฟอีสานใต้",
+    highlights: ["ปลูกบนดินภูเขาไฟ GI อุดมด้วยแร่ธาตุ", "เมล็ดคั่วสดใหม่ หอมเข้มกลมกล่อม", "บรรจุถุงฟอยล์วาล์วเก็บความสด 500 กรัม"],
+    images: [
+      { label: "ถุงบรรจุ 500g", url: "/images/otop/sisaket-volcano-coffee-500g.jpg" },
+      { label: "เมล็ดคั่วคุณภาพ", url: "/images/otop/sisaket-volcano-coffee-beans.jpg" },
+    ],
+  },
+];
+

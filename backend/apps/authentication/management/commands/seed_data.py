@@ -223,6 +223,8 @@ class Command(BaseCommand):
     def seed_otop(self, owner):
         self.stdout.write("  Creating OTOP Products...")
         products = [
+            ("เสื้อยืดอัตลักษณ์ศรีสะเกษ (Sound of Sisaket T-Shirt)", "เสื้อยืดคอตตอน 100% ลายสัญลักษณ์ ศรีสะเกษ เมืองแห่งโอกาส และ Sound of Sisaket 2026 เนื้อผ้านุ่มระบายอากาศดี มีสีขาวและสีเขียวพรีเมียม", Decimal("290.00"), OTOPCategory.TEXTILE, 100),
+            ("กาแฟโรบัสต้าขุนหาญ ดินภูเขาไฟ GI (500 กรัม)", "เมล็ดกาแฟโรบัสต้าแท้ 100% ปลูกบนพื้นที่ดินภูเขาไฟ GI อำเภอขุนหาญ จังหวัดศรีสะเกษ ขนาดบรรจุ 500 กรัม หอมเข้มกลมกล่อม", Decimal("250.00"), OTOPCategory.PROCESSED_FOOD, 100),
             ("ผ้าทอมือลายโบราณแม่แจ่ม (Handwoven Lanna Textile)", "ผ้าทอมือเอกลักษณ์อำเภอแม่แจ่ม ย้อมสีธรรมชาติจากเปลือกไม้และคราม", Decimal("1850.00"), OTOPCategory.TEXTILE, 15),
             ("ชาสมุนไพรออร์แกนิคเชียงใหม่ (Chiang Mai Herbal Tea)", "ชาใบเตยผสมอัญชันและตะไคร้ตากแห้ง ปลูกแบบเกษตรอินทรีย์บนดอยสูง", Decimal("290.00"), OTOPCategory.HERBAL_PRODUCT, 50),
             ("สบู่สมุนไพรขมิ้นชันธรรมชาติ (Turmeric Herbal Soap)", "สบู่ทำมือจากขมิ้นชันและน้ำมันมะพร้าวบริสุทธิ์ ช่วยลดการอักเสบผิว", Decimal("120.00"), OTOPCategory.HERBAL_PRODUCT, 100),
@@ -242,3 +244,4 @@ class Command(BaseCommand):
                     "is_active": True,
                 },
             )
+

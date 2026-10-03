@@ -1,11 +1,10 @@
 "use client";
 
 /**
- * (mobile-tourist)/otop/page.tsx - OTOP product grid with Eco-Premium styling.
+ * (mobile-tourist)/otop/page.tsx - OTOP product catalog with featured Sisaket T-shirt & Coffee.
  */
 import { useQuery } from "@tanstack/react-query";
-import { ShoppingBag, Search, SlidersHorizontal, Package } from "lucide-react";
-import Link from "next/link";
+import { ShoppingBag, Search, SlidersHorizontal, Sparkles, CheckCircle2, ShoppingCart } from "lucide-react";
 import { useState, type FormEvent } from "react";
 
 import { AddToCartButton } from "@/components/catalog/AddToCartButton";
@@ -24,6 +23,7 @@ import {
   type OTOPProduct,
 } from "@/types/catalog";
 import { Button } from "@/components/ui/button";
+import { SISAKET_FEATURED_PRODUCTS, SisaketFeaturedProduct } from "@/lib/sisaket-tourism-data";
 
 const CATEGORY_KEYS: Record<OTOPCategory, MessageKey> = {
   HERBAL_PRODUCT: "catalog.otopHerbalProduct",
@@ -41,6 +41,10 @@ export default function OtopPage() {
   const [searchApplied, setSearchApplied] = useState("");
   const [page, setPage] = useState(1);
   const addItem = useCartStore((s) => s.addItem);
+
+  // Active image selection state for featured products
+  const [activeTshirtImg, setActiveTshirtImg] = useState(0);
+  const [activeCoffeeImg, setActiveCoffeeImg] = useState(0);
 
   const { data, isLoading, isError, error, refetch, isFetching } = useQuery({
     queryKey: ["otop", category, searchApplied, page],
@@ -66,6 +70,16 @@ export default function OtopPage() {
     });
   }
 
+  function addFeaturedToCart(featured: SisaketFeaturedProduct) {
+    addItem({
+      item_type: "OTOP_GOODS",
+      entity_id: featured.id,
+      quantity: 1,
+      title: featured.name,
+      unit_price: featured.price,
+    });
+  }
+
   function submitSearch(e: FormEvent) {
     e.preventDefault();
     setPage(1);
@@ -78,21 +92,21 @@ export default function OtopPage() {
   }
 
   return (
-    <div className="mx-auto max-w-7xl space-y-8 px-4 pb-12 pt-6 sm:px-6 lg:px-8">
+    <div className="mx-auto max-w-7xl space-y-10 px-4 pb-16 pt-6 sm:px-6 lg:px-8">
       {/* Editorial Header Banner */}
-      <div className="relative overflow-hidden rounded-3xl bg-forest-900 p-8 text-cream-50 shadow-xl lg:p-12">
+      <div className="relative overflow-hidden rounded-3xl bg-forest-900 p-8 text-cream-50 shadow-xl lg:p-12 border border-gold-500/20">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(197,160,89,0.25),transparent_60%)]" />
         <div className="relative z-10 flex flex-col justify-between gap-4 md:flex-row md:items-end">
           <div className="max-w-2xl space-y-3">
             <div className="inline-flex items-center gap-2 rounded-full border border-gold-500/30 bg-gold-500/10 px-3 py-1 text-xs font-medium text-gold-300">
               <ShoppingBag className="h-3.5 w-3.5" />
-              <span>Community Artisans & Crafts</span>
+              <span>Official Sisaket Souvenirs & OTOP Products</span>
             </div>
             <h1 className="font-serif text-3xl font-bold tracking-wide sm:text-4xl text-cream-100">
-              {t("catalog.groupOtop")} & Handcrafted Goods
+              สินค้า OTOP & ของฝากจังหวัดศรีสะเกษ
             </h1>
             <p className="text-sm text-cream-200/80 sm:text-base leading-relaxed">
-              สนับสนุนผลิตภัณฑ์หัตถกรรม ผ้าทอพื้นเมือง สมุนไพรไทย และของฝากทรงคุณค่าจากชุมชน
+              สนับสนุนเสื้อยืดอัตลักษณ์ศรีสะเกษ กาแฟโรบัสต้าดินภูเขาไฟ GI ผลิตภัณฑ์ผ้าทอมือ และสินค้าหัตถกรรมชุมชน
             </p>
           </div>
 
@@ -120,6 +134,175 @@ export default function OtopPage() {
         </div>
       </div>
 
+      {/* Featured Products Spotlight: Sisaket T-Shirt & Volcano Coffee */}
+      <div className="space-y-6">
+        <div className="border-b border-border/60 pb-3">
+          <span className="text-xs font-bold uppercase tracking-wider text-forest-800 flex items-center gap-1.5">
+            <Sparkles className="h-4 w-4 text-gold-600" />
+            <span>สินค้าไฮไลท์ประจำจังหวัดศรีสะเกษ (Official Featured Goods)</span>
+          </span>
+          <h2 className="font-serif text-2xl font-bold text-foreground mt-0.5">
+            สินค้าที่ระลึกและของฝากยอดนิยม
+          </h2>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Featured Product 1: T-Shirt */}
+          {SISAKET_FEATURED_PRODUCTS[0] && (() => {
+            const prod = SISAKET_FEATURED_PRODUCTS[0];
+            return (
+              <div className="rounded-3xl border border-gold-500/30 bg-gradient-to-br from-card via-cream-50/50 to-card p-6 shadow-md space-y-5 flex flex-col justify-between">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="rounded-full bg-forest-900 px-3 py-1 text-xs font-bold text-cream-100">
+                      เสื้อยืดอัตลักษณ์ศรีสะเกษ
+                    </span>
+                    <span className="font-serif text-xl font-bold text-forest-900">
+                      {prod.priceText}
+                    </span>
+                  </div>
+
+                  {/* Main Image View */}
+                  <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl border border-border bg-white shadow-xs">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={prod.images[activeTshirtImg].url}
+                      alt={prod.name}
+                      className="h-full w-full object-cover transition-all duration-300"
+                    />
+                    <div className="absolute bottom-3 left-3 bg-forest-950/80 text-cream-100 px-2.5 py-0.5 rounded-lg text-[11px] font-semibold backdrop-blur-sm">
+                      {prod.images[activeTshirtImg].label}
+                    </div>
+                  </div>
+
+                  {/* Image Thumbnails Selector */}
+                  <div className="grid grid-cols-4 gap-2">
+                    {prod.images.map((img, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => setActiveTshirtImg(idx)}
+                        className={cn(
+                          "relative aspect-square overflow-hidden rounded-xl border transition-all",
+                          activeTshirtImg === idx ? "border-gold-500 ring-2 ring-gold-500/40" : "border-border/70 opacity-70 hover:opacity-100"
+                        )}
+                      >
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={img.url} alt={img.label} className="h-full w-full object-cover" />
+                      </button>
+                    ))}
+                  </div>
+
+                  <div className="space-y-2 pt-1">
+                    <h3 className="font-serif text-lg font-bold text-foreground">
+                      {prod.name}
+                    </h3>
+                    <p className="text-xs text-muted-foreground leading-relaxed">
+                      {prod.description}
+                    </p>
+                    <ul className="space-y-1 pt-1">
+                      {prod.highlights.map((hl, i) => (
+                        <li key={i} className="flex items-center gap-2 text-xs text-forest-800 font-medium">
+                          <CheckCircle2 className="h-3.5 w-3.5 text-gold-600 shrink-0" />
+                          <span>{hl}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+
+                <div className="pt-3 border-t border-border/60">
+                  <Button
+                    onClick={() => addFeaturedToCart(prod)}
+                    className="w-full rounded-xl font-bold bg-forest-900 hover:bg-forest-800 text-cream-100 shadow-md flex items-center justify-center gap-2"
+                  >
+                    <ShoppingCart className="h-4 w-4 text-gold-400" />
+                    <span>สั่งซื้อเสื้อยืด (฿{prod.price})</span>
+                  </Button>
+                </div>
+              </div>
+            );
+          })()}
+
+          {/* Featured Product 2: Volcano Coffee */}
+          {SISAKET_FEATURED_PRODUCTS[1] && (() => {
+            const prod = SISAKET_FEATURED_PRODUCTS[1];
+            return (
+              <div className="rounded-3xl border border-amber-400/40 bg-gradient-to-br from-card via-amber-50/30 to-card p-6 shadow-md space-y-5 flex flex-col justify-between">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="rounded-full bg-amber-700 px-3 py-1 text-xs font-bold text-cream-100">
+                      กาแฟโรบัสต้าดินภูเขาไฟ GI
+                    </span>
+                    <span className="font-serif text-xl font-bold text-amber-950">
+                      {prod.priceText}
+                    </span>
+                  </div>
+
+                  {/* Main Image View */}
+                  <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl border border-border bg-white shadow-xs">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={prod.images[activeCoffeeImg].url}
+                      alt={prod.name}
+                      className="h-full w-full object-cover transition-all duration-300"
+                    />
+                    <div className="absolute bottom-3 left-3 bg-amber-950/80 text-cream-100 px-2.5 py-0.5 rounded-lg text-[11px] font-semibold backdrop-blur-sm">
+                      {prod.images[activeCoffeeImg].label}
+                    </div>
+                  </div>
+
+                  {/* Image Thumbnails Selector */}
+                  <div className="grid grid-cols-2 gap-2">
+                    {prod.images.map((img, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => setActiveCoffeeImg(idx)}
+                        className={cn(
+                          "relative aspect-[16/9] overflow-hidden rounded-xl border transition-all",
+                          activeCoffeeImg === idx ? "border-amber-500 ring-2 ring-amber-500/40" : "border-border/70 opacity-70 hover:opacity-100"
+                        )}
+                      >
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={img.url} alt={img.label} className="h-full w-full object-cover" />
+                      </button>
+                    ))}
+                  </div>
+
+                  <div className="space-y-2 pt-1">
+                    <h3 className="font-serif text-lg font-bold text-foreground">
+                      {prod.name}
+                    </h3>
+                    <p className="text-xs text-muted-foreground leading-relaxed">
+                      {prod.description}
+                    </p>
+                    <ul className="space-y-1 pt-1">
+                      {prod.highlights.map((hl, i) => (
+                        <li key={i} className="flex items-center gap-2 text-xs text-amber-900 font-medium">
+                          <CheckCircle2 className="h-3.5 w-3.5 text-amber-600 shrink-0" />
+                          <span>{hl}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+
+                <div className="pt-3 border-t border-border/60">
+                  <Button
+                    onClick={() => addFeaturedToCart(prod)}
+                    className="w-full rounded-xl font-bold bg-amber-800 hover:bg-amber-900 text-cream-100 shadow-md flex items-center justify-center gap-2"
+                  >
+                    <ShoppingCart className="h-4 w-4 text-gold-300" />
+                    <span>สั่งซื้อกาแฟ 500g (฿{prod.price})</span>
+                  </Button>
+                </div>
+              </div>
+            );
+          })()}
+        </div>
+      </div>
+
       {/* Expandable Search Input */}
       {searchOpen && (
         <form onSubmit={submitSearch} className="flex gap-3 max-w-xl">
@@ -142,7 +325,7 @@ export default function OtopPage() {
 
       {/* Category Pills */}
       {filtersVisible && (
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2 pt-4 border-t border-border/60">
           <button
             type="button"
             onClick={() => pickCategory(null)}
@@ -182,7 +365,7 @@ export default function OtopPage() {
           onRetry={() => void refetch()}
         />
       ) : rows.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-border/80 p-12 text-center">
+        <div className="rounded-2xl border border-dashed border-border/80 p-8 text-center">
           <p className="text-base font-medium text-muted-foreground">
             {t("catalog.noResults")}
           </p>
@@ -278,4 +461,3 @@ export default function OtopPage() {
     </div>
   );
 }
-
