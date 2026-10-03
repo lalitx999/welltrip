@@ -46,7 +46,7 @@ export const SISAKET_ATTRACTIONS: SisaketAttraction[] = [
     district: "อ.กันทรลักษ์",
     description:
       "ตั้งอยู่ในเขตรักษาพันธุ์สัตว์ป่าพนมดงรัก เป็นน้ำตกขนาดเล็กบรรยากาศร่มรื่น สายน้ำไหลผ่านโขดหินกลางป่าอุดมสมบูรณ์ เหมาะสำหรับพักผ่อนเล่นน้ำ",
-    image: "/images/attractions/namtok-phu-la-or.png",
+    image: "/images/attractions/namtok-phu-la-or.jpg",
     highlights: ["ธรรมชาติบริสุทธิ์", "เขตรักษาพันธุ์สัตว์ป่าพนมดงรัก", "เล่นน้ำพักผ่อน"],
   },
   {
@@ -57,7 +57,7 @@ export const SISAKET_ATTRACTIONS: SisaketAttraction[] = [
     district: "อ.ขุนหาญ",
     description:
       "น้ำตกสวยงามสายน้ำตกลงมาจากผาหินสูง 8 เมตร มีแอ่งน้ำกว้างสำหรับเล่นน้ำ แวดล้อมด้วยป่าเบญจพรรณเขียวขจีตลอดปี",
-    image: "/images/attractions/namtok-samrong-kiat.png",
+    image: "/images/attractions/namtok-samrong-kiat.jpg",
     highlights: ["ผาหินสูง 8 เมตร", "เล่นน้ำปลอดภัย", "ป่าเบญจพรรณสมบูรณ์"],
   },
   {
@@ -68,7 +68,7 @@ export const SISAKET_ATTRACTIONS: SisaketAttraction[] = [
     district: "อ.ขุนหาญ",
     description:
       "ซ่อนตัวอยู่ในป่าลึกทิวเขาพนมดงรัก มีธารน้ำไหลผ่านลานหินกว้าง เหมาะสำหรับสายเดินป่าและผู้รักสงบกลางธรรมชาติ",
-    image: "/images/attractions/namtok-na-traw.png",
+    image: "/images/attractions/namtok-na-traw.jpg",
     highlights: ["ธารน้ำบนลานหิน", "เส้นทางศึกษาธรรมชาติ", "บรรยากาศสงบ"],
   },
   {
@@ -79,7 +79,7 @@ export const SISAKET_ATTRACTIONS: SisaketAttraction[] = [
     district: "อ.ขุนหาญ",
     description:
       "น้ำตกชื่อดังของศรีสะเกษ มีน้ำไหลตลอดปี สายน้ำไหลลดหลั่นตามโขดหินเป็นชั้นๆ ท่ามกลางต้นไม้ใหญ่ร่มรื่น",
-    image: "/images/attractions/namtok-huai-chan.png",
+    image: "/images/attractions/namtok-huai-chan.jpg",
     highlights: ["น้ำไหลตลอดปี", "ชั้นน้ำตกสวยงาม", "ร้านอาหารและจุดพักผ่อน"],
   },
   {
@@ -101,7 +101,7 @@ export const SISAKET_ATTRACTIONS: SisaketAttraction[] = [
     district: "อ.ขุนหาญ",
     description:
       "น้ำตกซ่อนตัวในผืนป่าพนมดงรัก สัมผัสความบริสุทธิ์ของธรรมชาติ และฟังเสียงสายน้ำกระทบหินอย่างเพลิดเพลิน",
-    image: "/images/attractions/namtok-huai-sawai.png",
+    image: "/images/attractions/namtok-huai-sawai.jpg",
     highlights: ["ธรรมชาติเงียบสงบ", "โขดหินธรรมชาติต่างระดับ", "เดินป่าระยะสั้น"],
   },
   {
@@ -112,7 +112,7 @@ export const SISAKET_ATTRACTIONS: SisaketAttraction[] = [
     district: "อ.กันทรลักษ์",
     description:
       "น้ำตกขนาดใหญ่สายน้ำไหลผ่านหน้าผากว้าง ตกลงสู่แอ่งน้ำลึกเบื้องล่าง โอบล้อมด้วยป่าดงดิบสมบูรณ์",
-    image: "/images/attractions/namtok-huai-wang-yai.png",
+    image: "/images/attractions/namtok-huai-wang-yai.jpg",
     highlights: ["ผาน้ำตกกว้าง", "แอ่งน้ำธรรมชาติ", "ป่าดงดิบอุดมสมบูรณ์"],
   },
   {
@@ -156,7 +156,7 @@ export const SISAKET_ATTRACTIONS: SisaketAttraction[] = [
     district: "อ.เมืองศรีสะเกษ",
     description:
       "พื้นที่พักผ่อนและออกกำลังกายกลางเมืองศรีสะเกษ ล้อมรอบด้วยบึงห้วยน้ำคำ มีสวนเฉลิมพระเกียรติฯ และหอศรีลำดวน",
-    image: "/images/attractions/koh-klang-nam-huai-nam-kham.png",
+    image: "/images/attractions/koh-klang-nam-huai-nam-kham.jpg",
     highlights: ["ลู่วิ่งและทางปั่นจักรยาน", "หอชมวิวศรีลำดวน", "สถานที่จัดงานอีเวนต์เมือง"],
   },
   {
@@ -167,7 +167,7 @@ export const SISAKET_ATTRACTIONS: SisaketAttraction[] = [
     district: "อ.เมืองศรีสะเกษ",
     description:
       "ศูนย์แสดงพันธุ์สัตว์น้ำแห่งแรกในภาคอีสานใต้ อุโมงค์ปลาน้ำจืดและน้ำเค็มใต้ทะเล ชมปลากระเบนและปลาพันธุ์หายาก",
-    image: "/images/attractions/sisaket-aquarium.png",
+    image: "/images/attractions/sisaket-aquarium.jpg",
     highlights: ["อุโมงค์แก้วใต้น้ำ", "ปลากระเบนและสัตว์น้ำหายาก", "แหล่งเรียนรู้ครอบครัว"],
   },
   {
@@ -202,7 +202,7 @@ export const SISAKET_ATTRACTIONS: SisaketAttraction[] = [
     district: "อ.เมืองศรีสะเกษ",
     description:
       "วัดอารามหลวงคู่บ้านคู่เมือง ประดิษฐาน 'หลวงพ่อโต' พระพุทธรูปปางมารวิชัยศิลปะขอมโบราณ ศักดิ์สิทธิ์และเป็นที่เคารพบูชา",
-    image: "/images/attractions/wat-maha-phuttharam.png",
+    image: "/images/attractions/wat-maha-phuttharam.jpg",
     highlights: ["หลวงพ่อโต พระคู่บ้านคู่เมือง", "พระอารามหลวงใจกลางเมือง", "กราบขอพรพรหมวิหาร"],
   },
   {
@@ -213,7 +213,7 @@ export const SISAKET_ATTRACTIONS: SisaketAttraction[] = [
     district: "อ.บึงบูรพ์",
     description:
       "วัดสวยตั้งอยู่ริมลำน้ำมาศ มีอุโบสถสถาปัตยกรรมไทยประยุกต์วิจิตรงดงาม บรรยากาศร่มรื่นล้อมรอบด้วยสายน้ำ",
-    image: "/images/attractions/wat-si-bueng-bun.png",
+    image: "/images/attractions/wat-si-bueng-bun.jpg",
     highlights: ["พระอุโบสถริมลำน้ำมาศ", "สถาปัตยกรรมประยุกต์สวยงาม", "สงบร่มเย็น"],
   },
   {
@@ -224,7 +224,7 @@ export const SISAKET_ATTRACTIONS: SisaketAttraction[] = [
     district: "อ.เมืองศรีสะเกษ",
     description:
       "พระธาตุเรืองรองสูง 6 ชั้น ผสมผสานศิลปะอีสานใต้ 4 ชนเผ่า (ลาว ส่วย เขมร เยอ) ด้านในมีพิพิธภัณฑ์พื้นบ้านและวัตถุโบราณ",
-    image: "/images/attractions/wat-phra-that-rueang-rong.png",
+    image: "/images/attractions/wat-phra-that-rueang-rong.jpg",
     highlights: ["พระธาตุ 6 ชั้น", "พิพิธภัณฑ์วัฒนธรรม 4 ชนเผ่า", "จุดชมวิวเมืองศรีสะเกษ"],
   },
   {
@@ -235,7 +235,7 @@ export const SISAKET_ATTRACTIONS: SisaketAttraction[] = [
     district: "อ.เมืองศรีสะเกษ",
     description:
       "วัดที่มีโบสถ์บนเรือสุพรรณหงส์จำลองกลางหนองน้ำ สร้างด้วยความประณีต โดดเด่นวิจิตรงดงาม เป็นจุดถ่ายภาพและทำบุญยอดนิยม",
-    image: "/images/attractions/wat-suphannahong.png",
+    image: "/images/attractions/wat-suphannahong.jpg",
     highlights: ["โบสถ์เรือสุพรรณหงส์กลางน้ำ", "สถาปัตยกรรมเป็นเอกลักษณ์", "สะพานไม้ทำบุญ"],
   },
   {
@@ -246,7 +246,7 @@ export const SISAKET_ATTRACTIONS: SisaketAttraction[] = [
     district: "อ.ขุนหาญ",
     description:
       "สร้างด้วยขวดแก้วรีไซเคิลกว่า 1.5 ล้านขวด ทั้งพระอุโบสถ ศาลา หอระฆัง แสดงถึงความคิดสร้างสรรค์และการอนุรักษ์สิ่งแวดล้อม",
-    image: "/images/attractions/wat-pa-maha-chedi-kaew.png",
+    image: "/images/attractions/wat-pa-maha-chedi-kaew.jpg",
     highlights: ["โบสถ์ขวดแก้ว 1.5 ล้านขวด", "สถาปัตยกรรมรีไซเคิลระดับโลก", "ศาลาทรงไทยขวดแก้ว"],
   },
   {
@@ -279,7 +279,7 @@ export const SISAKET_ATTRACTIONS: SisaketAttraction[] = [
     district: "อ.เมืองศรีสะเกษ",
     description:
       "ประดิษฐานพระพุทธรูปปางมารวิชัยสีขาวเรียงแถวรอบอุโบสถอย่างอลังการ สวยงามสงบตระการตา",
-    image: "/images/attractions/wat-nong-takhian.png",
+    image: "/images/attractions/wat-nong-takhian.jpg",
     highlights: ["พระพุทธรูปสีขาวล้อมอุโบสถ", "ลานปฏิบัติธรรมกว้างขวาง", "ความสงบจิตใจ"],
   },
 
@@ -292,7 +292,7 @@ export const SISAKET_ATTRACTIONS: SisaketAttraction[] = [
     district: "อ.อุทุมพรพิสัย",
     description:
       "ปราสาทขอมโบราณขนาดใหญ่ที่สุดในศรีสะเกษ ศิลปะเกลียง-บาปวน (พุทธศตวรรษที่ 16) มีปรางค์อิฐ 3 องค์บนฐานศิลาแลงเดียวกัน และทับหลังสลักประณีต",
-    image: "/images/attractions/prasat-sa-kamphaeng-yai.png",
+    image: "/images/attractions/prasat-sa-kamphaeng-yai.jpg",
     highlights: ["ปราสาทขอมใหญ่ที่สุดในศรีสะเกษ", "ทับหลังสลักนูนศิลาทราย", "ปรางค์ประธานศิลาแลง"],
   },
   {
@@ -314,7 +314,7 @@ export const SISAKET_ATTRACTIONS: SisaketAttraction[] = [
     district: "อ.กันทรลักษ์",
     description:
       "ปราสาทหินศิลาทรายบนยอดผาใกล้ชายแดน ศิลปะขอมพุทธศตวรรษที่ 15-16 ทัศนียภาพมองเห็นป่าธรรมชาติเชิงทิวเขาพนมดงรัก",
-    image: "/images/attractions/prasat-don-tual.png",
+    image: "/images/attractions/prasat-don-tual.jpg",
     highlights: ["ปราสาทบนยอดผาชายแดน", "ปรางค์หินศิลาทราย", "วิวทิวเขาพนมดงรัก"],
   },
   {
@@ -336,7 +336,7 @@ export const SISAKET_ATTRACTIONS: SisaketAttraction[] = [
     district: "อ.ขุขันธ์",
     description:
       "ปราสาทหินองค์เดียวทรงปรางค์ตั้งอยู่บนฐานศิลาแลง มีเสาประดับกรอบประตูสลักลวดลายเกลียงอย่างสมบูรณ์",
-    image: "/images/attractions/prasat-ta-leng.png",
+    image: "/images/attractions/prasat-ta-leng.jpg",
     highlights: ["ปรางค์เดี่ยวศิลาทราย", "เสาประดับประตูสลักประณีต", "บรรยากาศร่มรื่น"],
   },
   {
@@ -347,7 +347,7 @@ export const SISAKET_ATTRACTIONS: SisaketAttraction[] = [
     district: "อ.ห้วยทับทัน",
     description:
       "ปราสาทศิลาแลง 3 องค์ เรียงกันบนฐานเดียวกัน ตั้งอยู่ในชุมชนโบราณบ้านปราสาท ใกล้หลุมขุดค้นโบราณคดี 2,000 ปี",
-    image: "/images/attractions/prasat-ban-prasat.png",
+    image: "/images/attractions/prasat-ban-prasat.jpg",
     highlights: ["ปรางค์ 3 องค์เรียงกัน", "หลุมขุดค้นโบราณคดี 2,000 ปี", "ชุมชนท่องเที่ยว OTOP"],
   },
   {
@@ -358,7 +358,7 @@ export const SISAKET_ATTRACTIONS: SisaketAttraction[] = [
     district: "อ.ปรางค์กู่",
     description:
       "อโรคยาสาลโบราณสร้างด้วยศิลาแลง ศิลปะบาปวน ตั้งอยู่ในหมู่บ้านโบราณที่มีต้นไม้ใหญ่ร่มรื่น",
-    image: "/images/attractions/prasat-ban-samo.png",
+    image: "/images/attractions/prasat-ban-samo.jpg",
     highlights: ["ศาสนสถานศิลาแลง", "อโรคยาสาลโบราณ", "วิถีชีวิตชุมชนโบราณ"],
   },
   {
@@ -429,7 +429,7 @@ export const SISAKET_OTOP_VILLAGES: SisaketOTOPVillage[] = [
       "ชิมไก่ย่างไม้มะดันห้วยทับทันอันเลื่องชื่อ",
       "ซื้อผ้าทอมือย้อมธรรมชาติ",
     ],
-    image: "/images/attractions/prasat-ban-prasat.png",
+    image: "/images/attractions/prasat-ban-prasat.jpg",
   },
   {
     id: "otop-4",
@@ -489,7 +489,7 @@ export const SISAKET_OTOP_VILLAGES: SisaketOTOPVillage[] = [
       "กราบสรีระสังขารหลวงปู่เครื่อง สุภัทโท",
       "ซื้อของฝากและหัตถกรรม OTOP",
     ],
-    image: "/images/attractions/prasat-sa-kamphaeng-yai.png",
+    image: "/images/attractions/prasat-sa-kamphaeng-yai.jpg",
   },
   {
     id: "otop-8",
@@ -504,7 +504,7 @@ export const SISAKET_OTOP_VILLAGES: SisaketOTOPVillage[] = [
       "เที่ยวสวนหอมแดงและกระเทียม GI",
       "สักการะพระธาตุกตัญญู",
     ],
-    image: "/images/attractions/koh-klang-nam-huai-nam-kham.png",
+    image: "/images/attractions/koh-klang-nam-huai-nam-kham.jpg",
   },
   {
     id: "otop-9",
@@ -534,7 +534,7 @@ export const SISAKET_OTOP_VILLAGES: SisaketOTOPVillage[] = [
       "ขึ้นชมทิวทัศน์บนยอดพระธาตุเรืองรอง",
       "ซื้อเครื่องสานและผ้าทอพื้นเมือง",
     ],
-    image: "/images/attractions/wat-phra-that-rueang-rong.png",
+    image: "/images/attractions/wat-phra-that-rueang-rong.jpg",
   },
   {
     id: "otop-11",
@@ -564,7 +564,7 @@ export const SISAKET_OTOP_VILLAGES: SisaketOTOPVillage[] = [
       "พักผ่อนโฮมสเตย์สวนผลไม้",
       "เก็บผลไม้สดจากต้น",
     ],
-    image: "/images/attractions/namtok-huai-chan.png",
+    image: "/images/attractions/namtok-huai-chan.jpg",
   },
   {
     id: "otop-13",
@@ -579,7 +579,7 @@ export const SISAKET_OTOP_VILLAGES: SisaketOTOPVillage[] = [
       "ทำบุญสร้างศาลาปฏิบัติธรรม",
       "ซื้อของดีอำเภอขุนหาญ",
     ],
-    image: "/images/attractions/wat-pa-maha-chedi-kaew.png",
+    image: "/images/attractions/wat-pa-maha-chedi-kaew.jpg",
   },
 ];
 

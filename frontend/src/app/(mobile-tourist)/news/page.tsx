@@ -378,7 +378,7 @@ export default function NewsPage() {
           <div className="md:col-span-5 rounded-2xl overflow-hidden border border-amber-300 shadow-md bg-white">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/images/cocoa_craft_sisaket.png"
+              src="/images/cocoa_craft_sisaket.jpg"
               alt="ร้านโกโก้คราฟท์ COCOA CrafT ของดีจังหวัดศรีสะเกษ"
               className="w-full h-auto object-cover"
             />
