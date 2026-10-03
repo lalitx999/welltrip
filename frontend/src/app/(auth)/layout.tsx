@@ -8,10 +8,11 @@ export default function AuthLayout({ children }: Readonly<{ children: React.Reac
   const pathname = usePathname();
   const copy = useSisaketCopy();
   const registration = pathname === "/register";
-  const merchantRegistration = pathname === "/register/merchant";
+  const isMerchantRoute =
+    pathname === "/register/merchant" || pathname === "/login/merchant";
   const callback = pathname === "/callback/google";
 
-  if (merchantRegistration) {
+  if (isMerchantRoute) {
     return (
       <div className={styles.shell}>
         <SisaketHeader />
