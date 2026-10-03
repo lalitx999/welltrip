@@ -104,42 +104,9 @@ export default function HomePage() {
         </span>
       </div>
 
-      {/* Hero Banner Section */}
-      <section className={styles.hero} aria-labelledby="travel-home-title">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          className={styles.heroImage}
-          src="/images/attractions/suan-somdet-srinagarindra.jpeg"
-          alt="สวนสมเด็จพระศรีนครินทร์ ศรีสะเกษ ดงต้นลำดวนธรรมชาติ 40,000 ต้น"
-          width={900}
-          height={1350}
-          fetchPriority="high"
-        />
-        <div className={styles.heroCopy}>
-          <span className={styles.eyebrow}>
-            <MapPin size={14} aria-hidden="true" /> SISAKET RESONANCE · 4 ETHNIC TRIBES
-          </span>
-          <h1 id="travel-home-title">
-            {copy("เที่ยวให้ช้าลง", "Slow down.")}
-            <br />
-            {copy("สุขให้มากขึ้น ที่ศรีสะเกษ", "Find more joy in Sisaket.")}
-          </h1>
-          <p>
-            {copy(
-              "สัมผัสวิถีชีวิต 4 ชนเผ่า (เขมร ลาว ส่วย เยอ) โฮมสเตย์สวนผลไม้ ทุเรียนภูเขาไฟ GI กาแฟขุนหาญ และปราสาทขอมโบราณ 31 แห่ง",
-              "Discover 4 ethnic cultures, volcano durian homestays, GI volcano coffee, and 31 Khmer historical castles."
-            )}
-          </p>
-          <div className={styles.heroActions}>
-            <a className={styles.primary} href="#sisaket-catalog-sections">
-              {copy("ค้นพบประสบการณ์", "Discover experiences")}
-              <ArrowUpRight size={17} aria-hidden="true" />
-            </a>
-            <Link className={styles.secondary} href="/community">
-              {copy("13 หมู่บ้าน OTOP นวัตวิถี", "13 OTOP Villages")}
-            </Link>
-          </div>
-        </div>
+      {/* 4-Slide Interactive Isan Nature Hero Carousel */}
+      <section aria-labelledby="travel-home-title">
+        <AtmosphereCarousel heroMode />
       </section>
 
       {/* Quick Interactive Search & Category Filter */}
@@ -171,9 +138,6 @@ export default function HomePage() {
           {copy("ออกสำรวจ", "Explore")}
         </button>
       </form>
-
-      {/* 4-Slide Isan Nature & Atmosphere Carousel */}
-      <AtmosphereCarousel />
 
       {/* Featured Sound of Sisaket 2026 Event Banner */}
       <section className="overflow-hidden rounded-3xl bg-forest-900 border border-gold-500/30 p-6 text-cream-50 shadow-lg">
