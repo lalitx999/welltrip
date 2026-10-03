@@ -11,12 +11,40 @@ from rest_framework import serializers
 
 from common.validators import validate_phone_number
 
-from .models import User
+from .models import MerchantProfile, User
 from .services import build_unique_username
+
+
+class MerchantProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MerchantProfile
+        fields = (
+            "id",
+            "business_name",
+            "business_category",
+            "description",
+            "google_maps_url",
+            "phone_number",
+            "opening_hours",
+            "cover_image_url",
+            "status",
+            "rejection_reason",
+            "created_at",
+            "updated_at",
+        )
+        read_only_fields = (
+            "id",
+            "status",
+            "rejection_reason",
+            "created_at",
+            "updated_at",
+        )
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
     """Public user profile - NEVER exposes password / google_sub_id."""
+
+    merchant_profile = MerchantProfileSerializer(read_only=True)
 
     class Meta:
         model = User
@@ -30,6 +58,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
             "role",
             "is_verified",
             "is_active",
+            "merchant_profile",
             "created_at",
             "updated_at",
         )
@@ -101,3 +130,32 @@ class GoogleIdTokenSerializer(serializers.Serializer):
     """POST /auth/oauth/google/ payload (spec §4): {"id_token": "..."}"""
 
     id_token = serializers.CharField(write_only=True, trim_whitespace=False)
+
+
+class MerchantRegisterSerializer(serializers.Serializer):
+    """Payload for vendor onboarding registration POST /api/v1/auth/register/merchant/"""
+
+    email = serializers.EmailField(max_length=254)
+    password = serializers.CharField(
+        write_only=True, style={"input_type": "password"}
+    )
+    first_name = serializers.CharField(
+        max_length=150, required=False, allow_blank=True, default=""
+    )
+    last_name = serializers.CharField(
+        max_length=150, required=False, allow_blank=True, default=""
+    )
+    phone_number = serializers.CharField(max_length=30)
+    business_name = serializers.CharField(max_length=200)
+    business_category = serializers.CharField(max_length=50, default="HOMESTAY")
+    description = serializers.CharField(required=False, allow_blank=True, default="")
+    google_maps_url = serializers.CharField(
+        required=False, allow_blank=True, default=""
+    )
+    opening_hours = serializers.CharField(
+        max_length=150, required=False, allow_blank=True, default="08:00 - 18:00 น."
+    )
+    cover_image_url = serializers.CharField(
+        required=False, allow_blank=True, default=""
+    )
+

@@ -22,6 +22,20 @@ export interface RegisterPayload {
   phone_number: string;
 }
 
+export interface MerchantRegisterPayload {
+  email: string;
+  password: string;
+  first_name: string;
+  last_name: string;
+  phone_number: string;
+  business_name: string;
+  business_category: string;
+  description?: string;
+  google_maps_url?: string;
+  opening_hours?: string;
+  cover_image_url?: string;
+}
+
 export async function apiRegister(
   payload: RegisterPayload,
 ): Promise<UserProfile> {
@@ -30,6 +44,16 @@ export async function apiRegister(
     payload,
   );
   return data.data.user;
+}
+
+export async function apiRegisterMerchant(
+  payload: MerchantRegisterPayload,
+): Promise<LoginResponse> {
+  const { data } = await apiClient.post<ApiSuccess<LoginResponse>>(
+    "/api/v1/auth/register/merchant/",
+    payload,
+  );
+  return data.data;
 }
 
 export async function apiLogin(

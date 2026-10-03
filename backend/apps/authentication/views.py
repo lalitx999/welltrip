@@ -168,3 +168,101 @@ def me_view(request):
         UserProfileSerializer(request.user).data,
         message="User profile retrieved successfully.",
     )
+
+
+# ---------------------------------------------------------------------------
+# POST /api/v1/auth/register/merchant/   (vendor onboarding signup)
+# ---------------------------------------------------------------------------
+from django.conf import settings
+from django.core.mail import send_mail
+from .models import MerchantProfile, UserRoles
+from .serializers import MerchantRegisterSerializer
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def register_merchant_view(request):
+    """Register a new vendor/merchant account with status PENDING and notify Admin."""
+    serializer = MerchantRegisterSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    data = serializer.validated_data
+
+    email = data["email"].lower().strip()
+    if User.objects.filter(email__iexact=email).exists():
+        return api_error(
+            "EMAIL_TAKEN",
+            "A user with this email is already registered.",
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    # Map category to role
+    cat_to_role = {
+        "HOMESTAY": UserRoles.HOMESTAY_OWNER,
+        "RESTAURANT": UserRoles.RESTAURANT_OWNER,
+        "WELLNESS": UserRoles.WELLNESS_OWNER,
+        "OTOP": UserRoles.OTOP_OWNER,
+    }
+    user_role = cat_to_role.get(
+        data.get("business_category", "HOMESTAY"), UserRoles.HOMESTAY_OWNER
+    )
+
+    user = User.objects.create_user(
+        email=email,
+        password=data["password"],
+        username=build_unique_username(email),
+        first_name=data.get("first_name", ""),
+        last_name=data.get("last_name", ""),
+        phone_number=data.get("phone_number", ""),
+        role=user_role,
+        is_verified=False,
+    )
+
+    merchant = MerchantProfile.objects.create(
+        user=user,
+        business_name=data["business_name"],
+        business_category=data.get("business_category", "HOMESTAY"),
+        description=data.get("description", ""),
+        google_maps_url=data.get("google_maps_url", ""),
+        phone_number=data.get("phone_number", ""),
+        opening_hours=data.get("opening_hours", "08:00 - 18:00 น."),
+        cover_image_url=data.get("cover_image_url", ""),
+        status="PENDING",
+    )
+
+    # Dispatch email notification to Admin (คุณพรหมลิขิต)
+    try:
+        subject = (
+            f"[WellTrip Admin] มีผู้ประกอบการใหม่ลงทะเบียน: {merchant.business_name}"
+        )
+        message = (
+            f"เรียน คุณพรหมลิขิต (ผู้ดูแลระบบ WellTrip),\n\n"
+            f"มีผู้ประกอบการใหม่ลงทะเบียนเข้าระบบและรอการตรวจสอบอนุมัติ:\n"
+            f"- ชื่อร้าน/สถานประกอบการ: {merchant.business_name}\n"
+            f"- ประเภทธุรกิจ: {merchant.get_business_category_display()}\n"
+            f"- ผู้ติดต่อ: {user.full_name} ({user.email})\n"
+            f"- เบอร์โทรศัพท์: {merchant.phone_number}\n"
+            f"- เวลาทำการ: {merchant.opening_hours}\n"
+            f"- ลิงก์แผนที่ Google Maps: {merchant.google_maps_url}\n\n"
+            f"คุณสามารถเข้าตรวจสอบรายละเอียดและกดอนุมัติ (Approve) ได้ที่ Admin Console:\n"
+            f"https://www.welltripthailand.com/admin/approvals"
+        )
+        send_mail(
+            subject,
+            message,
+            getattr(settings, "DEFAULT_FROM_EMAIL", "noreply@welltripthailand.com"),
+            ["phromlikhit@welltripthailand.com", "admin@welltripthailand.com"],
+            fail_silently=True,
+        )
+    except Exception:
+        pass
+
+    tokens = issue_tokens_for_user(user)
+    return api_success(
+        {
+            "user": UserProfileSerializer(user).data,
+            **tokens,
+        },
+        message="Merchant registration submitted successfully. Pending review.",
+        status=status.HTTP_201_CREATED,
+    )
+

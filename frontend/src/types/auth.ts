@@ -15,6 +15,21 @@ export const USER_ROLES = [
 
 export type UserRole = (typeof USER_ROLES)[number];
 
+export interface MerchantProfile {
+  id: string;
+  business_name: string;
+  business_category: string;
+  description: string;
+  google_maps_url: string;
+  phone_number: string;
+  opening_hours: string;
+  cover_image_url: string;
+  status: "PENDING" | "APPROVED" | "REJECTED";
+  rejection_reason: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface UserProfile {
   id: string;
   username: string;
@@ -25,6 +40,7 @@ export interface UserProfile {
   role: UserRole;
   is_verified: boolean;
   is_active: boolean;
+  merchant_profile?: MerchantProfile | null;
   created_at: string;
   updated_at: string;
 }

@@ -7,6 +7,7 @@ app_name = "authentication"
 
 urlpatterns = [
     path("register/", views.register_view, name="register"),
+    path("register/merchant/", views.register_merchant_view, name="register-merchant"),
     path("login/", views.login_view, name="login"),
     path("refresh/", views.EnvelopedTokenRefreshView.as_view(), name="refresh"),
     path("oauth/google/", views.google_oauth_view, name="google-oauth"),
