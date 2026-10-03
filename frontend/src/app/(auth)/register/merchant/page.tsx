@@ -443,7 +443,7 @@ export default function MerchantRegisterPage() {
 
         <div className="text-center text-sm text-[#657468]">
           มีบัญชีผู้ประกอบการแล้ว?{" "}
-          <Link href="/login" className="font-medium text-[#224e39] underline-offset-4 hover:underline">
+          <Link href="/login/merchant" className="font-medium text-[#224e39] underline-offset-4 hover:underline">
             เข้าสู่ระบบที่นี่
           </Link>
         </div>

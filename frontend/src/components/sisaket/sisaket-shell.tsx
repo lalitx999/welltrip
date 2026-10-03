@@ -18,6 +18,7 @@ export function SisaketHeader({ authenticated = false }: { authenticated?: boole
     <Link href="/" className={styles.brand}><Sprout aria-hidden="true" /><span>WellTrip<small>SLOW DAYS · SISAKET</small></span></Link>
     <nav aria-label={copy("เมนูหลัก", "Main navigation")} className={styles.nav}>
       <Link href="/">{copy("หน้าแรก", "Home")}</Link>
+      <Link href="/login/merchant" className="text-xs font-semibold text-[#224e39] bg-[#edf0e3] border border-[#d8ddce] px-3 py-1.5 rounded-lg hover:bg-[#dfe2d5] transition">{copy("สำหรับผู้ประกอบการ", "For Merchants")}</Link>
       {authenticated ? <Link className={styles.primary} href="/home">{copy("ทริปของคุณ", "Explore")}</Link> : <><Link href="/login">{copy("เข้าสู่ระบบ", "Sign in")}</Link><Link className={styles.primary} href="/register">{copy("สมัครสมาชิก", "Sign up")}</Link></>}
       <LanguageToggle />
     </nav>
