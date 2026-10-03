@@ -60,6 +60,31 @@ export default function HomePage() {
       <button type="submit" className={styles.primary}><Search size={17} aria-hidden="true" />{copy("ออกสำรวจ", "Explore")}</button>
     </form>
 
+    {/* Featured Sound of Sisaket 2026 Event Calendar Banner */}
+    <section className="my-6 overflow-hidden rounded-3xl bg-forest-900 border border-gold-500/30 p-6 text-cream-50 shadow-lg">
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+        <div className="space-y-2 max-w-2xl">
+          <div className="inline-flex items-center gap-2 rounded-full border border-gold-500/40 bg-gold-500/10 px-3 py-1 text-xs font-semibold text-gold-300">
+            <Newspaper className="h-3.5 w-3.5 text-gold-400" />
+            <span>FEATURED SISAKET EVENTS 2026</span>
+          </div>
+          <h2 className="font-serif text-2xl font-bold text-cream-100 sm:text-3xl">
+            {copy("ปฏิทินกิจกรรมศรีสะเกษ พ.ย. - ธ.ค. 2569", "Sisaket Event Calendar Nov - Dec 2026")}
+          </h2>
+          <p className="text-xs text-cream-200/80 sm:text-sm leading-relaxed">
+            {copy("จัดเต็มทั้ง ดนตรี กาแฟ กีฬา การประกวด แคมป์ งานงิ้ว ไทบ้านแลนด์ และ Sound of Sisaket 2026 มาเจอกันที่ศรีสะเกษ เมืองแห่งโอกาส", "Enjoy music, coffee, sports, camping, and Sound of Sisaket 2026 in Sisaket!")}
+          </p>
+        </div>
+        <Link
+          href="/news"
+          className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-gold-500 px-5 py-3 text-xs font-bold text-forest-950 shadow-md transition-all hover:bg-gold-400"
+        >
+          <span>{copy("ดูปฏิทินกิจกรรมทั้งหมด", "View All Events")}</span>
+          <ArrowUpRight className="h-4 w-4" />
+        </Link>
+      </div>
+    </section>
+
     <section className={styles.section} aria-labelledby="travel-category-title">
       <div className={styles.sectionHead}><div><span className={styles.eyebrow}>YOUR KIND OF GETAWAY</span><h2 id="travel-category-title">{copy("วันพักผ่อน ในแบบของคุณ", "A getaway that feels like you.")}</h2></div></div>
       <div className={styles.categoryGrid}>{categories.map(({href,label,detail,icon:Icon}) => <Link className={styles.category} href={href} key={href}><Icon aria-hidden="true" /><span><strong>{label}</strong><small>{detail}</small></span><ArrowUpRight aria-hidden="true" /></Link>)}</div>
