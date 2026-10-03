@@ -1,0 +1,11 @@
+{% extends "admin/index.html" %}
+{% load i18n vault_admin %}
+{% block content_title %}<div class="vault-page-intro"><p class="vault-eyebrow">WORKSPACE OVERVIEW</p><h1>{% if app_label %}{{ title }}{% else %}{% translate 'Dashboard' %}{% endif %}</h1><p>{% translate 'Welcome,' %} {% firstof user.get_short_name user.get_username %}. {% translate 'Select a model to manage your data.' %}</p></div>{% endblock %}
+{% block content %}
+<div class="vault-stats">
+<article><span>{% translate 'Applications' %}</span><strong>{{ app_list|length }}</strong><small>{% translate 'Available in your workspace' %}</small></article>
+<article><span>{% translate 'Models' %}</span><strong>{% model_total app_list %}</strong><small>{% translate 'Accessible with your permissions' %}</small></article>
+<article class="vault-stat-accent"><span>{% translate 'Your workspace' %}</span><strong>{% translate 'Ready' %} <span aria-hidden="true">↗</span></strong><small>{% translate 'Manage your data securely' %}</small></article>
+</div>
+{{ block.super }}
+{% endblock %}

@@ -1,0 +1,21 @@
+{% extends "admin/index.html" %}
+{% load i18n %}
+{% block content_title %}
+<div class="vault-page-intro"><p class="vault-eyebrow">FINDING HOUSE / CONTROL CENTER</p><h1>ภาพรวมระบบ</h1><p>สวัสดี {% firstof user.get_short_name user.get_username %} — ข้อมูลล่าสุดตามสิทธิ์การเข้าถึงของคุณ</p></div>
+{% endblock %}
+{% block content %}
+{% if dashboard_unavailable %}<p class="errornote" role="alert">ไม่สามารถโหลดข้อมูลสรุปได้ในขณะนี้ กรุณาลองใหม่ หรือติดต่อผู้ดูแลระบบ</p>{% endif %}
+{% if dashboard_cards %}
+<div class="vault-stats fh-stats">
+{% for card in dashboard_cards %}<article><span>{{ card.label }}</span><strong>{% if card.money %}฿{{ card.value|floatformat:"2g" }}{% else %}{{ card.value }}{% endif %}</strong><small>ข้อมูลปัจจุบันในระบบ</small></article>{% endfor %}
+</div>
+{% endif %}
+{% if dashboard_sections %}
+<div class="fh-panels">
+{% for section in dashboard_sections %}<section class="module fh-panel"><div class="fh-panel-heading"><h2>{{ section.label }}</h2><a href="{{ section.url }}">ดูทั้งหมด →</a></div>
+<ul class="fh-records">{% for row in section.rows %}<li><a href="{{ row.url }}">{{ row.label|truncatechars:70 }}</a><span>{{ row.detail|default:'—'|truncatechars:45 }}</span></li>{% empty %}<li class="quiet">ยังไม่มีข้อมูล</li>{% endfor %}</ul>
+</section>{% endfor %}
+</div>
+{% endif %}
+{{ block.super }}
+{% endblock %}

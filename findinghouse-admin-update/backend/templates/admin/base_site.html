@@ -1,0 +1,49 @@
+{% extends "admin/base.html" %}
+{% load i18n static %}
+{% block extrahead %}{{ block.super }}<meta charset="utf-8">{% endblock %}
+{% block title %}{{ title }} | Finding House Admin{% endblock %}
+{% block responsive %}
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="{% static 'admin/css/responsive.css' %}">
+<link rel="stylesheet" href="{% static 'findinghouse_admin/theme.css' %}">
+<script src="{% static 'findinghouse_admin/theme.js' %}" defer></script>
+{% endblock %}
+{% block bodyclass %}{{ block.super }} vault-admin{% if has_permission and not is_popup %} vault-shell{% endif %}{% endblock %}
+{% block branding %}
+<div class="vault-top-brand">
+{% if has_permission %}<button type="button" class="vault-menu" aria-label="{% translate 'เปิดหรือปิดเมนู' %}" aria-controls="vault-sidebar" aria-expanded="false">☰</button>{% endif %}
+<a href="{% url 'admin:index' %}"><span class="vault-logo" aria-hidden="true">↗</span> Finding House</a>
+</div>
+{% endblock %}
+{% block nav-sidebar %}{% endblock %}
+{% block nav-global %}
+{% if has_permission %}
+<aside id="vault-sidebar" aria-label="{% translate 'เมนูหลัก' %}">
+<a class="vault-brand" href="{% url 'admin:index' %}"><span class="vault-logo" aria-hidden="true">↗</span><span>Finding House<small>ระบบจัดการอสังหาริมทรัพย์</small></span></a>
+<div class="vault-nav-scroll">
+<a class="vault-home" href="{% url 'admin:index' %}"><span aria-hidden="true">▦</span> {% translate 'ภาพรวมระบบ' %}</a>
+<label class="visually-hidden" for="vault-filter">{% translate 'ค้นหาเมนู' %}</label>
+<input id="vault-filter" type="search" placeholder="{% translate 'ค้นหาเมนู' %}" autocomplete="off">
+<nav>
+{% for app in available_apps %}
+<section class="vault-nav-group"><h2>{{ app.name }}</h2>
+{% for model in app.models %}{% if model.admin_url %}
+<a class="vault-nav-link" href="{{ model.admin_url }}"><span class="vault-nav-dot" aria-hidden="true"></span>{{ model.name }}</a>
+{% elif model.add_url %}<a class="vault-nav-link" href="{{ model.add_url }}">{{ model.name }}</a>{% endif %}{% endfor %}
+</section>
+{% endfor %}
+<p id="vault-no-results" hidden>{% translate 'ไม่พบเมนูที่ค้นหา' %}</p>
+</nav>
+</div>
+<div class="vault-profile"><span class="vault-avatar" aria-hidden="true">{% firstof user.get_short_name|first user.get_username|first %}</span><span>{% firstof user.get_short_name user.get_username %}<small>{% translate 'Administration' %}</small></span></div>
+</aside>
+<button type="button" class="vault-backdrop" aria-label="{% translate 'ปิดเมนู' %}" hidden></button>
+{% endif %}
+{% endblock %}
+
+{% block userlinks %}
+{% if findinghouse_site_url %}<a href="{{ findinghouse_site_url }}" target="_blank" rel="noopener">เว็บหลัก</a> / {% endif %}
+{% if user.has_usable_password %}<a href="{% url 'admin:password_change' %}">{% translate 'Change password' %}</a> / {% endif %}
+<form id="logout-form" method="post" action="{% url 'admin:logout' %}">{% csrf_token %}<button type="submit">{% translate 'Log out' %}</button></form>
+{% include 'admin/color_theme_toggle.html' %}
+{% endblock %}

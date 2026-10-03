@@ -1,0 +1,17 @@
+# WellTrip backend - dependencies shared by every environment.
+# Versions are ranged; after first successful install, freeze them
+# with `pip freeze > requirements.lock.txt` for reproducible deploys.
+# (Upper bounds verified against PyPI metadata on 2026-08-09.)
+Django>=5.2,<5.3
+djangorestframework>=3.15,<4.0
+djangorestframework-simplejwt>=5.3,<6.0
+google-auth>=2.32,<3.0
+requests>=2.28,<3.0
+django-cors-headers>=4.4,<5.0
+django-environ>=0.11,<0.12
+psycopg[binary]>=3.2,<4.0
+
+# Async task queue + broker client (Step 4: 15-min booking expiry worker).
+# `pip install celery redis` then run `celery -A core worker -l info`.
+celery>=5.4,<6.0
+redis>=5.0,<6.0

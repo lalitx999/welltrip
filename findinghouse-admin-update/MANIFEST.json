@@ -1,0 +1,86 @@
+[
+  {
+    "path": "backend/config/context_processors.py",
+    "status": "modified",
+    "sha256": "2ad296354401de158dd445eec7fccfd180b2b8513c211dc39ad4f03098f38f72",
+    "original_sha256": "34f19eaaf682f82e9f669c4b14a298f2623f92d8b39dbbb7bfec485bcd9681c4"
+  },
+  {
+    "path": "backend/config/test_admin_theme.py",
+    "status": "new",
+    "sha256": "68587e2ba8116bafca04d1d8a19cc2e18797f975481d08ea93c6ec43bc6f8699",
+    "original_sha256": null
+  },
+  {
+    "path": "backend/static/findinghouse_admin/theme.css",
+    "status": "new",
+    "sha256": "0b8c9ed41f96dda10b527a355cc6497c88e3d48b779679cd8dca38550e5a247d",
+    "original_sha256": null
+  },
+  {
+    "path": "backend/static/findinghouse_admin/theme.js",
+    "status": "new",
+    "sha256": "ba892560d8cb43e457fa5cd517fbb4ab1a027c366ad68f85110c04959b653c96",
+    "original_sha256": null
+  },
+  {
+    "path": "backend/templates/admin/app_index.html",
+    "status": "modified",
+    "sha256": "bca0ddce5fa55f7cc6af880e198b467732c9b4398bf6e4ddaf8bc5f8a9858e7e",
+    "original_sha256": "94c0dc46430ad642b5b817a0177c8c284e5b81c318a3fa8bd076ede2a18a0d2e"
+  },
+  {
+    "path": "backend/templates/admin/base.html",
+    "status": "modified",
+    "sha256": "809ce4457b2a63f4aa9fa7b547441ea88bda380f81f77fefea0fd659fc0d4104",
+    "original_sha256": "3d2d0bb3671479aea9e55eff7c11fdebffa60e43de905de038feafced98e385e"
+  },
+  {
+    "path": "backend/templates/admin/base_site.html",
+    "status": "modified",
+    "sha256": "aa91e9d3d9ee9b40575e6f4b7d881587bbefcd5c35d11b70b0885b70ffb98408",
+    "original_sha256": "874483da9ab428636d13fc5c0eef89cdb48e42302bf504fdf9fd6d80194a35f2"
+  },
+  {
+    "path": "backend/templates/admin/change_form.html",
+    "status": "modified",
+    "sha256": "d330633760f6ec4aec301b76bd2144c8d3d70e028055d1600904bdd349d1420e",
+    "original_sha256": "7e25a6e0396a0ee65c60295026288a950c983dfeb9700737fd2824d3193485b6"
+  },
+  {
+    "path": "backend/templates/admin/change_list.html",
+    "status": "modified",
+    "sha256": "5ac29fede7a904eb383a7047177bf5b462083d093edd0dbe2300aad394f91dda",
+    "original_sha256": "7721a4d192393e659a409c66ad88390ec17e908ac4f197c09d7692063760ad47"
+  },
+  {
+    "path": "backend/templates/admin/delete_confirmation.html",
+    "status": "modified",
+    "sha256": "7ae9f7035b94c8d8bad455f3533b96f455d4a75c761fb4d5581c3f63e7dfb7a1",
+    "original_sha256": "74c2aff1c6fb33abe87864ca812bbf34457885db675005026835030bf3834315"
+  },
+  {
+    "path": "backend/templates/admin/index.html",
+    "status": "modified",
+    "sha256": "b1278ddae65d597984af2ceaa4572ea50e92f5277ea68567b73ef4d99418e459",
+    "original_sha256": "ddf3c9d139cd4c99943917ee47131396acdb36b47ff68b2868a77eb2484123b4"
+  },
+  {
+    "path": "backend/templates/admin/login.html",
+    "status": "modified",
+    "sha256": "55ca34f62af932ea7f3b56915e17787ac576bdd54d6f8df937ee044e276dc1f8",
+    "original_sha256": "d1811dd0227ddd3926282ba273841493680b89be391e58818946a87209a0c497"
+  },
+  {
+    "path": "backend/templates/admin/object_history.html",
+    "status": "modified",
+    "sha256": "84d3ce2883651a6b1b6e3963a320c4db1fedadc105e4c5aefa72100c5fcd6eff",
+    "original_sha256": "4367968c9130a2fd68418ffb324cad4d0b6b7fb1715bd85f160099acc24d147f"
+  },
+  {
+    "path": "backend/requirements.txt",
+    "status": "modified",
+    "sha256": "40d2eb92d165f0c19d5dbeefb1b9bbcbe41942d873912c82f9404988ca9f2825",
+    "original_sha256": "952d42c1bee4017eee84e19fc146c926348b67281767ee2771070bd11c7912d1"
+  }
+]

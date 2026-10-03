@@ -1,0 +1,63 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* WellTrip Community Eco-Premium Theme Tokens
+       - Background: Warm Linen Cream (#FAF8F5 -> HSL 40 25% 97%)
+       - Foreground: Earthy Deep Slate (#26221F -> HSL 30 15% 15%)
+       - Primary: Deep Forest Green (#1B3B2B -> HSL 152 42% 16%)
+       - Secondary: Soft Warm Linen (#F4EFE6 -> HSL 40 30% 93%)
+       - Accent: Muted Gold (#C5A059 -> HSL 40 48% 48%)
+       - Muted: Warm Sand (#F3F0EA -> HSL 40 18% 94%)
+       - Border: Soft Organic Border (#E8E4DD -> HSL 40 15% 88%)
+    */
+    --background: 40 25% 97%;
+    --foreground: 30 15% 15%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 30 15% 15%;
+
+    --primary: 152 42% 16%; /* #1B3B2B Deep Forest Green */
+    --primary-foreground: 40 25% 97%;
+
+    --secondary: 40 30% 93%; /* #F4EFE6 Soft Warm Linen */
+    --secondary-foreground: 152 42% 16%;
+
+    --muted: 40 18% 94%;
+    --muted-foreground: 30 10% 42%;
+
+    --accent: 40 48% 48%; /* #C5A059 Muted Gold */
+    --accent-foreground: 40 25% 97%;
+
+    --destructive: 0 72% 45%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 40 15% 88%;
+    --input: 40 15% 88%;
+    --ring: 152 42% 16%;
+
+    --radius: 0.75rem;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+  }
+
+  /* 44x44px minimum touch target (spec §7.1). */
+  button,
+  a,
+  input,
+  select {
+    touch-action: manipulation;
+  }
+}

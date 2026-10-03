@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.env
+*.sqlite3
+db.sqlite3
+staticfiles/
+media/
+*.log
+
+# Node / Next.js
+node_modules/
+.next/
+out/
+*.tsbuildinfo
+
+# Env overrides
+.env.local
+.env*.local
+
+# OS & Archives
+.DS_Store
+*.zip
+*.png
+*.jpg
+*.jpeg
