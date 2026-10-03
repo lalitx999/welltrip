@@ -8,20 +8,11 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { extractApiErrorMessage } from "@/lib/auth-api";
 import { useI18n } from "@/lib/i18n";
+import { getRoleRedirectPath } from "@/lib/auth-redirect";
 
-/**
- * Google OAuth callback handler (spec Folder Tree:
- * (auth)/callback/google/page.tsx).
- *
- * Google redirects the browser back to this page as
- *   /callback/google#id_token=...&...
- * We extract the id_token from the URL fragment and exchange it with the
- * backend. There is nothing to render visually - the page immediately
- * navigates to "/home" on success.
- */
 export default function GoogleCallbackPage() {
   const router = useRouter();
-  const { status, loginWithGoogle } = useAuth();
+  const { status, user, loginWithGoogle } = useAuth();
   const { t } = useI18n();
   const [error, setError] = useState<string | null>(null);
 
@@ -30,7 +21,7 @@ export default function GoogleCallbackPage() {
 
     async function handleCallback() {
       if (status === "authenticated") {
-        router.replace("/home");
+        router.replace(getRoleRedirectPath(user?.role));
         return;
       }
       if (status !== "guest") {
@@ -48,9 +39,9 @@ export default function GoogleCallbackPage() {
       }
 
       try {
-        await loginWithGoogle(idToken);
+        const loggedUser = await loginWithGoogle(idToken);
         if (!cancelled) {
-          router.replace("/home");
+          router.replace(getRoleRedirectPath(loggedUser?.role));
         }
       } catch (err) {
         if (!cancelled) {
@@ -63,7 +54,7 @@ export default function GoogleCallbackPage() {
     return () => {
       cancelled = true;
     };
-  }, [status, loginWithGoogle, router]);
+  }, [status, user, loginWithGoogle, router, t]);
 
   if (error) {
     return (

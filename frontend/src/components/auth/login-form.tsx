@@ -20,6 +20,7 @@ import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/use-auth";
 import { extractApiErrorMessage } from "@/lib/auth-api";
 import { useI18n } from "@/lib/i18n";
+import { getRoleRedirectPath } from "@/lib/auth-redirect";
 import { createLoginSchema, type LoginInput } from "@/schemas/auth";
 
 export function LoginForm() {
@@ -28,8 +29,6 @@ export function LoginForm() {
   const { t } = useI18n();
   const [serverError, setServerError] = useState<string | null>(null);
 
-  // Rebuild schema when the language changes so validation messages match
-  // the active UI locale.
   const loginSchema = useMemo(
     () =>
       createLoginSchema({
@@ -56,8 +55,9 @@ export function LoginForm() {
   async function onSubmit(values: LoginInput) {
     setServerError(null);
     try {
-      await login(values.email, values.password);
-      router.replace("/home");
+      const loggedUser = await login(values.email, values.password);
+      const redirectPath = getRoleRedirectPath(loggedUser?.role);
+      router.replace(redirectPath);
     } catch (error) {
       setServerError(extractApiErrorMessage(error));
     }

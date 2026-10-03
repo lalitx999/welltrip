@@ -7,22 +7,23 @@ import { useEffect, useState } from "react";
 import { LoginForm } from "@/components/auth/login-form";
 import { useAuth } from "@/hooks/use-auth";
 import { useI18n } from "@/lib/i18n";
+import { getRoleRedirectPath } from "@/lib/auth-redirect";
 
 export default function LoginPage() {
   const router = useRouter();
-  const { status } = useAuth();
+  const { status, user } = useAuth();
   const { t } = useI18n();
   const [justRegistered, setJustRegistered] = useState(false);
 
-  // If a session already exists, do not show the login form.
+  // If a session already exists, redirect based on user role.
   useEffect(() => {
     if (status === "authenticated") {
-      router.replace("/home");
+      router.replace(getRoleRedirectPath(user?.role));
     }
     if (typeof window !== "undefined") {
       setJustRegistered(window.location.search.includes("registered=1"));
     }
-  }, [status, router]);
+  }, [status, user, router]);
 
   if (status === "loading") {
     return (
