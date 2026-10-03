@@ -10,4 +10,5 @@ urlpatterns = [
     path("login/", views.login_view, name="login"),
     path("refresh/", views.EnvelopedTokenRefreshView.as_view(), name="refresh"),
     path("oauth/google/", views.google_oauth_view, name="google-oauth"),
+    path("me/", views.me_view, name="me"),
 ]

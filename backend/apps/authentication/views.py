@@ -152,3 +152,19 @@ class EnvelopedTokenRefreshView(TokenRefreshView):
                 message="Token refreshed.",
             )
         return response
+
+
+# ---------------------------------------------------------------------------
+# GET /api/v1/auth/me/                   (authenticated user profile)
+# ---------------------------------------------------------------------------
+from rest_framework.permissions import IsAuthenticated
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def me_view(request):
+    """Return profile details for the currently authenticated user."""
+    return api_success(
+        UserProfileSerializer(request.user).data,
+        message="User profile retrieved successfully.",
+    )

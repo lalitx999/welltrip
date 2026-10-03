@@ -1,8 +1,13 @@
 import { TravelShell } from "@/components/travel/travel-shell";
+import { TouristAuthGuard } from "@/components/auth/tourist-guard";
 
-/** Public tourist routes share the travel header, complete navigation and footer.
- * Existing pages retain their own authentication, data and booking behaviour.
- */
-export default function MobileTouristLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <TravelShell>{children}</TravelShell>;
+/** Tourist routes share the travel header, navigation, and authentication guard. */
+export default function MobileTouristLayout({
+  children,
+}: Readonly<{ children: React.ReactNode }>) {
+  return (
+    <TouristAuthGuard>
+      <TravelShell>{children}</TravelShell>
+    </TouristAuthGuard>
+  );
 }

@@ -53,6 +53,11 @@ export async function apiGoogleLogin(
   return data.data;
 }
 
+export async function apiGetMe(): Promise<UserProfile> {
+  const { data } = await apiClient.get<ApiSuccess<UserProfile>>("/api/v1/auth/me/");
+  return data.data;
+}
+
 /**
  * Turn any Axios error into a human-readable message.
  * The backend error envelope puts the best user-facing text in `message`,
