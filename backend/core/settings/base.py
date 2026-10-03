@@ -198,6 +198,13 @@ EASYSLIP_MOCK_VERIFY = env.bool("EASYSLIP_MOCK_VERIFY", default=True)
 DEEPSEEK_API_KEY = env("DEEPSEEK_API_KEY", default="")
 GEMINI_API_KEY = env("GEMINI_API_KEY", default="")
 
+# ---------------------------------------------------------------------------
+# Email Configuration
+# ---------------------------------------------------------------------------
+DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="promlikit@sskru.ac.th")
+ADMIN_EMAIL = env("ADMIN_EMAIL", default="promlikit@sskru.ac.th")
+
+
 
 
 
