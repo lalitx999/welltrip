@@ -36,6 +36,7 @@ import { formatBaht } from "@/lib/format";
 import { displayImage } from "@/lib/images";
 import { SISAKET_ATTRACTIONS, SISAKET_OTOP_VILLAGES, SISAKET_FEATURED_PRODUCTS } from "@/lib/sisaket-tourism-data";
 import { Button } from "@/components/ui/button";
+import { AtmosphereCarousel } from "@/components/travel/AtmosphereCarousel";
 
 export default function HomePage() {
   const copy = useTravelCopy();
@@ -170,6 +171,9 @@ export default function HomePage() {
           {copy("ออกสำรวจ", "Explore")}
         </button>
       </form>
+
+      {/* 4-Slide Isan Nature & Atmosphere Carousel */}
+      <AtmosphereCarousel />
 
       {/* Featured Sound of Sisaket 2026 Event Banner */}
       <section className="overflow-hidden rounded-3xl bg-forest-900 border border-gold-500/30 p-6 text-cream-50 shadow-lg">
