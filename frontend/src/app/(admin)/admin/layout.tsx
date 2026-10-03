@@ -19,6 +19,7 @@ import {
   ShieldCheck,
   Menu,
   X,
+  Package,
 } from "lucide-react";
 
 import { LanguageToggle } from "@/components/ui/language-toggle";
@@ -37,6 +38,7 @@ interface NavigationItem {
 
 const NAV_ITEMS: NavigationItem[] = [
   { href: "/admin", label: "ภาพรวมระบบ & สถิติ", icon: LayoutDashboard },
+  { href: "/admin/catalog", label: "จัดการสินค้า & สถานที่", icon: Package },
   { href: "/admin/users", label: "จัดการผู้ใช้ & ผู้ประกอบการ", icon: Users },
   { href: "/admin/approvals", label: "อนุมัติรายการ & สถานที่", icon: CheckSquare },
   { href: "/admin/payments", label: "ตรวจสอบการชำระเงิน", icon: Receipt },
