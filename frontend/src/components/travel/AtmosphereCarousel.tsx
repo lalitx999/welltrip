@@ -2,9 +2,10 @@
 
 /**
  * AtmosphereCarousel.tsx
- * 4-Slide Isan Nature & Atmosphere Hero Carousel for Sisaket.
- * Features 4-slide seamless storytelling (fields, village, rice, sunset)
- * with 4:5 mobile optimization, Eco-Premium styling, and Zero-Emoji policy.
+ * High-Contrast Eco-Premium 4-Slide Atmosphere Hero Carousel.
+ * Uses images from /c/ (fields, village, rice, sunset) with 4:5 mobile aspect ratio
+ * and rich dark gradient overlays for 100% text legibility.
+ * Zero-Emoji Policy: Lucide icons only.
  */
 import { useState, useEffect } from "react";
 import Link from "next/link";
@@ -88,9 +89,10 @@ export function AtmosphereCarousel({ heroMode = true }: AtmosphereCarouselProps)
   const slide = CAROUSEL_SLIDES[currentSlide];
 
   return (
-    <div className="relative overflow-hidden rounded-3xl bg-forest-950 border border-gold-500/30 shadow-2xl group">
-      {/* Carousel Background Images (Crossfade Transition) */}
-      <div className="relative min-h-[520px] sm:min-h-[560px] w-full overflow-hidden bg-forest-900 flex items-center">
+    <div className="relative overflow-hidden rounded-3xl bg-forest-950 border border-gold-500/40 shadow-2xl group">
+      {/* Carousel Showcase Area */}
+      <div className="relative min-h-[520px] sm:min-h-[560px] w-full overflow-hidden bg-forest-950 flex items-center">
+        {/* Background Image Slides (Fade effect) */}
         {CAROUSEL_SLIDES.map((s, idx) => (
           <div
             key={s.id}
@@ -110,51 +112,73 @@ export function AtmosphereCarousel({ heroMode = true }: AtmosphereCarouselProps)
           </div>
         ))}
 
-        {/* Gradient Overlay for Text Contrast */}
-        <div className="absolute inset-0 z-10 bg-gradient-to-r from-forest-950/90 via-forest-950/65 to-forest-950/30 sm:from-forest-950/95 sm:via-forest-950/70 sm:to-transparent" />
-        <div className="absolute inset-0 z-10 bg-gradient-to-t from-forest-950/90 via-transparent to-forest-950/40" />
+        {/* Multi-Layer Dark Gradient Overlay for Maximum Text Contrast */}
+        {/* Left-to-Right Heavy Dark Forest Overlay */}
+        <div
+          className="absolute inset-0 z-10"
+          style={{
+            background:
+              "linear-gradient(to right, rgba(11, 26, 19, 0.96) 0%, rgba(11, 26, 19, 0.82) 45%, rgba(11, 26, 19, 0.45) 75%, rgba(11, 26, 19, 0.15) 100%)",
+          }}
+        />
+        {/* Bottom Vignette Gradient */}
+        <div
+          className="absolute inset-0 z-10"
+          style={{
+            background: "linear-gradient(to top, rgba(11, 26, 19, 0.95) 0%, transparent 45%)",
+          }}
+        />
+        {/* Top Subtle Vignette */}
+        <div
+          className="absolute inset-0 z-10"
+          style={{
+            background: "linear-gradient(to bottom, rgba(11, 26, 19, 0.7) 0%, transparent 35%)",
+          }}
+        />
 
-        {/* Main Hero Banner Content Overlay */}
-        <div className="relative z-20 w-full max-w-3xl px-6 sm:px-12 py-10 sm:py-14 space-y-5 text-cream-50">
-          {/* Eyebrow / Tag */}
+        {/* Hero Content Overlay */}
+        <div className="relative z-20 w-full max-w-3xl px-6 sm:px-12 py-10 sm:py-14 space-y-5">
+          {/* Eyebrow / Badges */}
           <div className="flex flex-wrap items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-gold-500/40 bg-forest-900/80 px-3 py-1 text-xs font-semibold text-gold-300 backdrop-blur-md shadow-md">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-gold-500/60 bg-forest-950/90 px-3.5 py-1 text-xs font-semibold text-gold-300 backdrop-blur-md shadow-lg">
               <Sparkles className="h-3.5 w-3.5 text-gold-400" />
               <span>SISAKET RESONANCE · 4 ETHNIC TRIBES</span>
             </span>
-            <span className="inline-flex items-center gap-1 rounded-full border border-cream-100/20 bg-forest-950/60 px-2.5 py-1 text-[11px] text-cream-200 backdrop-blur-md">
+            <span className="inline-flex items-center gap-1 rounded-full border border-gold-400/30 bg-forest-900/80 px-3 py-1 text-[11px] font-mono text-cream-100 backdrop-blur-md">
               <MapPin className="h-3 w-3 text-gold-400" />
               <span>{slide.tag}</span>
             </span>
           </div>
 
           {/* Main Hero Headline */}
-          <h1 className="font-serif text-3xl sm:text-5xl lg:text-6xl font-normal tracking-tight text-cream-100 leading-[1.2] drop-shadow-md">
+          <h1 className="font-serif text-3xl sm:text-5xl lg:text-6xl font-normal tracking-tight text-white leading-[1.25] drop-shadow-xl">
             {copy("เที่ยวให้ช้าลง", "Slow down.")}
             <br />
-            <span className="font-semibold text-gold-300">{copy("สุขให้มากขึ้น ที่ศรีสะเกษ", "Find more joy in Sisaket.")}</span>
+            <span className="font-bold text-gold-400 drop-shadow-lg">
+              {copy("สุขให้มากขึ้น ที่ศรีสะเกษ", "Find more joy in Sisaket.")}
+            </span>
           </h1>
 
-          {/* Subtitle / Description combining 4 tribes & current slide details */}
-          <p className="text-xs sm:text-base text-cream-200/95 leading-relaxed max-w-xl drop-shadow">
+          {/* Subtitle & Description */}
+          <p className="text-xs sm:text-base text-cream-100/95 leading-relaxed max-w-xl font-light drop-shadow-md">
             {copy(
-              `สัมผัสวิถีชีวิต 4 ชนเผ่า (เขมร ลาว ส่วย เยอ) ${slide.title} — ${slide.description}`,
+              `สัมผัสวิถีชีวิต 4 ชนเผ่า (เขมร ลาว ส่วย เยอ) — ${slide.title}: ${slide.description}`,
               `Discover 4 ethnic cultures & ${slide.subtitle} in Sisaket.`
             )}
           </p>
 
           {/* Action Callouts */}
-          <div className="flex flex-wrap items-center gap-3 pt-2">
+          <div className="flex flex-wrap items-center gap-3 pt-3">
             <a
               href="#sisaket-catalog-sections"
-              className="inline-flex items-center justify-center gap-2 rounded-full bg-cream-100 px-6 py-3 text-xs sm:text-sm font-semibold text-forest-950 shadow-lg transition-all hover:bg-gold-400 hover:text-forest-950 hover:scale-102"
+              className="inline-flex items-center justify-center gap-2 rounded-full bg-gold-500 hover:bg-gold-400 text-forest-950 font-bold px-6 py-3.5 text-xs sm:text-sm shadow-xl transition-all hover:scale-105"
             >
               <span>{copy("ค้นพบประสบการณ์", "Discover experiences")}</span>
-              <ArrowUpRight className="h-4 w-4" />
+              <ArrowUpRight className="h-4 w-4 stroke-[2.5]" />
             </a>
             <Link
               href="/community"
-              className="inline-flex items-center justify-center gap-2 rounded-full border border-cream-100/40 bg-forest-900/40 px-6 py-3 text-xs sm:text-sm font-semibold text-cream-100 backdrop-blur-md transition-all hover:bg-forest-800/80 hover:border-gold-400"
+              className="inline-flex items-center justify-center gap-2 rounded-full border border-gold-400/50 bg-forest-900/80 hover:bg-forest-800 text-gold-200 hover:text-white px-6 py-3.5 text-xs sm:text-sm font-semibold backdrop-blur-md transition-all shadow-md"
             >
               <span>{copy("13 หมู่บ้าน OTOP นวัตวิถี", "13 OTOP Villages")}</span>
             </Link>
@@ -166,7 +190,7 @@ export function AtmosphereCarousel({ heroMode = true }: AtmosphereCarouselProps)
           type="button"
           onClick={prevSlide}
           aria-label="Previous slide"
-          className="absolute left-3 sm:left-5 top-1/2 -translate-y-1/2 z-30 grid h-10 w-10 sm:h-12 sm:w-12 place-items-center rounded-full border border-cream-100/20 bg-forest-950/60 text-cream-100 backdrop-blur-md transition-all hover:bg-gold-500 hover:text-forest-950"
+          className="absolute left-3 sm:left-5 top-1/2 -translate-y-1/2 z-30 grid h-11 w-11 sm:h-12 sm:w-12 place-items-center rounded-full border border-gold-500/40 bg-forest-950/80 text-gold-300 backdrop-blur-md transition-all hover:bg-gold-500 hover:text-forest-950 hover:scale-110 shadow-xl"
         >
           <ChevronLeft className="h-5 w-5 sm:h-6 sm:w-6" />
         </button>
@@ -175,15 +199,15 @@ export function AtmosphereCarousel({ heroMode = true }: AtmosphereCarouselProps)
           type="button"
           onClick={nextSlide}
           aria-label="Next slide"
-          className="absolute right-3 sm:right-5 top-1/2 -translate-y-1/2 z-30 grid h-10 w-10 sm:h-12 sm:w-12 place-items-center rounded-full border border-cream-100/20 bg-forest-950/60 text-cream-100 backdrop-blur-md transition-all hover:bg-gold-500 hover:text-forest-950"
+          className="absolute right-3 sm:right-5 top-1/2 -translate-y-1/2 z-30 grid h-11 w-11 sm:h-12 sm:w-12 place-items-center rounded-full border border-gold-500/40 bg-forest-950/80 text-gold-300 backdrop-blur-md transition-all hover:bg-gold-500 hover:text-forest-950 hover:scale-110 shadow-xl"
         >
           <ChevronRight className="h-5 w-5 sm:h-6 sm:w-6" />
         </button>
       </div>
 
       {/* Dots Indicator Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 bg-forest-950 px-6 py-3.5 border-t border-gold-500/20">
-        <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center justify-between gap-3 bg-[#08140E] px-6 py-3.5 border-t border-gold-500/30">
+        <div className="flex items-center gap-2.5">
           {CAROUSEL_SLIDES.map((s, idx) => (
             <button
               key={s.id}
@@ -192,16 +216,18 @@ export function AtmosphereCarousel({ heroMode = true }: AtmosphereCarouselProps)
               aria-label={`Go to slide ${idx + 1}: ${s.title}`}
               className={cn(
                 "h-2.5 rounded-full transition-all duration-300",
-                currentSlide === idx ? "w-8 bg-gold-400" : "w-2.5 bg-cream-100/30 hover:bg-cream-100/60"
+                currentSlide === idx
+                  ? "w-8 bg-gold-400 shadow-[0_0_10px_rgba(206,175,108,0.8)]"
+                  : "w-2.5 bg-gold-500/25 hover:bg-gold-400/60"
               )}
             />
           ))}
         </div>
 
-        <div className="flex items-center gap-2 text-[11px] font-mono text-gold-300">
-          <Compass className="h-3.5 w-3.5 text-gold-400 animate-pulse" />
-          <span className="hidden sm:inline">{slide.subtitle} · </span>
-          <span>{slide.title}</span>
+        <div className="flex items-center gap-2 text-xs font-mono text-gold-300">
+          <Compass className="h-4 w-4 text-gold-400 animate-spin-slow" />
+          <span className="hidden sm:inline text-cream-200/80">{slide.subtitle} · </span>
+          <span className="font-semibold text-gold-300">{slide.title}</span>
         </div>
       </div>
     </div>
