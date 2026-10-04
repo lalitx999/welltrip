@@ -10,6 +10,7 @@ urlpatterns = [
     path("passport/my-stamps/", views.my_stamps_view, name="my-stamps"),
     path("crm/points/", views.user_points_view, name="user-points"),
     path("crm/coupons/redeem/", views.coupon_redeem_view, name="coupon-redeem"),
+    path("media/upload/", views.media_upload_view, name="media-upload"),
 ]
 
 from . import experience_api

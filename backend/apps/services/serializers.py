@@ -19,6 +19,7 @@ from .models import FoodMenu, FoodWellnessCategory, WellnessService, WellnessTim
 class FoodMenuSerializer(serializers.ModelSerializer):
     """FoodMenu row; owner is injected by the view, never read from the body."""
 
+    image_url = serializers.CharField(max_length=500000, required=False, allow_blank=True)
     price = serializers.DecimalField(
         max_digits=10, decimal_places=2, min_value=Decimal("0.01")
     )
@@ -48,6 +49,7 @@ class FoodMenuSerializer(serializers.ModelSerializer):
 class WellnessServiceSerializer(serializers.ModelSerializer):
     """WellnessService row; owner is injected by the view."""
 
+    image_url = serializers.CharField(max_length=500000, required=False, allow_blank=True)
     price = serializers.DecimalField(
         max_digits=10, decimal_places=2, min_value=Decimal("0.01")
     )

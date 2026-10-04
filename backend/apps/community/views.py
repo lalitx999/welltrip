@@ -86,3 +86,65 @@ def coupon_redeem_view(request):
 
     serializer = CouponSerializer(coupon)
     return api_success(serializer.data, message="Coupon applied successfully.")
+
+
+import os
+import uuid
+import base64
+from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage
+from django.conf import settings
+from django.utils import timezone
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def media_upload_view(request):
+    """
+    POST /api/v1/media/upload/
+    Uploads single or multiple image files (multipart/form-data or base64 JSON),
+    stores them in MEDIA_ROOT/uploads/YYYY/MM/, and returns clean media URLs.
+    """
+    uploaded_urls = []
+    now = timezone.now()
+    folder_path = f"uploads/{now.strftime('%Y/%m')}"
+
+    # 1. Handle multipart form files ('file' or 'files')
+    files = request.FILES.getlist("files") or request.FILES.getlist("file")
+    if files:
+        for f in files:
+            ext = os.path.splitext(f.name)[1].lower() or ".jpg"
+            filename = f"{folder_path}/{uuid.uuid4().hex[:12]}{ext}"
+            saved_path = default_storage.save(filename, f)
+            rel_url = f"{settings.MEDIA_URL.rstrip('/')}/{saved_path.lstrip('/')}"
+            abs_url = request.build_absolute_uri(rel_url)
+            uploaded_urls.append({"relative_url": rel_url, "url": abs_url})
+
+    # 2. Handle base64 image string in JSON payload
+    elif request.data.get("image_data") or request.data.get("base64"):
+        b64_str = request.data.get("image_data") or request.data.get("base64")
+        if "," in b64_str:
+            header, b64_str = b64_str.split(",", 1)
+            ext = ".png" if "png" in header else ".webp" if "webp" in header else ".jpg"
+        else:
+            ext = ".jpg"
+        try:
+            file_data = base64.b64decode(b64_str)
+            filename = f"{folder_path}/{uuid.uuid4().hex[:12]}{ext}"
+            saved_path = default_storage.save(filename, ContentFile(file_data))
+            rel_url = f"{settings.MEDIA_URL.rstrip('/')}/{saved_path.lstrip('/')}"
+            abs_url = request.build_absolute_uri(rel_url)
+            uploaded_urls.append({"relative_url": rel_url, "url": abs_url})
+        except Exception as e:
+            return api_error(code="INVALID_BASE64", message=f"Failed to decode base64 image: {str(e)}", status_code=status.HTTP_400_BAD_REQUEST)
+
+    if not uploaded_urls:
+        return api_error(code="NO_FILE", message="No file or image_data provided.", status_code=status.HTTP_400_BAD_REQUEST)
+
+    primary_url = uploaded_urls[0]["url"]
+    primary_relative = uploaded_urls[0]["relative_url"]
+    return api_success({
+        "url": primary_url,
+        "relative_url": primary_relative,
+        "items": uploaded_urls,
+    }, message="Image uploaded successfully.")
+

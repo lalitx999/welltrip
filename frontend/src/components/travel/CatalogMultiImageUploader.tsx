@@ -1,8 +1,10 @@
 "use client";
 
 import { useState, useRef, ChangeEvent, DragEvent } from "react";
-import { UploadCloud, Trash2, Star, Plus, ArrowLeft, ArrowRight, Image as ImageIcon, Link as LinkIcon } from "lucide-react";
+import { UploadCloud, Trash2, Star, ArrowLeft, ArrowRight, Image as ImageIcon, Link as LinkIcon, Loader2 } from "lucide-react";
 import { Media } from "./Primitives";
+import { apiClient } from "@/lib/api-client";
+import type { ApiSuccess } from "@/types/api";
 
 interface CatalogMultiImageUploaderProps {
   images: string[];
@@ -20,27 +22,67 @@ export function CatalogMultiImageUploader({
   description = "ลากและวางไฟล์รูปภาพ หรือกดเลือกไฟล์เพื่ออัปโหลด สามารถจัดลำดับและตั้งภาพหลักได้",
 }: CatalogMultiImageUploaderProps) {
   const [isDragging, setIsDragging] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
   const [urlInput, setUrlInput] = useState("");
   const [showUrlField, setShowUrlField] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFiles = (files: FileList | null) => {
+  const handleFiles = async (files: FileList | null) => {
     if (!files || files.length === 0) return;
 
-    const fileList = Array.from(files);
-    const newUrls: string[] = [];
+    const fileList = Array.from(files).filter((file) => file.type.startsWith("image/"));
+    if (fileList.length === 0) return;
 
-    fileList.forEach((file) => {
-      if (!file.type.startsWith("image/")) return;
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        if (e.target?.result) {
-          const resultStr = e.target.result as string;
-          onChange([...images, resultStr].slice(0, maxImages));
-        }
-      };
-      reader.readAsDataURL(file);
-    });
+    setIsUploading(true);
+    setUploadError(null);
+
+    try {
+      const formData = new FormData();
+      fileList.forEach((file) => {
+        formData.append("files", file);
+      });
+
+      const res = await apiClient.postForm<ApiSuccess<{
+        url: string;
+        relative_url: string;
+        items: Array<{ relative_url: string; url: string }>;
+      }>>("/api/v1/media/upload/", formData);
+
+      const items = res.data.data?.items ?? [];
+      const uploadedUrls = items.map((it) => it.url || it.relative_url);
+
+      if (uploadedUrls.length > 0) {
+        onChange([...images, ...uploadedUrls].slice(0, maxImages));
+      } else {
+        // Fallback to Data URL if backend returned empty array
+        fileList.forEach((file) => {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            if (e.target?.result) {
+              const b64 = e.target.result as string;
+              onChange([...images, b64].slice(0, maxImages));
+            }
+          };
+          reader.readAsDataURL(file);
+        });
+      }
+    } catch (err: unknown) {
+      console.warn("Direct upload failed, using FileReader fallback:", err);
+      // Fallback: If upload endpoint fails, convert to base64 as fallback
+      fileList.forEach((file) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          if (e.target?.result) {
+            const b64 = e.target.result as string;
+            onChange([...images, b64].slice(0, maxImages));
+          }
+        };
+        reader.readAsDataURL(file);
+      });
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
@@ -114,9 +156,11 @@ export function CatalogMultiImageUploader({
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
-        onClick={() => fileInputRef.current?.click()}
+        onClick={() => !isUploading && fileInputRef.current?.click()}
         className={`relative flex flex-col items-center justify-center rounded-lg border-2 border-dashed p-6 transition-all cursor-pointer ${
-          isDragging
+          isUploading
+            ? "border-[#193E30]/50 bg-[#193E30]/5 pointer-events-none"
+            : isDragging
             ? "border-[#193E30] bg-[#193E30]/10 scale-[0.99]"
             : "border-[#193E30]/30 bg-white/70 hover:border-[#193E30] hover:bg-white"
         }`}
@@ -130,15 +174,27 @@ export function CatalogMultiImageUploader({
           onChange={handleFileSelect}
         />
         <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#193E30]/10 text-[#193E30] mb-2">
-          <UploadCloud size={24} />
+          {isUploading ? (
+            <Loader2 size={24} className="animate-spin text-[#193E30]" />
+          ) : (
+            <UploadCloud size={24} />
+          )}
         </div>
         <p className="text-sm font-medium text-[#193E30]">
-          คลิกเพื่อเลือกไฟล์รูปภาพหลายภาพ หรือลากรูปมาวางที่นี่
+          {isUploading
+            ? "กำลังอัปโหลดไฟล์รูปภาพเข้าสู่เซิร์ฟเวอร์..."
+            : "คลิกเพื่อเลือกไฟล์รูปภาพหลายภาพ หรือลากรูปมาวางที่นี่"}
         </p>
         <p className="text-xs text-[#193E30]/60 mt-1">
           รองรับไฟล์ JPG, PNG, WEBP (เลือกได้สูงสุด {maxImages} รูป)
         </p>
       </div>
+
+      {uploadError && (
+        <div className="text-xs text-red-600 bg-red-50 p-2 rounded border border-red-200">
+          {uploadError}
+        </div>
+      )}
 
       {/* URL Fallback Input toggle */}
       <div className="flex items-center justify-between text-xs pt-1">

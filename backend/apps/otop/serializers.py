@@ -20,11 +20,10 @@ from .models import OTOPProduct
 class OTOPProductSerializer(serializers.ModelSerializer):
     """OTOPProduct row; owner is injected by the view, never read from body."""
 
+    image_url = serializers.CharField(max_length=500000, required=False, allow_blank=True)
     price = serializers.DecimalField(
         max_digits=10, decimal_places=2, min_value=Decimal("0.01")
     )
-    # PositiveIntegerField already maps to IntegerField(min_value=0); make it
-    # explicit so creating with a negative stock is a 400, not an IntegrityError.
     stock_quantity = serializers.IntegerField(min_value=0)
 
     class Meta:

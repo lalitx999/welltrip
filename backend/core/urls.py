@@ -14,9 +14,11 @@ from django.contrib import admin
 from django.urls import include, path
 
 from apps.authentication import views as auth_views
+from apps.community import views as community_views
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("api/v1/media/upload/", community_views.media_upload_view, name="media-upload-root"),
     path("api/v1/admin/approvals/", auth_views.admin_approvals_list_view, name="admin-approvals-list"),
     path("api/v1/admin/approvals/<str:entity_id>/", auth_views.admin_approval_action_view, name="admin-approval-action"),
     path("api/v1/auth/", include("apps.authentication.urls")),
