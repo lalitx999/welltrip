@@ -30,9 +30,9 @@ export default function RegisterPage() {
     <div className="space-y-4">
       <RegisterForm />
 
-      <p className="text-center text-sm text-muted-foreground">
+      <p className="pt-2 text-center text-xs text-[#657468]">
         {t("auth.registerHas")}{" "}
-        <Link href="/login" className="font-medium text-primary underline-offset-4 hover:underline">
+        <Link href="/login" className="font-semibold text-[#224e39] underline-offset-4 hover:underline">
           {t("auth.signinTitle")}
         </Link>
       </p>

@@ -1,9 +1,14 @@
 .shell {
   min-height: 100vh;
+  min-height: 100dvh;
   background: #faf8f1;
   color: #193e30;
   font-weight: 400;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
+
+/* ---------- Header ---------- */
 
 .header {
   border-bottom: 1px solid #e1e2d8;
@@ -19,16 +24,20 @@
   margin: auto;
   height: 64px;
   padding: 0 32px;
+  padding-left: max(32px, env(safe-area-inset-left));
+  padding-right: max(32px, env(safe-area-inset-right));
   display: flex;
   align-items: center;
   justify-content: space-between;
-  position: relative;
+  gap: 12px;
+  position: relative; /* anchor ของ drawer บนมือถือ */
 }
 
 .brand {
   display: flex;
   align-items: center;
   gap: 10px;
+  min-width: 0;
   font-family: Georgia, serif;
   font-size: 24px;
   font-weight: 700;
@@ -37,10 +46,15 @@
   text-decoration: none;
 }
 
+.brand span {
+  min-width: 0;
+}
+
 .brand svg {
   width: 26px;
   height: 26px;
   color: #c5a059;
+  flex-shrink: 0;
 }
 
 .brand small {
@@ -50,18 +64,27 @@
   letter-spacing: 2px;
   font-weight: 400;
   color: #c5a059;
+  white-space: nowrap;
 }
 
+.brand:focus-visible {
+  outline: 2px solid #c5a059;
+  outline-offset: 4px;
+  border-radius: 6px;
+}
+
+/* ไม่ตั้ง position: relative ที่นี่ เพื่อให้ drawer อ้างอิง .headerInner */
 .headerRight {
   display: flex;
   align-items: center;
   gap: 16px;
+  flex-shrink: 0;
 }
 
 .hamburgerBtn {
   display: none;
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   align-items: center;
   justify-content: center;
   background: transparent;
@@ -69,11 +92,17 @@
   color: #faf8f1;
   cursor: pointer;
   border-radius: 8px;
+  transition: background-color 0.15s ease;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
-.hamburgerBtn:hover {
-  background: rgba(255, 255, 255, 0.1);
+.hamburgerBtn:focus-visible {
+  outline: 2px solid #c5a059;
+  outline-offset: 2px;
 }
+
+/* ---------- Nav ---------- */
 
 .nav {
   display: flex;
@@ -83,13 +112,46 @@
 
 .nav > a {
   padding: 8px 14px;
-  min-height: 40px;
+  min-height: 44px;
   font-size: 14px;
   color: #faf8f1;
   text-decoration: none;
   display: inline-flex;
   align-items: center;
+  border-radius: 8px;
+  transition: color 0.15s ease, background-color 0.15s ease;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
+
+.nav > a:focus-visible {
+  outline: 2px solid #c5a059;
+  outline-offset: 2px;
+}
+
+/* Merchant link — ใช้ .nav > a.merchantLink เพื่อให้ชนะ .nav > a ทุก breakpoint */
+.nav > a.merchantLink {
+  font-size: 12px;
+  font-weight: 600;
+  color: #224e39;
+  background: #edf0e3;
+  border: 1px solid #d8ddce;
+  padding: 8px 14px;
+  min-height: 44px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.nav > a.merchantLink:focus-visible {
+  outline: 2px solid #c5a059;
+  outline-offset: 2px;
+}
+
+/* ---------- Buttons ---------- */
 
 .primary,
 .secondary {
@@ -103,6 +165,9 @@
   font-size: 14px;
   font-weight: 600;
   text-decoration: none;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .primary {
@@ -110,18 +175,62 @@
   color: #193e30;
 }
 
-.primary:hover {
-  background: #a8833d;
-}
-
 .secondary {
   border: 1px solid #d8ddce;
+  color: #193e30;
 }
+
+.primary:focus-visible,
+.secondary:focus-visible {
+  outline: 2px solid #c5a059;
+  outline-offset: 2px;
+}
+
+/* ปุ่มหลักใน nav — ต้องชนะ .nav > a (สี/padding) บนทุกขนาดจอ */
+.nav > a.primary {
+  background: #c5a059;
+  color: #193e30;
+  padding: 10px 20px;
+}
+
+/* ---------- Hover (เฉพาะอุปกรณ์ที่ hover ได้จริง กันอาการค้างบนจอสัมผัส) ---------- */
+
+@media (hover: hover) {
+  .hamburgerBtn:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .nav > a:hover {
+    color: #c5a059;
+  }
+
+  .nav > a.merchantLink:hover {
+    background: #dfe2d5;
+    color: #224e39;
+  }
+
+  .primary:hover,
+  .nav > a.primary:hover {
+    background: #a8833d;
+    color: #193e30;
+  }
+
+  .secondary:hover {
+    background: #eceee1;
+  }
+
+  .category:hover {
+    transform: translateY(-3px);
+    border-color: #668164;
+  }
+}
+
+/* ---------- Hero ---------- */
 
 .hero {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 64px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: clamp(32px, 5vw, 64px);
   align-items: center;
   max-width: 1200px;
   margin: 0 auto;
@@ -130,6 +239,7 @@
 
 .copy {
   padding: 20px 0;
+  min-width: 0;
 }
 
 .eyebrow {
@@ -141,12 +251,14 @@
   font-weight: 500;
 }
 
+/* ภาษาไทย: ห้าม letter-spacing ติดลบ และ line-height ต้องพอให้สระ/วรรณยุกต์ไม่ชน */
 .copy h1 {
-  font-size: clamp(38px, 4.5vw, 64px);
+  font-size: clamp(36px, 4.5vw, 64px);
   font-weight: 500;
-  line-height: 1.35;
-  letter-spacing: -1.7px;
+  line-height: 1.4;
+  letter-spacing: 0;
   margin: 22px 0;
+  overflow-wrap: break-word;
 }
 
 .intro {
@@ -168,6 +280,8 @@
   font-size: 13px;
   color: #657468;
 }
+
+/* ---------- Photo ---------- */
 
 .photo {
   position: relative;
@@ -214,18 +328,21 @@
   font-weight: 400;
   margin: 10px 0;
   white-space: pre-line;
+  overflow-wrap: break-word;
 }
 
 .photo small {
-  font-size: 10px;
-  opacity: 0.85;
+  font-size: 11px;
+  opacity: 0.9;
 }
+
+/* ---------- Band ---------- */
 
 .band {
   background: #eceee1;
   display: flex;
   justify-content: center;
-  gap: 52px;
+  gap: 16px 52px;
   flex-wrap: wrap;
   padding: 20px 24px;
   font-size: 14px;
@@ -240,24 +357,28 @@
 .band svg {
   width: 18px;
   height: 18px;
+  flex-shrink: 0;
 }
+
+/* ---------- Explore ---------- */
 
 .explore {
   max-width: 1200px;
   margin: auto;
   padding: 44px 40px 56px;
-  scroll-margin-top: 24px;
+  scroll-margin-top: 80px; /* เผื่อ sticky header สูง 64px */
 }
 
 .explore h2 {
   font-size: 28px;
   font-weight: 400;
+  line-height: 1.4;
   margin: 10px 0 24px;
 }
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 18px;
 }
 
@@ -269,11 +390,6 @@
   transition: transform 0.2s, border-color 0.2s;
 }
 
-.category:hover {
-  transform: translateY(-3px);
-  border-color: #668164;
-}
-
 .category > svg {
   width: 25px;
   height: 25px;
@@ -283,6 +399,7 @@
 .category h3 {
   font-size: 19px;
   font-weight: 500;
+  line-height: 1.4;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -296,9 +413,12 @@
   margin-top: 8px;
 }
 
+/* ---------- Footer ---------- */
+
 .footer {
   border-top: 1px solid #e1e2d8;
   padding: 22px 40px;
+  padding-bottom: max(22px, env(safe-area-inset-bottom));
   display: flex;
   justify-content: space-between;
   gap: 16px;
@@ -309,10 +429,13 @@
   margin: auto;
 }
 
-/* Mobile Responsive Drawer CSS (< 1024px) */
-@media (max-width: 1023px) {
+/* =========================================================
+   Mobile / Tablet (< 1024px): drawer + hero ซ้อนบนล่าง
+   ========================================================= */
+@media (max-width: 1023.98px) {
   .headerInner {
-    padding: 0 16px;
+    padding-left: max(16px, env(safe-area-inset-left));
+    padding-right: max(16px, env(safe-area-inset-right));
   }
 
   .hamburgerBtn {
@@ -322,14 +445,22 @@
   .nav {
     display: none;
     position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
+    top: calc(100% + 8px);
+    right: max(16px, env(safe-area-inset-right));
+    left: auto;
+    min-width: 240px;
+    max-width: calc(100vw - 32px);
+    max-height: calc(100vh - 88px);
+    max-height: calc(100dvh - 88px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
     background: #193e30;
-    border-bottom: 1px solid #315343;
-    padding: 16px;
+    border: 1px solid #315343;
+    border-radius: 12px;
+    padding: 12px;
     flex-direction: column;
-    gap: 10px;
+    align-items: stretch;
+    gap: 8px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
     z-index: 60;
   }
@@ -341,36 +472,285 @@
   .nav > a {
     width: 100%;
     justify-content: flex-start;
-    padding: 10px 14px;
+    padding: 12px 14px;
     border-radius: 8px;
     background: rgba(255, 255, 255, 0.05);
+    color: #faf8f1;
+  }
+
+  .nav > a.merchantLink {
+    width: 100%;
+    justify-content: flex-start;
+    padding: 12px 14px;
+    background: rgba(255, 255, 255, 0.08);
+    color: #faf8f1;
+    border-color: rgba(255, 255, 255, 0.15);
+    font-size: 14px;
+  }
+
+  /* ปุ่มหลักใน drawer ต้องคงสีทอง */
+  .nav > a.primary {
+    background: #c5a059;
+    color: #193e30;
+    justify-content: center;
+    padding: 12px 14px;
+  }
+
+  .hero {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 32px;
+    padding: 32px 28px;
+  }
+
+  .photo {
+    min-height: 420px;
   }
 }
 
-@media (max-width: 600px) {
+@media (max-width: 1023.98px) and (hover: hover) {
+  .nav > a:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #faf8f1;
+  }
+
+  .nav > a.merchantLink:hover {
+    background: rgba(255, 255, 255, 0.14);
+    color: #faf8f1;
+  }
+
+  .nav > a.primary:hover {
+    background: #a8833d;
+    color: #193e30;
+  }
+}
+
+/* ---------- Auth Layout & Split View ---------- */
+
+.auth {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 40px 24px 60px;
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  gap: 40px;
+  align-items: center;
+  min-height: calc(100vh - 160px);
+}
+
+.formPanel {
+  background: #ffffff;
+  border: 1px solid #e1e2d8;
+  border-radius: 24px;
+  padding: 36px 32px;
+  box-shadow: 0 10px 30px rgba(25, 62, 48, 0.05);
+  display: flex;
+  flex-direction: column;
+}
+
+.formPanel .eyebrow {
+  font-family: var(--font-kanit), sans-serif;
+  font-size: 11px;
+  letter-spacing: 2.5px;
+  font-weight: 700;
+  color: #c5a059;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.formPanel h1 {
+  font-family: Georgia, serif;
+  font-size: 28px;
+  font-weight: 700;
+  color: #193e30;
+  letter-spacing: -0.5px;
+  line-height: 1.25;
+  margin: 0 0 8px 0;
+}
+
+.formPanel .intro {
+  font-size: 14px;
+  color: #5c7064;
+  line-height: 1.5;
+  margin: 0 0 24px 0;
+}
+
+.formBody {
+  width: 100%;
+}
+
+@media (max-width: 899.98px) {
+  .auth {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
+    padding: 24px 16px 40px;
+  }
+
+  .formPanel {
+    padding: 24px 20px;
+    border-radius: 20px;
+  }
+
+  .formPanel h1 {
+    font-size: 22px;
+  }
+}
+
+/* =========================================================
+   Medium screens (640px – 1023.98px)
+   ========================================================= */
+@media (min-width: 640px) and (max-width: 1023.98px) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .explore {
+    padding: 36px 28px 48px;
+  }
+}
+
+/* =========================================================
+   Small screens (< 640px)
+   ========================================================= */
+@media (max-width: 639.98px) {
   .brand {
     font-size: 20px;
   }
+
+  .brand small {
+    font-size: 8px;
+    letter-spacing: 1.5px;
+  }
+
   .hero {
-    grid-template-columns: 1fr;
     gap: 18px;
     padding: 24px 20px;
   }
+
+  .copy {
+    padding: 8px 0;
+  }
+
   .copy h1 {
-    font-size: 36px;
+    font-size: 34px;
     margin: 14px 0;
   }
+
   .intro {
     font-size: 14px;
+    max-width: none;
   }
+
+  .actions > a {
+    flex: 1 1 100%;
+  }
+
   .photo {
     min-height: 320px;
-    aspect-ratio: 4/5;
+    aspect-ratio: 4 / 5;
   }
+
+  /* ลดรัศมี arch บนจอเล็กเพื่อไม่ให้ภาพถูกตัดมาก */
+  .arch {
+    border-radius: 120px 120px 16px 16px;
+  }
+
+  .photo figcaption {
+    left: 20px;
+    right: 20px;
+    bottom: 22px;
+  }
+
+  .photo h2 {
+    font-size: 22px;
+  }
+
   .explore {
     padding: 24px 20px;
   }
+
+  .explore h2 {
+    font-size: 24px;
+  }
+
   .grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .band {
+    gap: 12px 20px;
+    font-size: 13px;
+    justify-content: flex-start;
+    padding: 18px 20px;
+  }
+
+  .footer {
+    padding: 20px;
+    padding-bottom: max(20px, env(safe-area-inset-bottom));
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+/* =========================================================
+   Extra small (< 360px) เช่น iPhone SE รุ่นเก่า / จอพับ
+   ========================================================= */
+@media (max-width: 359.98px) {
+  .headerInner {
+    gap: 6px;
+  }
+
+  .headerRight {
+    gap: 4px;
+  }
+
+  .brand {
+    font-size: 18px;
+    gap: 6px;
+  }
+
+  .brand svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  .brand small {
+    font-size: 7px;
+    letter-spacing: 1px;
+  }
+
+  .copy h1 {
+    font-size: 30px;
+  }
+
+  .nav {
+    min-width: 0;
+    width: calc(100vw - 32px);
+  }
+}
+
+/* =========================================================
+   Landscape บนมือถือ (จอเตี้ย)
+   ========================================================= */
+@media (max-height: 480px) and (orientation: landscape) {
+  .photo {
+    min-height: 260px;
+  }
+}
+
+/* =========================================================
+   Reduced motion
+   ========================================================= */
+@media (prefers-reduced-motion: reduce) {
+  .hamburgerBtn,
+  .nav > a,
+  .nav > a.merchantLink,
+  .primary,
+  .secondary,
+  .category {
+    transition: none;
+  }
+
+  .category:hover {
+    transform: none;
   }
 }

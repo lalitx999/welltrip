@@ -24,7 +24,7 @@ export default function LandingPage() {
           <p className={styles.eyebrow}><MapPin size={15} aria-hidden="true" />{copy("ศรีสะเกษ · SISAKET", "SISAKET · THAILAND")}</p>
           <h1>{copy("ออกไปพักใจ", "Take a little break.")}<br />{copy("ให้ธรรมชาติ", "Let nature")}<br />{copy("ดูแลคุณ", "take care of you.")}</h1>
           <p className={styles.intro}>{copy("ค่อย ๆ เที่ยว ค่อย ๆ รู้จักศรีสะเกษ\nผ่านที่พักอบอุ่น อาหารพื้นถิ่น และเรื่องราวของผู้คน", "Slow down and discover Sisaket through welcoming stays, local flavours and the stories of its people.")}</p>
-          <div className={styles.actions}><a href="#explore" className={styles.primary}>{copy("เริ่มสำรวจศรีสะเกษ", "Explore Sisaket")}<ArrowUpRight size={18} aria-hidden="true" /></a><Link href={authenticated ? "/home" : "/register"} className={styles.secondary}>{authenticated ? copy("ไปต่อกับทริปของคุณ", "Continue your journey") : copy("เริ่มต้นทริปของคุณ", "Start your journey")}</Link></div>
+          <div className={styles.actions}><a href="#explore" className={styles.primary}>{copy("เริ่มสำรวจศรีสะเกษ", "Explore Sisaket")}<ArrowUpRight size={18} aria-hidden="true" /></a><Link href="/home" className={styles.secondary}>{authenticated ? copy("ไปต่อกับทริปของคุณ", "Continue your journey") : copy("เริ่มต้นทริปของคุณ", "Start your journey")}</Link></div>
           <p className={styles.note}>{copy("ทริปเล็ก ๆ ที่ดีต่อใจ และใกล้ชิดชุมชน", "Small journeys. Meaningful moments. Closer communities.")}</p>
         </div>
         <NaturePhoto arch title={copy("วันธรรมดา ที่พิเศษกว่าเดิม", "An ordinary day, a little more special.")} subtitle="A LITTLE CLOSER TO NATURE" />

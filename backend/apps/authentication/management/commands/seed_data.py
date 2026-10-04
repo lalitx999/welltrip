@@ -50,7 +50,7 @@ class Command(BaseCommand):
     def seed_users(self):
         self.stdout.write("  Creating user accounts for 7 roles...")
         user_specs = [
-            ("promlikit@sskru.ac.th", "admin1234", UserRoles.SUPER_ADMIN, True, True, "พรหมลิขิต", "อุรา"),
+            ("promlikit@sskru.ac.th", "Promlikit.199", UserRoles.SUPER_ADMIN, True, True, "พรหมลิขิต", "อุรา"),
             ("community@welltrip.com", "community1234", UserRoles.COMMUNITY_ADMIN, True, False, "Community", "Admin"),
             ("homestay@welltrip.com", "homestay1234", UserRoles.HOMESTAY_OWNER, True, False, "เจ้าของ", "โฮมสเตย์ศรีสะเกษ"),
             ("restaurant@welltrip.com", "restaurant1234", UserRoles.RESTAURANT_OWNER, True, False, "เชฟ", "ครัวศรีสะเกษ"),

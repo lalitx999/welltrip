@@ -77,90 +77,105 @@ export function RegisterForm() {
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{t("auth.registerTitle")}</CardTitle>
-        <CardDescription>{t("auth.registerSubtitle")}</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
+    <div className="space-y-4">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
+        <div className="grid grid-cols-2 gap-3">
           <div className="space-y-1.5">
-            <Label htmlFor="first_name">{t("auth.firstNameLabel")}</Label>
+            <Label htmlFor="first_name" className="text-xs font-semibold text-[#193e30]">
+              {t("auth.firstNameLabel")}
+            </Label>
             <Input
               id="first_name"
               autoComplete="given-name"
+              className="rounded-xl border-[#d8ddce] focus-visible:ring-[#224e39]"
               {...register("first_name")}
             />
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="last_name">{t("auth.lastNameLabel")}</Label>
+            <Label htmlFor="last_name" className="text-xs font-semibold text-[#193e30]">
+              {t("auth.lastNameLabel")}
+            </Label>
             <Input
               id="last_name"
               autoComplete="family-name"
+              className="rounded-xl border-[#d8ddce] focus-visible:ring-[#224e39]"
               {...register("last_name")}
             />
           </div>
+        </div>
 
-          <div className="space-y-1.5">
-            <Label htmlFor="email">{t("auth.emailLabel")}</Label>
-            <Input
-              id="email"
-              type="email"
-              autoComplete="email"
-              placeholder={t("auth.emailPlaceholder")}
-              aria-invalid={errors.email ? "true" : undefined}
-              {...register("email")}
-            />
-            {errors.email && (
-              <p className="text-xs text-destructive">{errors.email.message}</p>
-            )}
-          </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="email" className="text-xs font-semibold text-[#193e30]">
+            {t("auth.emailLabel")}
+          </Label>
+          <Input
+            id="email"
+            type="email"
+            autoComplete="email"
+            placeholder={t("auth.emailPlaceholder")}
+            className="rounded-xl border-[#d8ddce] focus-visible:ring-[#224e39]"
+            aria-invalid={errors.email ? "true" : undefined}
+            {...register("email")}
+          />
+          {errors.email && (
+            <p className="text-xs text-destructive">{errors.email.message}</p>
+          )}
+        </div>
 
-          <div className="space-y-1.5">
-            <Label htmlFor="phone_number">{t("auth.phoneLabel")}</Label>
-            <Input
-              id="phone_number"
-              type="tel"
-              inputMode="numeric"
-              autoComplete="tel-national"
-              placeholder={t("auth.phonePlaceholder")}
-              aria-invalid={errors.phone_number ? "true" : undefined}
-              {...register("phone_number")}
-            />
-            {errors.phone_number && (
-              <p className="text-xs text-destructive">
-                {errors.phone_number.message}
-              </p>
-            )}
-          </div>
-
-          <div className="space-y-1.5">
-            <Label htmlFor="password">{t("auth.passwordLabel")}</Label>
-            <Input
-              id="password"
-              type="password"
-              autoComplete="new-password"
-              aria-invalid={errors.password ? "true" : undefined}
-              {...register("password")}
-            />
-            {errors.password && (
-              <p className="text-xs text-destructive">{errors.password.message}</p>
-            )}
-          </div>
-
-          {serverError && (
-            <p role="alert" className="rounded-md bg-destructive/10 p-3 text-xs text-destructive">
-              {serverError}
+        <div className="space-y-1.5">
+          <Label htmlFor="phone_number" className="text-xs font-semibold text-[#193e30]">
+            {t("auth.phoneLabel")}
+          </Label>
+          <Input
+            id="phone_number"
+            type="tel"
+            inputMode="numeric"
+            autoComplete="tel-national"
+            placeholder={t("auth.phonePlaceholder")}
+            className="rounded-xl border-[#d8ddce] focus-visible:ring-[#224e39]"
+            aria-invalid={errors.phone_number ? "true" : undefined}
+            {...register("phone_number")}
+          />
+          {errors.phone_number && (
+            <p className="text-xs text-destructive">
+              {errors.phone_number.message}
             </p>
           )}
+        </div>
 
-          <Button type="submit" className="w-full" disabled={isSubmitting}>
-            {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {isSubmitting ? t("auth.creating") : t("auth.createSubmit")}
-          </Button>
-        </form>
-      </CardContent>
-    </Card>
+        <div className="space-y-1.5">
+          <Label htmlFor="password" className="text-xs font-semibold text-[#193e30]">
+            {t("auth.passwordLabel")}
+          </Label>
+          <Input
+            id="password"
+            type="password"
+            autoComplete="new-password"
+            className="rounded-xl border-[#d8ddce] focus-visible:ring-[#224e39]"
+            aria-invalid={errors.password ? "true" : undefined}
+            {...register("password")}
+          />
+          {errors.password && (
+            <p className="text-xs text-destructive">{errors.password.message}</p>
+          )}
+        </div>
+
+        {serverError && (
+          <p role="alert" className="rounded-xl bg-destructive/10 p-3 text-xs text-destructive">
+            {serverError}
+          </p>
+        )}
+
+        <Button
+          type="submit"
+          className="w-full rounded-xl bg-[#224e39] py-3 text-sm font-semibold text-white hover:bg-[#173a29] transition"
+          disabled={isSubmitting}
+        >
+          {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+          {isSubmitting ? t("auth.creating") : t("auth.createSubmit")}
+        </Button>
+      </form>
+    </div>
   );
 }

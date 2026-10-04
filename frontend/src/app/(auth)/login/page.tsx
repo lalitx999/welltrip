@@ -41,9 +41,9 @@ export default function LoginPage() {
 
       <LoginForm />
 
-      <p className="text-center text-sm text-muted-foreground">
+      <p className="pt-2 text-center text-xs text-[#657468]">
         {t("auth.loginNew")}{" "}
-        <Link href="/register" className="font-medium text-primary underline-offset-4 hover:underline">
+        <Link href="/register" className="font-semibold text-[#224e39] underline-offset-4 hover:underline">
           {t("auth.createSubmit")}
         </Link>
       </p>

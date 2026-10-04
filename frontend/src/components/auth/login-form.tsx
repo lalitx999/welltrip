@@ -67,62 +67,66 @@ export function LoginForm() {
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{t("auth.signinTitle")}</CardTitle>
-        <CardDescription>{t("auth.signinSubtitle")}</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
-          <div className="space-y-1.5">
-            <Label htmlFor="email">{t("auth.emailLabel")}</Label>
-            <Input
-              id="email"
-              type="email"
-              autoComplete="email"
-              placeholder={t("auth.emailPlaceholder")}
-              aria-invalid={errors.email ? "true" : undefined}
-              {...register("email")}
-            />
-            {errors.email && (
-              <p className="text-xs text-destructive">{errors.email.message}</p>
-            )}
-          </div>
-
-          <div className="space-y-1.5">
-            <Label htmlFor="password">{t("auth.passwordLabel")}</Label>
-            <Input
-              id="password"
-              type="password"
-              autoComplete="current-password"
-              aria-invalid={errors.password ? "true" : undefined}
-              {...register("password")}
-            />
-            {errors.password && (
-              <p className="text-xs text-destructive">{errors.password.message}</p>
-            )}
-          </div>
-
-          {serverError && (
-            <p role="alert" className="rounded-md bg-destructive/10 p-3 text-xs text-destructive">
-              {serverError}
-            </p>
+    <div className="space-y-5">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
+        <div className="space-y-1.5">
+          <Label htmlFor="email" className="text-xs font-semibold text-[#193e30]">
+            {t("auth.emailLabel")}
+          </Label>
+          <Input
+            id="email"
+            type="email"
+            autoComplete="email"
+            placeholder={t("auth.emailPlaceholder")}
+            className="rounded-xl border-[#d8ddce] focus-visible:ring-[#224e39]"
+            aria-invalid={errors.email ? "true" : undefined}
+            {...register("email")}
+          />
+          {errors.email && (
+            <p className="text-xs text-destructive">{errors.email.message}</p>
           )}
-
-          <Button type="submit" className="w-full" disabled={isSubmitting}>
-            {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {isSubmitting ? t("auth.signingIn") : t("auth.signinSubmit")}
-          </Button>
-        </form>
-
-        <div className="my-4 flex items-center gap-3 text-xs text-muted-foreground">
-          <div className="h-px flex-1 bg-border" />
-          {t("auth.orDivider")}
-          <div className="h-px flex-1 bg-border" />
         </div>
 
-        <GoogleLoginButton />
-      </CardContent>
-    </Card>
+        <div className="space-y-1.5">
+          <Label htmlFor="password" className="text-xs font-semibold text-[#193e30]">
+            {t("auth.passwordLabel")}
+          </Label>
+          <Input
+            id="password"
+            type="password"
+            autoComplete="current-password"
+            className="rounded-xl border-[#d8ddce] focus-visible:ring-[#224e39]"
+            aria-invalid={errors.password ? "true" : undefined}
+            {...register("password")}
+          />
+          {errors.password && (
+            <p className="text-xs text-destructive">{errors.password.message}</p>
+          )}
+        </div>
+
+        {serverError && (
+          <p role="alert" className="rounded-xl bg-destructive/10 p-3 text-xs text-destructive">
+            {serverError}
+          </p>
+        )}
+
+        <Button
+          type="submit"
+          className="w-full rounded-xl bg-[#224e39] py-3 text-sm font-semibold text-white hover:bg-[#173a29] transition"
+          disabled={isSubmitting}
+        >
+          {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+          {isSubmitting ? t("auth.signingIn") : t("auth.signinSubmit")}
+        </Button>
+      </form>
+
+      <div className="my-4 flex items-center gap-3 text-xs text-[#657468]">
+        <div className="h-px flex-1 bg-[#e1e2d8]" />
+        {t("auth.orDivider")}
+        <div className="h-px flex-1 bg-[#e1e2d8]" />
+      </div>
+
+      <GoogleLoginButton />
+    </div>
   );
 }
