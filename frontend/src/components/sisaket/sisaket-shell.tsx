@@ -28,7 +28,38 @@ export function SisaketHeader({ authenticated = false }: { authenticated?: boole
         </Link>
 
         <div className={styles.headerRight}>
+          <nav
+            aria-label={copy("เมนูหลัก", "Main navigation")}
+            className={`${styles.nav} ${open ? styles.navOpen : ""}`}
+          >
+            <Link href="/" onClick={() => setOpen(false)}>
+              {copy("หน้าแรก", "Home")}
+            </Link>
+            <Link
+              href="/login/merchant"
+              onClick={() => setOpen(false)}
+              className="text-xs font-semibold text-[#224e39] bg-[#edf0e3] border border-[#d8ddce] px-3.5 py-2 rounded-lg hover:bg-[#dfe2d5] transition inline-flex items-center justify-center"
+            >
+              {copy("สำหรับผู้ประกอบการ", "For Merchants")}
+            </Link>
+            {authenticated ? (
+              <Link className={styles.primary} href="/home" onClick={() => setOpen(false)}>
+                {copy("ทริปของคุณ", "Explore")}
+              </Link>
+            ) : (
+              <>
+                <Link href="/login" onClick={() => setOpen(false)}>
+                  {copy("เข้าสู่ระบบ", "Sign in")}
+                </Link>
+                <Link className={styles.primary} href="/register" onClick={() => setOpen(false)}>
+                  {copy("สมัครสมาชิก", "Sign up")}
+                </Link>
+              </>
+            )}
+          </nav>
+
           <LanguageToggle />
+
           <button
             type="button"
             className={styles.hamburgerBtn}
@@ -38,36 +69,6 @@ export function SisaketHeader({ authenticated = false }: { authenticated?: boole
             {open ? <X size={22} /> : <Menu size={22} />}
           </button>
         </div>
-
-        <nav
-          aria-label={copy("เมนูหลัก", "Main navigation")}
-          className={`${styles.nav} ${open ? styles.navOpen : ""}`}
-        >
-          <Link href="/" onClick={() => setOpen(false)}>
-            {copy("หน้าแรก", "Home")}
-          </Link>
-          <Link
-            href="/login/merchant"
-            onClick={() => setOpen(false)}
-            className="text-xs font-semibold text-[#224e39] bg-[#edf0e3] border border-[#d8ddce] px-3.5 py-2 rounded-lg hover:bg-[#dfe2d5] transition inline-flex items-center justify-center"
-          >
-            {copy("สำหรับผู้ประกอบการ", "For Merchants")}
-          </Link>
-          {authenticated ? (
-            <Link className={styles.primary} href="/home" onClick={() => setOpen(false)}>
-              {copy("ทริปของคุณ", "Explore")}
-            </Link>
-          ) : (
-            <>
-              <Link href="/login" onClick={() => setOpen(false)}>
-                {copy("เข้าสู่ระบบ", "Sign in")}
-              </Link>
-              <Link className={styles.primary} href="/register" onClick={() => setOpen(false)}>
-                {copy("สมัครสมาชิก", "Sign up")}
-              </Link>
-            </>
-          )}
-        </nav>
       </div>
     </header>
   );
