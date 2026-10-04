@@ -784,5 +784,184 @@ export const SISAKET_FEATURED_PRODUCTS: SisaketFeaturedProduct[] = [
       { label: "เมล็ดคั่วคุณภาพ", url: "/images/otop/sisaket-volcano-coffee-beans.jpg" },
     ],
   },
+  {
+    id: "otop-prod-cocoa-craft",
+    name: "โกโก้คราฟท์ COCOA CrafT (ฟู้ดทรักศรีสะเกษ)",
+    category: "PROCESSED_FOOD",
+    price: 65,
+    priceText: "65 บาท / แก้ว (บรรจุขวด 35 บาท)",
+    unit: "แก้ว",
+    description:
+      "โกโก้คราฟท์เมนูซิกเนเจอร์ เมล็ดพันธุ์พรีเมียมจากแอฟริกา เข้มข้นหวานน้อย พร้อมกาแฟสด มัทฉะ ชาไทย รูปแบบ Foodtruck พร้อมรับงานนอกสถานที่ และรับทำเครื่องดื่มบรรจุขวดสำหรับโรงทาน/อีเวนต์",
+    highlights: ["เมล็ดโกโก้พรีเมียมจากแอฟริกา", "เข้มข้นหวานน้อย อร่อยดีต่อสุขภาพ", "หน้าร้านรูปแบบ Foodtruck พร้อมบริการนอกสถานที่"],
+    images: [
+      { label: "โกโก้คราฟท์ และ Foodtruck", url: "/images/cocoa_craft_sisaket.jpg" },
+    ],
+  },
 ];
+
+export interface FallbackEditorialEntry {
+  id: string;
+  kind: "STORY" | "COMMUNITY" | "ATTRACTION";
+  title: string;
+  title_en: string;
+  summary: string;
+  summary_en: string;
+  body: string;
+  body_en: string;
+  image_url: string;
+  image_alt: string;
+  location: string;
+  starts_at: string | null;
+  ends_at: string | null;
+  is_published: boolean;
+  updated_at: string;
+}
+
+export const FALLBACK_EDITORIAL_ENTRIES: FallbackEditorialEntry[] = [
+  {
+    id: "story-resonance-calendar-2026",
+    kind: "STORY",
+    title: "ปฏิทินกิจกรรมศรีสะเกษ Sisaket Resonance (พฤศจิกายน – ธันวาคม 2569)",
+    title_en: "Sisaket Resonance Event Calendar (Nov - Dec 2026)",
+    summary: "ปลายปีนี้ ศรีสะเกษมีอะไรให้ไปเพียบ! จัดเต็มทั้งดนตรี กาแฟ กีฬา การประกวด แคมป์ งานงิ้ว ไทบ้านแลนด์ และ Sound of Sisaket 2026 ณ ศรีสะเกษ เมืองแห่งโอกาส",
+    summary_en: "Packed year-end event schedule in Sisaket! Music, coffee, sports, contests, camping, Chinese opera, Thibaan Land and Sound of Sisaket 2026.",
+    body: `ปลายปีนี้ ศรีสะเกษมีอะไรให้ไปเพียบ!
+ใครกำลังหากิจกรรมไว้เช็กอิน เตรียมปฏิทินให้พร้อมเลย!
+
+พฤศจิกายน–ธันวาคมนี้ จัดเต็มทั้ง ดนตรี กาแฟ กีฬา การประกวด แคมป์ งานงิ้ว ไทบ้านแลนด์ และเทศกาลสุดสนุก
+
+📌 ปฏิทินกิจกรรม Sisaket Resonance 2569:
+• 6–7 พ.ย.: การประกวดวงดนตรีพื้นบ้านโปงลาง "ศรีศิลป์" (สวนเฉลิมพระเกียรติฯ เกาะห้วยน้ำคำ)
+• 13–15 พ.ย.: เทศกาลกาแฟและดนตรี ครั้งที่ 4 (ลานหลังศรีสะเกษอะควาเรียม • เกาะห้วยน้ำคำ)
+• 14–17 พ.ย.: ฟุตบอลคิงส์คัพ ครั้งที่ 52 (สนามกีฬากลางจังหวัดศรีสะเกษ)
+• 18–22 พ.ย.: งานฉลองเมือง 244 ปี ศรีสะเกษ (สวนเฉลิมพระเกียรติฯ เกาะห้วยน้ำคำ)
+• 21–22 พ.ย.: การประกวดวงดนตรีลูกทุ่งแห่งประเทศไทย ชิงถ้วยพระราชทานฯ (สวนเฉลิมพระเกียรติฯ เกาะห้วยน้ำคำ)
+• 23–24 พ.ย.: ลอยกระทง (สวนเฉลิมพระเกียรติฯ เกาะห้วยน้ำคำ)
+• 25 พ.ย. – 2 ธ.ค.: งานงิ้วประจำปี 2569 (ศาลเจ้าปู่ตาศรีสะเกษ)
+• 12–13 ธ.ค. & 19–20 ธ.ค.: CAMP กลางเกาะ (ลานหลังศรีสะเกษอะควาเรียม • เกาะห้วยน้ำคำ)
+• 16–19 ธ.ค.: การประกวดวงโยธวาทิตโลก ชิงถ้วยพระราชทานฯ แห่งประเทศไทย
+• 16–20 ธ.ค.: Sound of Sisaket 2026 (เทศกาลดนตรีและศิลปะศรีสะเกษ)
+• 19 ธ.ค.: ไทบ้านแลนด์ 7.0 มิวสิกเฟสติวัล (ณ ลานกิจกรรมไทบ้านแลนด์ อบต.น้ำคำ)
+
+แล้วชวนเพื่อน ชวนครอบครัว มาเจอกันที่ "ศรีสะเกษ เมืองแห่งโอกาส"
+Sound of Sisaket 2026 รอทุกคนมาสัมผัสเสียงดนตรีและบรรยากาศของเมืองกันอยู่!
+
+#ศรีสะเกษเมืองแห่งโอกาส #ปฏิทินกิจกรรมศรีสะเกษ #เที่ยวศรีสะเกษ #Sisaket #SoundOfSisaket2026 #หอการค้าจังหวัดศรีสะเกษ`,
+    body_en: "",
+    image_url: "/images/sisaket_events_calendar_2026.jpg",
+    image_alt: "ปฏิทินกิจกรรมศรีสะเกษ Sisaket Resonance พฤศจิกายน - ธันวาคม 2569",
+    location: "เกาะห้วยน้ำคำ & เมืองศรีสะเกษ",
+    starts_at: "2026-11-01T00:00:00Z",
+    ends_at: "2026-12-31T23:59:59Z",
+    is_published: true,
+    updated_at: new Date().toISOString(),
+  },
+  {
+    id: "story-sound-of-sisaket-2026",
+    kind: "STORY",
+    title: "Sound of Sisaket 2026 & เทศกาลดนตรีปลายปี",
+    title_en: "Sound of Sisaket 2026 Festival",
+    summary: "สัมผัสเสียงดนตรีและบรรยากาศเมืองศรีสะเกษ มหกรรมดนตรี ศิลปะ กาแฟ และงานแคมป์สุดอบอุ่นปลายปี",
+    summary_en: "Experience music and local arts in Sisaket year-end festival.",
+    body: `Sound of Sisaket 2026 มหกรรมดนตรีและศิลปะประจำปีจังหวัดศรีสะเกษ
+จัดขึ้นระหว่างวันที่ 16-20 ธันวาคม 2569 ณ สวนเฉลิมพระเกียรติฯ เกาะห้วยน้ำคำ
+
+พบกับการแสดงดนตรีสดหลากหลายแนว ตลาดกาแฟสดดินภูเขาไฟ GI ร้านค้า OTOP ชุมชน และกิจกรรมสร้างสรรค์สำหรับทุกคนในครอบครัว`,
+    body_en: "",
+    image_url: "/images/sisaket-nature-concept.webp",
+    image_alt: "Sound of Sisaket 2026",
+    location: "สวนเฉลิมพระเกียรติฯ (เกาะห้วยน้ำคำ)",
+    starts_at: "2026-12-16T00:00:00Z",
+    ends_at: "2026-12-20T23:59:59Z",
+    is_published: true,
+    updated_at: new Date().toISOString(),
+  },
+  {
+    id: "story-coffee-music-fest-4",
+    kind: "STORY",
+    title: "เทศกาลกาแฟและดนตรี ครั้งที่ 4 (Sisaket Coffee & Music Fest #4)",
+    title_en: "4th Sisaket Coffee & Music Fest",
+    summary: "จิบกาแฟสดดินภูเขาไฟ GI เคล้าเสียงดนตรีสบาย ๆ ริมบึงห้วยน้ำคำ 13-15 พฤศจิกายน 2569",
+    summary_en: "Enjoy GI volcano coffee with relaxing live music by Huai Nam Kham Lake.",
+    body: `เทศกาลกาแฟและดนตรีครั้งที่ 4 รวบรวมโรงคั่วและร้านกาแฟชั้นนำทั่วศรีสะเกษ โดยเฉพาะกาแฟโรบัสต้าและอาราบิก้าดินภูเขาไฟ GI อำเภอขุนหาญ
+ร่วมฟังดนตรีอคูสติกเบาๆ ริมบึง ชิมเบเกอรี่และเครื่องดื่มคราฟท์สมุนไพรพื้นบ้าน`,
+    body_en: "",
+    image_url: "/images/sisaket-nature-concept.webp",
+    image_alt: "เทศกาลกาแฟและดนตรี",
+    location: "ลานหลังศรีสะเกษอะควาเรียม • เกาะห้วยน้ำคำ",
+    starts_at: "2026-11-13T00:00:00Z",
+    ends_at: "2026-11-15T23:59:59Z",
+    is_published: true,
+    updated_at: new Date().toISOString(),
+  },
+  {
+    id: "story-244-years-city-anniversary",
+    kind: "STORY",
+    title: "งานฉลองเมือง 244 ปี ศรีสะเกษ",
+    title_en: "244th Sisaket City Anniversary Celebration",
+    summary: "ร่วมฉลองประวัติศาสตร์ 244 ปี ศรีสะเกษ รำบวงสรวง 4 ชนเผ่า และการแสดงศิลปวัฒนธรรมตระการตา 18-22 พฤศจิกายน 2569",
+    summary_en: "Celebrate 244 years of Sisaket history with traditional 4-tribe dance and cultural shows.",
+    body: `งานฉลองเมือง 244 ปี จังหวัดศรีสะเกษ ร่วมรำบวงสรวงสักการะสิ่งศักดิ์สิทธิ์ประจำเมือง โดยนางรำ 4 ชนเผ่า (เขมร ส่วย ลาว เยอ) กว่าหมื่นคน
+พร้อมชมนิทรรศการประวัติศาสตร์ การออกร้าน OTOP และการแสดงแสงสีเสียงตระการตา`,
+    body_en: "",
+    image_url: "/images/sisaket-nature-concept.webp",
+    image_alt: "งานฉลองเมือง 244 ปี ศรีสะเกษ",
+    location: "สวนเฉลิมพระเกียรติฯ เกาะห้วยน้ำคำ",
+    starts_at: "2026-11-18T00:00:00Z",
+    ends_at: "2026-11-22T23:59:59Z",
+    is_published: true,
+    updated_at: new Date().toISOString(),
+  },
+  {
+    id: "community-cocoa-craft",
+    kind: "COMMUNITY",
+    title: "โกโก้คราฟท์ COCOA CrafT - ช็อกโกแลตคราฟท์ฟู้ดทรักศรีสะเกษ",
+    title_en: "COCOA CrafT - Sisaket Premium Cocoa Foodtruck",
+    summary: "เมนูซิกเนเจอร์ เมล็ดโกโก้พรีเมียมเข้มข้นหวานน้อย พร้อมกาแฟสด ชาไทย มัทฉะ และเครื่องดื่มชงสด รูปแบบ Foodtruck พร้อมรับงานนอกสถานที่",
+    summary_en: "Signature African premium cocoa drinks, less sweet, served fresh from a food truck.",
+    body: `โกโก้คราฟท์ COCOA CrafT (since 2022)
+
+เมนูซิกเนเจอร์ ใช้เมล็ดพันธุ์โกโก้พรีเมียมจากทวีปแอฟริกา ผสานส่วนผสมที่ลงตัวทำให้ได้ "โกโก้คราฟท์" ที่เข้มข้นหวานน้อย เลือกจับคู่กับเครื่องดื่มได้หลากหลาย
+
+นอกจากนี้ยังมี กาแฟสด มัทฉะ ชาไทย ชาเขียว เผือก เครื่องดื่มชงสด/ปั่น น้ำผลไม้ น้ำส้ม น้ำมะพร้าว เลม่อนดองน้ำผึ้ง ฯลฯ ใช้วัตถุดิบอย่างดี ใส่ใจทุกแก้ว
+
+ตั้งใจทำหน้าร้านเป็นรูปแบบ FOODTRUCK (ฟู้ดทรัก) สามารถส่งความสดชื่นไปถึงคุณได้ทุกที่ รับงานนอกสถานที่ งานอีเวนต์ งานบุญ งานบวช งานแต่ง งานวันเกิด ขึ้นบ้านใหม่ งานโรงทาน ฯลฯ
+
+รับทำน้ำชง ชาไทย ชาเขียว ชานม โกโก้ กาแฟโบราณ บรรจุขวด หรือใส่แก้ว เพื่อแจกโรงทาน
+
+อัตราค่าน้ำมัน: ค้นหาจากระยะทางไปกลับ จาก เกาะกลางน้ำศรีสะเกษ ถึง ปลายทาง (ฟรี 10 กิโลเมตรแรก, กิโลเมตรที่ 11 เป็นต้นไป กิโลเมตรละ 5 บาท)
+
+📞 โทร: 0935645996, 0981512942
+📱 TikTok / FB / IG: โกโก้คราฟท์ COCOA CrafT
+#โกโก้คราฟท์ #OTOP #ของดีจังหวัดศรีสะเกษ`,
+    body_en: "",
+    image_url: "/images/cocoa_craft_sisaket.jpg",
+    image_alt: "โกโก้คราฟท์ COCOA CrafT Foodtruck",
+    location: "เกาะกลางน้ำศรีสะเกษ / อำเภอเมืองศรีสะเกษ",
+    starts_at: null,
+    ends_at: null,
+    is_published: true,
+    updated_at: new Date().toISOString(),
+  },
+  {
+    id: "community-13-villages",
+    kind: "COMMUNITY",
+    title: "วิถีชีวิต 13 ชุมชนนวัตวิถีศรีสะเกษ",
+    title_en: "13 OTOP Nawatwithi Villages of Sisaket",
+    summary: "สัมผัสเสน่ห์วิถีชีวิต ทอมือ ทุเรียนภูเขาไฟ หัตถกรรมจักสาน และรอยยิ้มของชาวบ้านศรีสะเกษ",
+    summary_en: "Discover local crafts, volcano durian orchards, and warm smiles across 13 Sisaket villages.",
+    body: `เที่ยวชม 13 หมู่บ้าน OTOP นวัตวิถีศรีสะเกษ เรียนรู้วัฒนธรรม 4 ชนเผ่า (เขมร ส่วย ลาว เยอ)
+สัมผัสวิถีชีวิตการทอผ้าลายโบราณ การทำจักสานหวายบ้านละทาย และชิมผลไม้สดจากสวนดินภูเขาไฟ`,
+    body_en: "",
+    image_url: "/images/village.webp",
+    image_alt: "ชุมชนนวัตวิถีศรีสะเกษ",
+    location: "จังหวัดศรีสะเกษ",
+    starts_at: null,
+    ends_at: null,
+    is_published: true,
+    updated_at: new Date().toISOString(),
+  },
+];
+
 
