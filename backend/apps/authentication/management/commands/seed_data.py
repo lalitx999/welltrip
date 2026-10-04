@@ -8,6 +8,7 @@ from django.db import transaction
 
 from apps.accommodations.models import Accommodation, AccommodationStatus, Room, RoomPricingCalendar
 from apps.authentication.models import User, UserRoles
+from apps.community.models import EditorialEntry
 from apps.otop.models import OTOPCategory, OTOPProduct
 from apps.services.models import FoodMenu, FoodWellnessCategory, WellnessService, WellnessTimeSlot
 
@@ -19,7 +20,7 @@ class Command(BaseCommand):
         parser.add_argument(
             "--clear",
             action="store_true",
-            help="Clear existing accommodations, foods, wellness services, and OTOP products before seeding.",
+            help="Clear existing accommodations, foods, wellness services, OTOP products, and editorial content before seeding.",
         )
 
     def handle(self, *args, **options):
@@ -37,6 +38,7 @@ class Command(BaseCommand):
                 WellnessTimeSlot.objects.all().delete()
                 WellnessService.objects.all().delete()
                 OTOPProduct.objects.all().delete()
+                EditorialEntry.objects.all().delete()
                 self.stdout.write(self.style.SUCCESS("  Catalog cleared cleanly!"))
 
             users = self.seed_users()
@@ -44,6 +46,7 @@ class Command(BaseCommand):
             self.seed_foods(users["restaurant"])
             self.seed_wellness(users["wellness"])
             self.seed_otop(users["otop"])
+            self.seed_editorial()
 
         self.stdout.write(self.style.SUCCESS("Successfully seeded all 100% Sisaket WellTrip data!"))
 
@@ -155,6 +158,7 @@ class Command(BaseCommand):
             ("ไก่ย่างไม้มะดันห้วยทับทันสูตรดั้งเดิม", "ไก่ย่างไม้มะดันหอมกรอบนอกนุ่มใน โปรตีนสูง เสิร์ฟพร้อมน้ำจิ้มแจ่วรสเด็ด", Decimal("180.00"), FoodWellnessCategory.ORGANIC, 340),
             ("ลาบปลาคังแม่น้ำมูลสมุนไพรพื้นบ้าน", "เนื้อปลาคังสดแลกนึ่งสุก นำมาทำลาบสมุนไพรพริกแห้งคั่วหอม อุดมด้วยโอเมก้า 3", Decimal("190.00"), FoodWellnessCategory.HERBAL, 230),
             ("ชาสมุนไพรหอมแดงสกัดอินทรีย์ศรีสะเกษ", "ชาสมุนไพรสูตรพิเศษสกัดจากหอมแดง GI และใบเตย ชะลอวัยและบำรุงหัวใจ", Decimal("55.00"), FoodWellnessCategory.LOW_SUGAR, 25),
+            ("โกโก้คราฟท์พรีเมียม (COCOA CrafT Signature)", "โกโก้คราฟท์เมล็ดแอฟริกาพรีเมียมเข้มข้นหวานน้อย เสิร์ฟสดจากฟู้ดทรักศรีสะเกษ (โทร 0935645996)", Decimal("65.00"), FoodWellnessCategory.LOW_SUGAR, 120),
         ]
 
         for name, desc, price, cat, cal in foods:
@@ -180,7 +184,7 @@ class Command(BaseCommand):
             ("สปาขัดผิวด้วยกาแฟดินภูเขาไฟ GI 90 นาที", "สครับขัดผิวเซลล์เสื่อมสภาพด้วยกาแฟโรบัสต้าดินภูเขาไฟ GI ขุนหาญ ผิวนุ่มใส", Decimal("1200.00"), 90, 2),
             ("แช่บ่อน้ำสมุนไพรต้มสดบำรุงผิวพรรณ 60 นาที", "แช่น้ำอุ่นผสมสมุนไพรสดบำรุงผิว ลดอาการปวดเมื่อยหลังจากการเดินทาง", Decimal("500.00"), 60, 4),
             ("โยคะสมาธิรับอรุณริมบึงห้วยน้ำคำ 60 นาที", "คลาสโยคะและฝึกสมาธิรับลมเช้าตรู้ริมบึงห้วยน้ำคำ เติมพลังบวกและความสงบ", Decimal("300.00"), 60, 10),
-            ("นวดอโรมาน้ำมันมะพร้าวบริสุทธิ์ขุนหาญ 90 นาที", "นวดผ่อนคลายด้วยน้ำมันมะพร้าวบริสุทธิ์สกัดเย็น ช่วยให้ผิวชุ่มชื้นและนอนหลับสบาย", Decimal("850.00"), 90, 3),
+            ("นวดอโรมาน้ำมันมะพร้าวบริสุทธิ์ขุนหาญ 90 นาที", "นวดผ่อนคลายด้วยน้ำมันมะพร้าวบริสุทธิ์สกัดเย็น ช่วยให้ผิวชุ่มชื้นและนอนหลับสบาย", Decimal("85.00"), 90, 3),
             ("ทรีตเมนต์พอกหน้าด้วยขมิ้นชันธรรมชาติ 45 นาที", "มาร์กพอกผิวหน้าด้วยขมิ้นชันอินทรีย์และน้ำผึ้งป่า ลดการอักเสบและกระจ่างใส", Decimal("350.00"), 45, 2),
             ("สปาผ่อนคลายคอบ่าไหล่ Office Syndrome 60 นาที", "นวดเน้นจุดตึงสะสมบริเวณคอบ่าไหล่ด้วยน้ำยาไพลสกัดเย็น คลายปวดทันใจ", Decimal("500.00"), 60, 4),
         ]
@@ -222,7 +226,7 @@ class Command(BaseCommand):
                     )
 
     def seed_otop(self, owner):
-        self.stdout.write("  Creating 10 Sisaket OTOP Products...")
+        self.stdout.write("  Creating Sisaket OTOP Products...")
         products = [
             ("เสื้อยืดอัตลักษณ์ศรีสะเกษ (Sound of Sisaket T-Shirt)", "เสื้อยืดคอตตอน 100% ลายสัญลักษณ์ ศรีสะเกษ เมืองแห่งโอกาส และ Sound of Sisaket 2026 เนื้อผ้านุ่มระบายอากาศดี มีสีขาวและสีเขียวพรีเมียม", Decimal("290.00"), OTOPCategory.TEXTILE, 100),
             ("กาแฟโรบัสต้าขุนหาญ ดินภูเขาไฟ GI (500 กรัม)", "เมล็ดกาแฟโรบัสต้าแท้ 100% ปลูกบนพื้นที่ดินภูเขาไฟ GI อำเภอขุนหาญ จังหวัดศรีสะเกษ ขนาดบรรจุ 500 กรัม หอมเข้มกลมกล่อม", Decimal("250.00"), OTOPCategory.PROCESSED_FOOD, 100),
@@ -234,6 +238,7 @@ class Command(BaseCommand):
             ("น้ำผึ้งป่าธรรมชาติเทือกเขาพนมดงรัก (500 ml)", "น้ำผึ้งป่าแท้ 100% จากเกสรดอกไม้ป่าธรรมชาติ เก็บในฤดูเดือนห้า รสชาติหวานหอม", Decimal("390.00"), OTOPCategory.PROCESSED_FOOD, 60),
             ("เสื่อกกสานมือลายโบราณบ้านกู่", "เสื่อกกทอมือธรรมชาติ นุ่มเย็น ทนทาน ทอลายโบราณจากภูมิปัญญาชาวบ้านบ้านกู่", Decimal("550.00"), OTOPCategory.CRAFT, 30),
             ("ชาสมุนไพรใบเตยผสมอัญชันอินทรีย์ศรีสะเกษ", "ชาสมุนไพรตากแห้ง ปลูกแบบเกษตรอินทรีย์ ปราศจากสารเคมี หวานหอมสดชื่น", Decimal("150.00"), OTOPCategory.HERBAL_PRODUCT, 80),
+            ("น้ำโกโก้คราฟท์และชาไทยบรรจุขวด (COCOA CrafT Bottle)", "น้ำชงสด โกโก้คราฟท์/ชาไทย/มัทฉะ บรรจุขวดพรีเมียมจาก COCOA CrafT สำหรับจัดเลี้ยง โรงทาน หรืออีเวนต์", Decimal("35.00"), OTOPCategory.PROCESSED_FOOD, 200),
         ]
 
         for name, desc, price, cat, stock in products:
@@ -248,3 +253,129 @@ class Command(BaseCommand):
                     "is_active": True,
                 },
             )
+
+    def seed_editorial(self):
+        self.stdout.write("  Creating Sisaket Calendar Events & Community Stories...")
+        stories = [
+            {
+                "kind": EditorialEntry.Kind.STORY,
+                "title": "ปฏิทินกิจกรรมศรีสะเกษ Sisaket Resonance (พฤศจิกายน – ธันวาคม 2569)",
+                "title_en": "Sisaket Resonance Event Calendar (Nov - Dec 2026)",
+                "summary": "ปลายปีนี้ ศรีสะเกษมีอะไรให้ไปเพียบ! จัดเต็มทั้งดนตรี กาแฟ กีฬา การประกวด แคมป์ งานงิ้ว ไทบ้านแลนด์ และ Sound of Sisaket 2026 ณ ศรีสะเกษ เมืองแห่งโอกาส",
+                "summary_en": "Packed year-end event schedule in Sisaket! Music, coffee, sports, contests, camping, Chinese opera, Thibaan Land and Sound of Sisaket 2026.",
+                "body": (
+                    "ปลายปีนี้ ศรีสะเกษมีอะไรให้ไปเพียบ!\n"
+                    "ใครกำลังหากิจกรรมไว้เช็กอิน เตรียมปฏิทินให้พร้อมเลย!\n\n"
+                    "พฤศจิกายน–ธันวาคมนี้ จัดเต็มทั้ง ดนตรี กาแฟ กีฬา การประกวด แคมป์ งานงิ้ว ไทบ้านแลนด์ และเทศกาลสุดสนุก\n\n"
+                    "📌 ปฏิทินกิจกรรม Sisaket Resonance 2569:\n"
+                    "• 6–7 พ.ย.: การประกวดวงดนตรีพื้นบ้านโปงลาง 'ศรีศิลป์' (สวนเฉลิมพระเกียรติฯ เกาะห้วยน้ำคำ)\n"
+                    "• 13–15 พ.ย.: เทศกาลกาแฟและดนตรี ครั้งที่ 4 (ลานหลังศรีสะเกษอะควาเรียม • เกาะห้วยน้ำคำ)\n"
+                    "• 14–17 พ.ย.: ฟุตบอลคิงส์คัพ ครั้งที่ 52 (สนามกีฬากลางจังหวัดศรีสะเกษ)\n"
+                    "• 18–22 พ.ย.: งานฉลองเมือง 244 ปี ศรีสะเกษ (สวนเฉลิมพระเกียรติฯ เกาะห้วยน้ำคำ)\n"
+                    "• 21–22 พ.ย.: การประกวดวงดนตรีลูกทุ่งแห่งประเทศไทย ชิงถ้วยพระราชทานฯ (สวนเฉลิมพระเกียรติฯ เกาะห้วยน้ำคำ)\n"
+                    "• 23–24 พ.ย.: ลอยกระทง (สวนเฉลิมพระเกียรติฯ เกาะห้วยน้ำคำ)\n"
+                    "• 25 พ.ย. – 2 ธ.ค.: งานงิ้วประจำปี 2569 (ศาลเจ้าปู่ตาศรีสะเกษ)\n"
+                    "• 12–13 ธ.ค. & 19–20 ธ.ค.: CAMP กลางเกาะ (ลานหลังศรีสะเกษอะควาเรียม • เกาะห้วยน้ำคำ)\n"
+                    "• 16–19 ธ.ค.: การประกวดวงโยธวาทิตโลก ชิงถ้วยพระราชทานฯ แห่งประเทศไทย\n"
+                    "• 16–20 ธ.ค.: Sound of Sisaket 2026 (เทศกาลดนตรีและศิลปะศรีสะเกษ)\n"
+                    "• 19 ธ.ค.: ไทบ้านแลนด์ 7.0 มิวสิกเฟสติวัล (ณ ลานกิจกรรมไทบ้านแลนด์ อบต.น้ำคำ)\n\n"
+                    "แล้วชวนเพื่อน ชวนครอบครัว มาเจอกันที่ 'ศรีสะเกษ เมืองแห่งโอกาส'\n"
+                    "Sound of Sisaket 2026 รอทุกคนมาสัมผัสเสียงดนตรีและบรรยากาศของเมืองกันอยู่!\n\n"
+                    "#ศรีสะเกษเมืองแห่งโอกาส #ปฏิทินกิจกรรมศรีสะเกษ #เที่ยวศรีสะเกษ #Sisaket #SoundOfSisaket2026 #หอการค้าจังหวัดศรีสะเกษ"
+                ),
+                "location": "เกาะห้วยน้ำคำ & เมืองศรีสะเกษ",
+                "image_url": "/images/sisaket-resonance-calendar-2026.webp",
+                "image_alt": "ปฏิทินกิจกรรมศรีสะเกษ Sisaket Resonance พฤศจิกายน - ธันวาคม 2569",
+                "is_published": True,
+            },
+            {
+                "kind": EditorialEntry.Kind.STORY,
+                "title": "Sound of Sisaket 2026 & เทศกาลดนตรีปลายปี",
+                "title_en": "Sound of Sisaket 2026 Festival",
+                "summary": "สัมผัสเสียงดนตรีและบรรยากาศเมืองศรีสะเกษ มหกรรมดนตรี ศิลปะ กาแฟ และงานแคมป์สุดอบอุ่นปลายปี",
+                "summary_en": "Experience music and local arts in Sisaket year-end festival.",
+                "body": (
+                    "Sound of Sisaket 2026 มหกรรมดนตรีและศิลปะประจำปีจังหวัดศรีสะเกษ\n"
+                    "จัดขึ้นระหว่างวันที่ 16-20 ธันวาคม 2569 ณ สวนเฉลิมพระเกียรติฯ เกาะห้วยน้ำคำ\n\n"
+                    "พบกับการแสดงดนตรีสดหลากหลายแนว ตลาดกาแฟสดดินภูเขาไฟ GI ร้านค้า OTOP ชุมชน และกิจกรรมสร้างสรรค์สำหรับทุกคนในครอบครัว"
+                ),
+                "location": "สวนเฉลิมพระเกียรติฯ (เกาะห้วยน้ำคำ)",
+                "image_url": "/images/sisaket-nature-concept.webp",
+                "image_alt": "Sound of Sisaket 2026",
+                "is_published": True,
+            },
+            {
+                "kind": EditorialEntry.Kind.STORY,
+                "title": "เทศกาลกาแฟและดนตรี ครั้งที่ 4 (Sisaket Coffee & Music Fest #4)",
+                "title_en": "4th Sisaket Coffee & Music Fest",
+                "summary": "จิบกาแฟสดดินภูเขาไฟ GI เคล้าเสียงดนตรีสบาย ๆ ริมบึงห้วยน้ำคำ 13-15 พฤศจิกายน 2569",
+                "summary_en": "Enjoy GI volcano coffee with relaxing live music by Huai Nam Kham Lake.",
+                "body": (
+                    "เทศกาลกาแฟและดนตรีครั้งที่ 4 รวบรวมโรงคั่วและร้านกาแฟชั้นนำทั่วศรีสะเกษ โดยเฉพาะกาแฟโรบัสต้าและอาราบิก้าดินภูเขาไฟ GI อำเภอขุนหาญ\n"
+                    "ร่วมฟังดนตรีอคูสติกเบาๆ ริมบึง ชิมเบเกอรี่และเครื่องดื่มคราฟท์สมุนไพรพื้นบ้าน"
+                ),
+                "location": "ลานหลังศรีสะเกษอะควาเรียม • เกาะห้วยน้ำคำ",
+                "image_url": "/images/sisaket-nature-concept.webp",
+                "image_alt": "เทศกาลกาแฟและดนตรี",
+                "is_published": True,
+            },
+            {
+                "kind": EditorialEntry.Kind.STORY,
+                "title": "งานฉลองเมือง 244 ปี ศรีสะเกษ",
+                "title_en": "244th Sisaket City Anniversary Celebration",
+                "summary": "ร่วมฉลองประวัติศาสตร์ 244 ปี ศรีสะเกษ รำบวงสรวง 4 ชนเผ่า และการแสดงศิลปวัฒนธรรมตระการตา 18-22 พฤศจิกายน 2569",
+                "summary_en": "Celebrate 244 years of Sisaket history with traditional 4-tribe dance and cultural shows.",
+                "body": (
+                    "งานฉลองเมือง 244 ปี จังหวัดศรีสะเกษ ร่วมรำบวงสรวงสักการะสิ่งศักดิ์สิทธิ์ประจำเมือง โดยนางรำ 4 ชนเผ่า (เขมร ส่วย ลาว เยอ) กว่าหมื่นคน\n"
+                    "พร้อมชมนิทรรศการประวัติศาสตร์ การออกร้าน OTOP และการแสดงแสงสีเสียงตระการตา"
+                ),
+                "location": "สวนเฉลิมพระเกียรติฯ เกาะห้วยน้ำคำ",
+                "image_url": "/images/sisaket-nature-concept.webp",
+                "image_alt": "งานฉลองเมือง 244 ปี ศรีสะเกษ",
+                "is_published": True,
+            },
+            {
+                "kind": EditorialEntry.Kind.COMMUNITY,
+                "title": "โกโก้คราฟท์ COCOA CrafT - ช็อกโกแลตคราฟท์ฟู้ดทรักศรีสะเกษ",
+                "title_en": "COCOA CrafT - Sisaket Premium Cocoa Foodtruck",
+                "summary": "เมนูซิกเนเจอร์ เมล็ดโกโก้พรีเมียมเข้มข้นหวานน้อย พร้อมกาแฟสด ชาไทย มัทฉะ และเครื่องดื่มชงสด รูปแบบ Foodtruck พร้อมรับงานนอกสถานที่",
+                "summary_en": "Signature African premium cocoa drinks, less sweet, served fresh from a food truck.",
+                "body": (
+                    "โกโก้คราฟท์ COCOA CrafT (since 2022)\n\n"
+                    "เมนูซิกเนเจอร์ ใช้เมล็ดพันธุ์โกโก้พรีเมียมจากทวีปแอฟริกา ผสานส่วนผสมที่ลงตัวทำให้ได้ 'โกโก้คราฟท์' ที่เข้มข้นหวานน้อย เลือกจับคู่กับเครื่องดื่มได้หลากหลาย\n\n"
+                    "นอกจากนี้ยังมี กาแฟสด มัทฉะ ชาไทย ชาเขียว เผือก เครื่องดื่มชงสด/ปั่น น้ำผลไม้ น้ำส้ม น้ำมะพร้าว เลม่อนดองน้ำผึ้ง ฯลฯ ใช้วัตถุดิบอย่างดี ใส่ใจทุกแก้ว\n\n"
+                    "ตั้งใจทำหน้าร้านเป็นรูปแบบ FOODTRUCK (ฟู้ดทรัก) สามารถส่งความสดชื่นไปถึงคุณได้ทุกที่ รับงานนอกสถานที่ งานอีเวนต์ งานบุญ งานบวช งานแต่ง งานวันเกิด ขึ้นบ้านใหม่ งานโรงทาน ฯลฯ\n\n"
+                    "รับทำน้ำชง ชาไทย ชาเขียว ชานม โกโก้ กาแฟโบราณ บรรจุขวด หรือใส่แก้ว เพื่อแจกโรงทาน\n\n"
+                    "อัตราค่าน้ำมัน: ค้นหาจากระยะทางไปกลับ จาก เกาะกลางน้ำศรีสะเกษ ถึง ปลายทาง (ฟรี 10 กิโลเมตรแรก, กิโลเมตรที่ 11 เป็นต้นไป กิโลเมตรละ 5 บาท)\n\n"
+                    "📞 โทร: 0935645996, 0981512942\n"
+                    "📱 TikTok / FB / IG: โกโก้คราฟท์ COCOA CrafT\n"
+                    "#โกโก้คราฟท์ #OTOP #ของดีจังหวัดศรีสะเกษ"
+                ),
+                "location": "เกาะกลางน้ำศรีสะเกษ / อำเภอเมืองศรีสะเกษ",
+                "image_url": "/images/sisaket-nature-concept.webp",
+                "image_alt": "โกโก้คราฟท์ COCOA CrafT Foodtruck",
+                "is_published": True,
+            },
+            {
+                "kind": EditorialEntry.Kind.COMMUNITY,
+                "title": "วิถีชีวิต 13 ชุมชนนวัตวิถีศรีสะเกษ",
+                "title_en": "13 OTOP Nawatwithi Villages of Sisaket",
+                "summary": "สัมผัสเสน่ห์วิถีชีวิต ทอมือ ทุเรียนภูเขาไฟ หัตถกรรมจักสาน และรอยยิ้มของชาวบ้านศรีสะเกษ",
+                "summary_en": "Discover local crafts, volcano durian orchards, and warm smiles across 13 Sisaket villages.",
+                "body": (
+                    "เที่ยวชม 13 หมู่บ้าน OTOP นวัตวิถีศรีสะเกษ เรียนรู้วัฒนธรรม 4 ชนเผ่า (เขมร ส่วย ลาว เยอ)\n"
+                    "สัมผัสวิถีชีวิตการทอผ้าลายโบราณ การทำจักสานหวายบ้านละทาย และชิมผลไม้สดจากสวนดินภูเขาไฟ"
+                ),
+                "location": "จังหวัดศรีสะเกษ",
+                "image_url": "/images/sisaket-nature-concept.webp",
+                "image_alt": "ชุมชนนวัตวิถีศรีสะเกษ",
+                "is_published": True,
+            },
+        ]
+
+        for s in stories:
+            EditorialEntry.objects.get_or_create(
+                title=s["title"],
+                defaults=s,
+            )
+
