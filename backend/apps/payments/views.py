@@ -117,3 +117,34 @@ class PaymentDetailView(EnvelopeMixin, APIView):
         return Response(data, status=status.HTTP_200_OK)
 
 
+# ---------------------------------------------------------------------------
+# Admin Payment Slips Verification & Approval Views
+# ---------------------------------------------------------------------------
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def admin_pending_payments_view(request):
+    if not (request.user.is_superuser or request.user.role in ["SUPER_ADMIN", "COMMUNITY_ADMIN"]):
+        raise ValidationError("Admin permission required.")
+    payments = Payment.objects.filter(status=PaymentStatus.PENDING).order_by("-created_at")[:100]
+    serializer = PaymentDetailSerializer(payments, many=True, context={"request": request})
+    return api_success(serializer.data)
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def admin_approve_payment_view(request, payment_id):
+    if not (request.user.is_superuser or request.user.role in ["SUPER_ADMIN", "COMMUNITY_ADMIN"]):
+        raise ValidationError("Admin permission required.")
+    try:
+        payment = Payment.objects.get(id=payment_id)
+    except Payment.DoesNotExist:
+        raise NotFound("Payment not found.")
+    
+    payment.status = PaymentStatus.COMPLETED
+    payment.save()
+    if payment.booking:
+        payment.booking.status = "CONFIRMED"
+        payment.booking.save()
+    return api_success(PaymentDetailSerializer(payment, context={"request": request}).data, message="Payment approved successfully.")
+
+
+

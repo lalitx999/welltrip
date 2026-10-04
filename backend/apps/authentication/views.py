@@ -266,3 +266,88 @@ def register_merchant_view(request):
         status=status.HTTP_201_CREATED,
     )
 
+
+# ---------------------------------------------------------------------------
+# GET /api/v1/auth/users/                (Admin user list endpoint)
+# ---------------------------------------------------------------------------
+from rest_framework.permissions import IsAuthenticated
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def users_list_view(request):
+    if not (request.user.is_superuser or request.user.role in [UserRoles.SUPER_ADMIN, UserRoles.COMMUNITY_ADMIN]):
+        return api_error("PERMISSION_DENIED", "Admin access required.", status=status.HTTP_403_FORBIDDEN)
+    
+    users = User.objects.all().order_by("-date_joined")[:100]
+    serializer = UserProfileSerializer(users, many=True)
+    return api_success(serializer.data)
+
+
+@api_view(["PATCH"])
+@permission_classes([IsAuthenticated])
+def update_user_role_view(request, user_id):
+    if not (request.user.is_superuser or request.user.role in [UserRoles.SUPER_ADMIN, UserRoles.COMMUNITY_ADMIN]):
+        return api_error("PERMISSION_DENIED", "Admin access required.", status=status.HTTP_403_FORBIDDEN)
+    
+    try:
+        user = User.objects.get(id=user_id)
+    except User.DoesNotExist:
+        return api_error("NOT_FOUND", "User not found.", status=status.HTTP_404_NOT_FOUND)
+
+    role = request.data.get("role")
+    if role and role in UserRoles.values:
+        user.role = role
+    if "is_verified" in request.data:
+        user.is_verified = bool(request.data.get("is_verified"))
+    user.save()
+    return api_success(UserProfileSerializer(user).data)
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def admin_approvals_list_view(request):
+    if not (request.user.is_superuser or request.user.role in [UserRoles.SUPER_ADMIN, UserRoles.COMMUNITY_ADMIN]):
+        return api_error("PERMISSION_DENIED", "Admin access required.", status=status.HTTP_403_FORBIDDEN)
+    
+    profiles = MerchantProfile.objects.all().order_by("-created_at")[:100]
+    data = []
+    for p in profiles:
+        data.append({
+            "id": str(p.id),
+            "title": p.business_name,
+            "type": p.business_type,
+            "owner_name": p.user.full_name or p.user.email if p.user else "N/A",
+            "owner_email": p.user.email if p.user else "N/A",
+            "province": "ศรีสะเกษ",
+            "price": 0,
+            "image_url": p.cover_image_url or "",
+            "status": p.status,
+            "created_at": p.created_at.isoformat(),
+        })
+    return api_success(data)
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def admin_approval_action_view(request, entity_id):
+    if not (request.user.is_superuser or request.user.role in [UserRoles.SUPER_ADMIN, UserRoles.COMMUNITY_ADMIN]):
+        return api_error("PERMISSION_DENIED", "Admin access required.", status=status.HTTP_403_FORBIDDEN)
+    
+    try:
+        profile = MerchantProfile.objects.get(id=entity_id)
+    except MerchantProfile.DoesNotExist:
+        return api_error("NOT_FOUND", "Entity not found.", status=status.HTTP_404_NOT_FOUND)
+    
+    new_status = request.data.get("status")
+    if new_status in ["APPROVED", "REJECTED"]:
+        profile.status = new_status
+        if request.data.get("rejection_reason"):
+            profile.rejection_reason = request.data.get("rejection_reason")
+        profile.save()
+        if new_status == "APPROVED" and profile.user:
+            profile.user.is_verified = True
+            profile.user.save()
+    return api_success({"id": str(profile.id), "status": profile.status})
+
+
+

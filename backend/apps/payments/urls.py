@@ -12,6 +12,21 @@ urlpatterns = [
         name="slip-upload",
     ),
     path(
+        "admin/pending/",
+        views.admin_pending_payments_view,
+        name="admin-pending-payments",
+    ),
+    path(
+        "admin/approve/<uuid:payment_id>/",
+        views.admin_approve_payment_view,
+        name="admin-approve-payment",
+    ),
+    path(
+        "<uuid:payment_id>/verify/",
+        views.admin_approve_payment_view,
+        name="payment-verify",
+    ),
+    path(
         "<uuid:payment_id>/",
         views.PaymentDetailView.as_view(),
         name="payment-detail",

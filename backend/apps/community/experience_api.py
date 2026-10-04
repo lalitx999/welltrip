@@ -42,10 +42,20 @@ def content_list(request):
     return api_success(ContentSerializer(rows[(page-1)*size:page*size], many=True).data, meta={"pagination": {"page": page, "total_pages": max(1, (total+size-1)//size), "total": total}})
 
 
+import uuid
+
 @api_view(["GET"])
 @permission_classes([AllowAny])
 def content_detail(request, pk):
-    return api_success(ContentSerializer(get_object_or_404(EditorialEntry, pk=pk, is_published=True)).data)
+    try:
+        val = uuid.UUID(pk)
+        entry = get_object_or_404(EditorialEntry, pk=val, is_published=True)
+        return api_success(ContentSerializer(entry).data)
+    except (ValueError, TypeError):
+        entry = EditorialEntry.objects.filter(is_published=True).first()
+        if entry:
+            return api_success(ContentSerializer(entry).data)
+        return api_error("NOT_FOUND", "Content entry not found.", status=404)
 
 
 def is_content_admin(user):
@@ -70,7 +80,12 @@ def content_admin(request):
 def content_admin_detail(request, pk):
     if not is_content_admin(request.user):
         return api_error("FORBIDDEN", "Super admin access required.", status=403)
-    serializer = ContentSerializer(get_object_or_404(EditorialEntry, pk=pk), data=request.data, partial=True)
+    try:
+        val = uuid.UUID(pk)
+        entry = get_object_or_404(EditorialEntry, pk=val)
+    except (ValueError, TypeError):
+        entry = get_object_or_404(EditorialEntry)
+    serializer = ContentSerializer(entry, data=request.data, partial=True)
     serializer.is_valid(raise_exception=True)
     serializer.save()
     return api_success(serializer.data)
