@@ -196,7 +196,7 @@ class AccommodationListCreateView(EnvelopeMixin, generics.ListCreateAPIView):
         return qs.prefetch_related(
             Prefetch(
                 "rooms",
-                queryset=Room.objects.filter(is_active=True),
+                queryset=Room.objects.filter(is_active=True).prefetch_related("images"),
                 to_attr="active_rooms",
             )
         )
@@ -208,7 +208,7 @@ class AccommodationListCreateView(EnvelopeMixin, generics.ListCreateAPIView):
             qs.prefetch_related(
                 Prefetch(
                     "rooms",
-                    queryset=Room.objects.filter(is_active=True),
+                    queryset=Room.objects.filter(is_active=True).prefetch_related("images"),
                     to_attr="active_rooms",
                 )
             )

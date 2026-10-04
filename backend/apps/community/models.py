@@ -95,3 +95,54 @@ class Coupon(models.Model):
 
     def __str__(self):
         return f"Coupon {self.code} (-{self.discount_amount} THB)"
+
+
+class EditorialEntry(models.Model):
+    """Published travel content; never a substitute for bookable catalog entities."""
+    class Kind(models.TextChoices):
+        STORY = "STORY", "News / event"
+        COMMUNITY = "COMMUNITY", "Community"
+        ATTRACTION = "ATTRACTION", "Attraction"
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    kind = models.CharField(max_length=16, choices=Kind.choices)
+    title = models.CharField(max_length=200)
+    title_en = models.CharField(max_length=200, blank=True)
+    summary = models.TextField(blank=True)
+    summary_en = models.TextField(blank=True)
+    body = models.TextField(blank=True)
+    body_en = models.TextField(blank=True)
+    image_url = models.URLField(max_length=1000, blank=True)
+    image_alt = models.CharField(max_length=200, blank=True)
+    location = models.CharField(max_length=200, blank=True)
+    starts_at = models.DateTimeField(null=True, blank=True)
+    ends_at = models.DateTimeField(null=True, blank=True)
+    is_published = models.BooleanField(default=False)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ("-updated_at",)
+
+    def __str__(self):
+        return self.title
+
+
+class LocationEvent(models.Model):
+    """Consent-based, coarse location events. Never store raw coordinates or IP."""
+    class Outcome(models.TextChoices):
+        GRANTED = "granted", "Granted"
+        DENIED = "denied", "Denied"
+        UNAVAILABLE = "unavailable", "Unavailable"
+        TIMEOUT = "timeout", "Timeout"
+    id = models.BigAutoField(primary_key=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="location_events")
+    outcome = models.CharField(max_length=16, choices=Outcome.choices)
+    latitude = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    longitude = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True)
+    accuracy_m = models.PositiveIntegerField(null=True, blank=True)
+    consent_version = models.CharField(max_length=40)
+    purpose = models.CharField(max_length=40, default="location_log")
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+    expires_at = models.DateTimeField(db_index=True)
+
+    class Meta:
+        ordering = ("-created_at",)

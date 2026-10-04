@@ -130,13 +130,13 @@ export default function ProfileDashboardPage() {
           className="flex flex-col justify-between rounded-2xl border border-border/70 bg-card p-4 shadow-xs transition-all hover:border-gold-500/40 hover:shadow-sm"
         >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-muted-foreground">พาสปอร์ตสะสมแต้ม</span>
+            <span className="text-xs font-semibold text-muted-foreground">เรื่องราวจากชุมชน</span>
             <div className="grid h-8 w-8 place-items-center rounded-xl bg-gold-500/20 text-gold-700">
               <Award className="h-4 w-4" />
             </div>
           </div>
           <div className="mt-3 flex items-center justify-between text-xs font-bold text-forest-900">
-            <span>เช็คอิน & รับคูปอง</span>
+            <span>รู้จักชุมชนและผู้ให้บริการ</span>
             <ChevronRight className="h-3.5 w-3.5" />
           </div>
         </Link>

@@ -6,6 +6,7 @@
  * delta=0; we still validate client-side first (UX) but trust the server.
  */
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { CatalogImageEditor } from "@/components/travel/CatalogImageEditor";
 import { Package } from "lucide-react";
 import { useState } from "react";
 
@@ -126,6 +127,7 @@ export default function OtopPortalPage() {
 
                 <div className="mt-2.5 flex items-center gap-2">
                   <Input
+                    aria-label={`${t("portal.deltaHint")} ${product.name}`}
                     type="number"
                     placeholder={t("portal.deltaHint")}
                     value={delta[product.id] ?? ""}
@@ -143,6 +145,8 @@ export default function OtopPortalPage() {
                     {t("portal.applyDelta")}
                   </Button>
                 </div>
+                <CatalogImageEditor kind="otop" id={product.id} image={product.image_url} title={product.name}/>
+                {toggleActive.isError && toggleActive.variables?.productId === product.id && <p role="alert" className="wt-error">{extractErrorMessage(toggleActive.error)}</p>}
                 {failed && (
                   <p className="mt-1.5 text-xs text-destructive">
                     {extractErrorMessage(adjust.error, t("common.networkError"))}

@@ -82,7 +82,7 @@ export default function PortalLayout({
   const isAllowedEntry = status === "authenticated" && allowedModules.length > 0;
 
   return (
-    <div className="flex min-h-screen w-full flex-col bg-background">
+    <div className="wt-management flex min-h-screen w-full flex-col bg-background">
       {/* Header */}
       <header className="sticky top-0 z-40 border-b border-border/80 bg-card/95 backdrop-blur shadow-xs">
         <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">

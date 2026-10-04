@@ -8,6 +8,7 @@
  * surface its message instead of duplicating all rules client-side.
  */
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { CatalogImageEditor } from "@/components/travel/CatalogImageEditor";
 import { Clock, Sparkles } from "lucide-react";
 import { useState, type FormEvent } from "react";
 
@@ -170,6 +171,7 @@ export default function WellnessPortalPage() {
             </Button>
           </form>
 
+          {services.filter(service=>service.id===serviceId).map(service=><CatalogImageEditor key={service.id} kind="wellness" id={service.id} image={service.image_url} title={service.title}/>)}
           {/* Existing slots on the chosen date */}
           {serviceId && (
             <section>
@@ -179,7 +181,7 @@ export default function WellnessPortalPage() {
               </h2>
               {slotsQuery.isLoading ? (
                 <ListLoading />
-              ) : slots.length === 0 ? (
+              ) : slotsQuery.isError ? <ListError message={extractErrorMessage(slotsQuery.error)} onRetry={()=>void slotsQuery.refetch()}/> : slots.length === 0 ? (
                 <p className="text-sm text-muted-foreground">
                   {t("portal.noSlotsForDate")}
                 </p>

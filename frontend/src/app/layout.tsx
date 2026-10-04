@@ -4,6 +4,7 @@ import type { Metadata, Viewport } from "next";
 import { Providers } from "@/components/providers";
 import { SisaketJsonLd } from "@/components/seo/JsonLd";
 import "./globals.css";
+import "@/components/travel/experience.css";
 
 const kanit = Kanit({
   subsets: ["latin", "thai"],

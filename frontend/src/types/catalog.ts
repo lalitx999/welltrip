@@ -59,6 +59,7 @@ export interface RoomImage {
 
 /** Public listing row (AccommodationSerializer). */
 export interface Accommodation {
+  image_url?: string;
   id: string;
   name: string;
   slug: string;
@@ -159,6 +160,7 @@ export interface FoodQuery {
 /* ------------------------------------------------------------------ */
 
 export interface WellnessService {
+  image_url?: string;
   id: string;
   title: string;
   description: string;
@@ -197,6 +199,7 @@ export interface WellnessSlotsResult {
 /* ------------------------------------------------------------------ */
 
 export interface OTOPProduct {
+  image_url?: string;
   id: string;
   name: string;
   category: OTOPCategory;

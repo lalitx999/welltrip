@@ -6,6 +6,7 @@
  */
 import {
   Home,
+  Sprout,
   Hotel,
   UtensilsCrossed,
   Sparkles,
@@ -59,7 +60,7 @@ export function DesktopSidebar() {
       <div className="flex items-center justify-between border-b border-border/60 px-5 py-4">
         <Link href="/home" className="flex items-center gap-2.5">
           <span className="grid h-9 w-9 place-items-center rounded-xl bg-forest-900 text-cream-100 font-bold shadow-sm">
-            🌿
+            <Sprout className="h-5 w-5" aria-hidden="true" />
           </span>
           <div>
             <div className="flex items-center gap-1 font-serif text-lg font-bold tracking-tight text-forest-950">

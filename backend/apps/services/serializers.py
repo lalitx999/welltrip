@@ -55,6 +55,7 @@ class WellnessServiceSerializer(serializers.ModelSerializer):
     class Meta:
         model = WellnessService
         fields = (
+            "image_url",
             "id",
             "title",
             "description",

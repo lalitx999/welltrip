@@ -10,6 +10,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import { ListError } from "@/components/catalog/DataStates";
+import { BookingSteps } from "@/components/travel/BookingSteps";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { extractErrorMessage } from "@/lib/api/errors";
@@ -23,7 +24,7 @@ import { useCartStore } from "@/store/cart-store";
 export default function CheckoutPage() {
   const { t, locale } = useI18n();
   const router = useRouter();
-  const { status, login } = useAuth();
+  const { status } = useAuth();
   const groups = useCartStore((s) => s.groupedByCategory());
   const totalPrice = useCartStore((s) => s.totalPrice);
   const clearCart = useCartStore((s) => s.clearCart);
@@ -56,6 +57,7 @@ export default function CheckoutPage() {
 
   return (
     <div className="mx-auto max-w-3xl space-y-8 px-4 pb-16 pt-6 sm:px-6">
+      <BookingSteps step={1}/>
       <div className="flex items-center gap-3 border-b border-border/60 pb-4">
         <ReceiptText className="h-6 w-6 text-forest-800" aria-hidden="true" />
         <h1 className="font-serif text-2xl font-bold text-foreground">
@@ -74,21 +76,7 @@ export default function CheckoutPage() {
             {t("checkout.needLogin")}
           </p>
           <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-            <Button
-              onClick={async () => {
-                try {
-                  await login("tourist@welltrip.com", "tourist1234");
-                } catch (e) {
-                  console.error(e);
-                }
-              }}
-              className="rounded-xl bg-forest-900 hover:bg-forest-800 text-cream-50 px-6 font-semibold shadow-md"
-            >
-              ⚡ เข้าสู่ระบบในนาม นักท่องเที่ยว (tourist@welltrip.com)
-            </Button>
-            <Link href="/login">
-              <Button variant="outline" className="rounded-xl px-6 font-semibold border-border/80">{t("profile.goLogin")}</Button>
-            </Link>
+            <Link href="/login?redirect=%2Fcheckout" className="wt-button">{t("profile.goLogin")}</Link>
           </div>
         </div>
       ) : groups.length === 0 ? (
@@ -109,7 +97,7 @@ export default function CheckoutPage() {
                 <ul className="space-y-3">
                   {group.items.map((item) => (
                     <li
-                      key={`${group.itemType}-${String(item.entity_id)}`}
+                      key={`${group.itemType}-${String(item.entity_id)}-${item.checkin_date ?? ""}-${item.checkout_date ?? ""}`}
                       className="flex items-center justify-between gap-4 rounded-2xl border border-border/70 bg-card p-4 shadow-sm"
                     >
                       <div className="min-w-0">
@@ -143,10 +131,7 @@ export default function CheckoutPage() {
               <span>{t("checkout.subtotal")}</span>
               <span className="font-semibold">{formatPriceText(totalPrice, locale)}</span>
             </div>
-            <div className="flex justify-between text-sm text-muted-foreground">
-              <span>{t("checkout.platformFee")}</span>
-              <span className="font-semibold">{formatPriceText(0, locale)}</span>
-            </div>
+
             <div className="flex items-baseline justify-between border-t border-border/60 pt-3 text-lg font-bold text-foreground">
               <span className="font-serif">{t("checkout.net")}</span>
               <span className="font-serif text-2xl text-forest-900">
@@ -156,7 +141,7 @@ export default function CheckoutPage() {
 
             <div className="mt-2 flex items-center gap-2 rounded-xl bg-forest-50/60 p-3 text-xs text-forest-900 font-medium">
               <ShieldCheck className="h-4 w-4 text-forest-700 shrink-0" />
-              <span>การชำระเงินของคุณปลอดภัย ได้รับการคุ้มครองตามมาตรฐาน WellTrip</span>
+              <span>ตรวจสอบรายการก่อนยืนยัน ระบบจะคำนวณราคาและตรวจสอบความพร้อมอีกครั้ง</span>
             </div>
           </section>
 

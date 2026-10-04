@@ -30,6 +30,7 @@ class OTOPProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = OTOPProduct
         fields = (
+            "image_url",
             "id",
             "name",
             "category",

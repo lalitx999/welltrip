@@ -7,11 +7,11 @@
  * High resolution photography container, refined typography, and Muted Gold accents.
  */
 import { MapPin, Star } from "lucide-react";
-import Image from "next/image";
+import { Media } from "@/components/travel/Primitives";
 import Link from "next/link";
 import * as React from "react";
 
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 export interface EditorialCardProps {
@@ -43,14 +43,13 @@ export function EditorialCard({
   priceSuffix = "",
   imageUrl,
   href,
-  rating = 4.9,
+  rating,
   badge,
   badgeText,
   actionText = "Explore",
   onAction,
   className,
 }: EditorialCardProps) {
-  const fallbackImage = "/images/hero_lanna_homestay.jpg";
   const displayBadge = badgeText || badge;
   const displayLocation = location || subtitle;
   const displaySuffix = priceSuffix || priceUnit || "";
@@ -64,19 +63,13 @@ export function EditorialCard({
     >
       {/* Image Banner */}
       <div className="relative aspect-[4/3] w-full overflow-hidden bg-[#F4EFE6]">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={imageUrl || fallbackImage}
-          alt={title}
-          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-          loading="lazy"
-        />
+        <Media src={imageUrl} alt={title} className="h-full !aspect-auto !rounded-none" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity" />
 
         {/* Top Badges */}
         <div className="absolute top-3 left-3 right-3 flex items-center justify-between gap-2">
           {category ? (
-            <span className="rounded-full bg-[#1B3B2B]/90 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-[#FAF8F5] backdrop-blur-md">
+            <span className="rounded-full bg-[#193E30]/90 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-[#FAF8F1] backdrop-blur-md">
               {category}
             </span>
           ) : <span />}
@@ -90,7 +83,7 @@ export function EditorialCard({
 
         {/* Location snippet on image */}
         {displayLocation && (
-          <div className="absolute bottom-3 left-3 flex items-center gap-1 text-xs font-medium text-[#FAF8F5]">
+          <div className="absolute bottom-3 left-3 flex items-center gap-1 text-xs font-medium text-[#FAF8F1]">
             <MapPin className="h-3.5 w-3.5 text-[#C5A059]" aria-hidden="true" />
             <span className="drop-shadow-xs">{displayLocation}</span>
           </div>
@@ -101,10 +94,10 @@ export function EditorialCard({
       <div className="flex flex-1 flex-col justify-between p-4 space-y-3">
         <div>
           <div className="flex items-center justify-between gap-2">
-            <h3 className="line-clamp-1 text-base font-bold text-[#1B3B2B] group-hover:text-[#C5A059] transition-colors">
+            <h3 className="line-clamp-1 text-base font-bold text-[#193E30] group-hover:text-[#C5A059] transition-colors">
               {title}
             </h3>
-            {rating && (
+            {rating !== undefined && (
               <div className="flex items-center gap-1 shrink-0 text-xs font-bold text-[#26221F]">
                 <Star className="h-3.5 w-3.5 fill-[#C5A059] text-[#C5A059]" aria-hidden="true" />
                 <span>{rating}</span>
@@ -122,7 +115,7 @@ export function EditorialCard({
                   Price
                 </span>
                 <div className="flex items-baseline gap-1">
-                  <span className="text-base font-extrabold text-[#1B3B2B]">
+                  <span className="text-base font-extrabold text-[#193E30]">
                     {price}
                   </span>
                   {displaySuffix && (
@@ -141,19 +134,12 @@ export function EditorialCard({
                 e.stopPropagation();
                 onAction();
               }}
-              className="bg-[#1B3B2B] text-[#FAF8F5] hover:bg-[#C5A059] hover:text-[#12291E]"
+              className="bg-[#193E30] text-[#FAF8F1] hover:bg-[#C5A059] hover:text-[#12291E]"
             >
               {actionText}
             </Button>
           ) : (
-            <Link href={href}>
-              <Button
-                size="sm"
-                className="bg-[#1B3B2B] text-[#FAF8F5] hover:bg-[#C5A059] hover:text-[#12291E]"
-              >
-                {actionText}
-              </Button>
-            </Link>
+            <Link href={href} className={buttonVariants({size: "sm"})}>{actionText}</Link>
           )}
         </div>
       </div>

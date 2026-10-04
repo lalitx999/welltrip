@@ -6,12 +6,13 @@
 import { Minus, Plus, ShoppingBag, Trash2, ArrowRight } from "lucide-react";
 import Link from "next/link";
 
+import { BookingSteps } from "@/components/travel/BookingSteps";
 import { Button } from "@/components/ui/button";
 import {
   CART_GROUP_LABELS,
   placeholderKindForCartType,
 } from "@/lib/booking-presentation";
-import { formatPriceText } from "@/lib/format";
+import { formatPriceText, formatDateText } from "@/lib/format";
 import { displayImage } from "@/lib/images";
 import { useI18n } from "@/lib/i18n";
 import { useCartStore } from "@/store/cart-store";
@@ -51,6 +52,7 @@ export default function CartPage() {
 
   return (
     <div className="mx-auto max-w-4xl space-y-8 px-4 pb-16 pt-6 sm:px-6">
+      <BookingSteps step={0}/>
       {/* Page Header */}
       <div className="flex items-center justify-between border-b border-border/60 pb-4">
         <h1 className="flex items-center gap-3 font-serif text-2xl font-bold text-foreground">
@@ -92,6 +94,7 @@ export default function CartPage() {
                         <p className="font-serif text-base font-bold leading-snug text-foreground">
                           {item.title}
                         </p>
+                        {item.checkin_date && <p className="wt-muted">{formatDateText(item.checkin_date,locale)} – {formatDateText(item.checkout_date,locale)}</p>}
                         <p className="mt-1 text-sm font-semibold text-forest-800">
                           {formatPriceText(item.unit_price, locale)}
                         </p>
@@ -101,7 +104,7 @@ export default function CartPage() {
                         <div className="flex items-center rounded-xl border border-border/80 bg-cream-50/50">
                           <button
                             type="button"
-                            aria-label="-"
+                            aria-label={locale === "th" ? "ลดจำนวน" : "Decrease quantity"}
                             className="grid h-8 w-8 place-items-center text-muted-foreground transition-colors hover:text-foreground disabled:opacity-40"
                             disabled={item.quantity <= 1}
                             onClick={() =>
@@ -109,6 +112,7 @@ export default function CartPage() {
                                 item.entity_id,
                                 item.item_type,
                                 item.quantity - 1,
+                                item.checkin_date, item.checkout_date,
                               )
                             }
                           >
@@ -119,13 +123,14 @@ export default function CartPage() {
                           </span>
                           <button
                             type="button"
-                            aria-label="+"
+                            aria-label={locale === "th" ? "เพิ่มจำนวน" : "Increase quantity"}
                             className="grid h-8 w-8 place-items-center text-muted-foreground transition-colors hover:text-foreground"
                             onClick={() =>
                               updateQuantity(
                                 item.entity_id,
                                 item.item_type,
                                 item.quantity + 1,
+                                item.checkin_date, item.checkout_date,
                               )
                             }
                           >
@@ -136,7 +141,7 @@ export default function CartPage() {
                         <button
                           type="button"
                           aria-label={t("cart.remove")}
-                          onClick={() => removeItem(item.entity_id, item.item_type)}
+                          onClick={() => removeItem(item.entity_id, item.item_type, item.checkin_date, item.checkout_date)}
                           className="grid h-8 w-8 place-items-center rounded-lg text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
                         >
                           <Trash2 className="h-4 w-4" aria-hidden="true" />
@@ -151,7 +156,7 @@ export default function CartPage() {
         </div>
 
         {/* Total Summary Box */}
-        <div className="h-fit space-y-4 rounded-2xl border border-border/80 bg-card p-6 shadow-sm">
+        <div className="wt-booking-summary h-fit space-y-4 rounded-2xl border border-border/80 bg-card p-6 shadow-sm">
           <h2 className="font-serif font-bold text-foreground">สรุปรายการคำสั่งซื้อ</h2>
           <div className="flex items-baseline justify-between border-t border-border/60 pt-4">
             <span className="text-sm text-muted-foreground">{t("cart.total")}</span>
@@ -162,12 +167,7 @@ export default function CartPage() {
           <p className="text-xs text-muted-foreground leading-relaxed">
             {t("cart.estimateNote")}
           </p>
-          <Link href="/checkout" className="block pt-2">
-            <Button className="w-full justify-center rounded-xl py-3 font-semibold shadow-md">
-              <span>{t("cart.proceed")}</span>
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
-          </Link>
+          <Link href="/checkout" className="wt-button w-full"><span>{t("cart.proceed")}</span><ArrowRight size={17}/></Link>
         </div>
       </div>
     </div>

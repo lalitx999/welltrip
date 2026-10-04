@@ -4,8 +4,8 @@
  * (mobile-tourist)/hotels/page.tsx - homestay search list with Eco-Premium styling.
  */
 import { useQuery } from "@tanstack/react-query";
-import { Hotel, MapPin, RotateCcw, Search, Filter, Calendar } from "lucide-react";
-import Link from "next/link";
+import { RotateCcw, Search, Filter } from "lucide-react";
+import { PageHeading } from "@/components/travel/Primitives";
 import { useState } from "react";
 
 import { ListError, ListLoading } from "@/components/catalog/DataStates";
@@ -65,6 +65,12 @@ export default function HotelsPage() {
       setDateError(t("catalog.chooseCheckoutFirst"));
       return;
     }
+    if (Boolean(draft.checkin) !== Boolean(draft.checkout)) {
+      setDateError(locale === "th" ? "กรุณาเลือกวันเข้าพักและวันออกให้ครบ" : "Choose both check-in and check-out dates."); return;
+    }
+    if (draft.min && draft.max && Number(draft.min) > Number(draft.max)) {
+      setDateError(locale === "th" ? "ราคาสูงสุดต้องไม่น้อยกว่าราคาต่ำสุด" : "Maximum price must be at least the minimum."); return;
+    }
     setDateError(null);
     setPage(1);
     setApplied({ ...draft });
@@ -86,31 +92,16 @@ export default function HotelsPage() {
 
   return (
     <div className="mx-auto max-w-7xl space-y-8 px-4 pb-12 pt-6 sm:px-6 lg:px-8">
-      {/* Editorial Header Banner */}
-      <div className="relative overflow-hidden rounded-3xl bg-forest-900 p-8 text-cream-50 shadow-xl lg:p-12">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(197,160,89,0.25),transparent_60%)]" />
-        <div className="relative z-10 max-w-2xl space-y-3">
-          <div className="inline-flex items-center gap-2 rounded-full border border-gold-500/30 bg-gold-500/10 px-3 py-1 text-xs font-medium text-gold-300">
-            <Hotel className="h-3.5 w-3.5" />
-            <span>Eco-Friendly Accommodations</span>
-          </div>
-          <h1 className="font-serif text-3xl font-bold tracking-wide sm:text-4xl text-cream-100">
-            {t("nav.hotels")} & Eco-Stays
-          </h1>
-          <p className="text-sm text-cream-200/80 sm:text-base leading-relaxed">
-            สัมผัสการพักผ่อนท่ามกลางธรรมชาติ โฮมสเตย์ชุมชนทรงคุณค่า และสถาปัตยกรรมล้านนาที่เปี่ยมด้วยเสน่ห์
-          </p>
-        </div>
-      </div>
+      <PageHeading eyebrow="STAY CLOSE TO NATURE" title={locale === "th" ? "ที่พักสำหรับวันพักใจ" : "Find your slow stay"} description={locale === "th" ? "เลือกที่พักจากผู้ให้บริการ ดูวันที่ว่างและราคาจริงก่อนเริ่มทริปของคุณ" : "Find a place to unwind. Choose dates to see current availability and prices."} />
 
       {/* Filter Section */}
-      <div className="rounded-2xl border border-border/70 bg-card p-5 shadow-sm sm:p-6">
-        <div className="mb-4 flex items-center gap-2 border-b border-border/50 pb-3">
+      <details className="wt-panel">
+        <summary className="flex min-h-11 cursor-pointer items-center gap-2">
           <Filter className="h-4 w-4 text-forest-700" />
-          <h2 className="font-serif font-bold text-foreground">ค้นหาที่พัก (Filter Accommodations)</h2>
-        </div>
+          <span>{locale === "th" ? "ค้นหาและกรองที่พัก" : "Search & filter stays"}</span>
+        </summary>
         <form
-          className="space-y-4"
+          className="mt-5 space-y-4"
           onSubmit={(e) => {
             e.preventDefault();
             applyFilters();
@@ -126,7 +117,7 @@ export default function HotelsPage() {
                 className="w-full rounded-xl border border-border/80 bg-cream-50/50 px-3.5 py-2.5 text-sm transition-all focus:border-forest-600 focus:outline-none focus:ring-1 focus:ring-forest-600"
                 value={draft.province}
                 onChange={(e) => set("province")(e.target.value)}
-                placeholder="เช่น เชียงใหม่, น่าน"
+                placeholder={locale === "th" ? "เช่น ศรีสะเกษ" : "e.g. Sisaket"}
               />
             </div>
             <div>
@@ -214,7 +205,7 @@ export default function HotelsPage() {
             </Button>
           </div>
         </form>
-      </div>
+      </details>
 
       {/* Results Grid */}
       {isLoading ? (
@@ -240,8 +231,8 @@ export default function HotelsPage() {
                 subtitle={acc.province}
                 price={acc.min_price_per_night ? formatPriceText(acc.min_price_per_night, locale) : undefined}
                 priceUnit={acc.min_price_per_night ? t("catalog.perNight") : undefined}
-                badge="Homestay"
-                imageUrl={displayImage(undefined, "hotel", acc.id, 500)}
+                actionText={locale === "th" ? "ดูที่พัก" : "View stay"}
+                imageUrl={displayImage(acc.image_url, "hotel", acc.id, 500)}
                 href={`/hotels/${acc.id}`}
               />
             ))}

@@ -16,6 +16,8 @@ import {
   useMemo,
 } from "react";
 
+import { useQueryClient } from "@tanstack/react-query";
+
 import {
   apiGoogleLogin,
   apiLogin,
@@ -40,6 +42,7 @@ interface AuthContextValue {
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const queryClient = useQueryClient();
   const status = useAuthStore((s) => s.status);
   const user = useAuthStore((s) => s.user);
   const setStatus = useAuthStore((s) => s.setStatus);
@@ -111,8 +114,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = useCallback(() => {
     clearSession();
+    queryClient.clear();
+    sessionStorage.removeItem("ai_recommendation_result");
     useCartStore.getState().clearCart();
-  }, [clearSession]);
+  }, [clearSession, queryClient]);
 
   const value = useMemo<AuthContextValue>(
     () => ({

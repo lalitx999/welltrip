@@ -10,7 +10,6 @@ import {
   MapPin,
   Users,
   Bed,
-  CheckCircle2,
 } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -37,7 +36,7 @@ export default function HotelDetailPage() {
   const addItem = useCartStore((s) => s.addItem);
 
   const bothDatesValid = Boolean(
-    checkin && checkout && checkout > checkin,
+    checkin && checkout && checkin >= todayISO() && checkout > checkin,
   );
 
   const { data, isLoading, isError, error, refetch } = useQuery({
@@ -61,7 +60,7 @@ export default function HotelDetailPage() {
     addItem({
       item_type: "ROOM_RESERVATION",
       entity_id: room.id,
-      quantity: qtyByRoom[room.id] ?? 1,
+      quantity: Math.min(qtyByRoom[room.id] ?? 1, minAvailableFor(room) ?? 99),
       checkin_date: checkin,
       checkout_date: checkout,
       title: `${accommodation.name} · ${room.name}`,
@@ -105,14 +104,14 @@ export default function HotelDetailPage() {
             <div className="relative h-64 w-full bg-forest-900 sm:h-80 md:h-96">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src={displayImage(undefined, "hotel", accommodation.id, 1200)}
+                src={displayImage(accommodation.image_url || rooms.flatMap((room) => room.images).find((image) => image.is_primary)?.image_url, "hotel", accommodation.id, 1200)}
                 alt={accommodation.name}
                 className="h-full w-full object-cover opacity-90"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-forest-950/80 via-forest-950/20 to-transparent" />
               <div className="absolute bottom-6 left-6 right-6 text-cream-50 sm:bottom-8 sm:left-8 sm:right-8">
                 <span className="inline-block rounded-full bg-gold-500/90 px-3 py-1 text-xs font-semibold text-forest-950 shadow-sm">
-                  Homestay Eco-Wellness
+                  COMMUNITY STAYS
                 </span>
                 <h1 className="mt-2 font-serif text-2xl font-bold tracking-wide text-cream-100 sm:text-4xl">
                   {accommodation.name}
@@ -189,13 +188,14 @@ export default function HotelDetailPage() {
               <h2 className="font-serif text-xl font-bold text-foreground">ประเภทห้องพัก (Available Rooms)</h2>
             </div>
 
+            {rooms.length === 0 && <p className="wt-empty">ยังไม่มีห้องพักเปิดให้จอง</p>}
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
               {rooms.map((room) => {
                 const minAvailable = minAvailableFor(room);
                 const soldOut = minAvailable === 0;
                 const image_url =
                   room.images.find((i) => i.is_primary)?.image_url ?? "";
-                const quantity = qtyByRoom[room.id] ?? 1;
+                const quantity = Math.min(qtyByRoom[room.id] ?? 1, minAvailable ?? 99);
 
                 return (
                   <div
@@ -230,16 +230,6 @@ export default function HotelDetailPage() {
                             {room.description}
                           </p>
                         )}
-                        <div className="flex items-center gap-3 pt-1 text-xs text-forest-800 font-medium">
-                          <span className="inline-flex items-center gap-1">
-                            <CheckCircle2 className="h-3.5 w-3.5 text-gold-600" />
-                            ฟรีอาหารเช้าชุมชน
-                          </span>
-                          <span className="inline-flex items-center gap-1">
-                            <CheckCircle2 className="h-3.5 w-3.5 text-gold-600" />
-                            Wi-Fi
-                          </span>
-                        </div>
                       </div>
                     </div>
 
@@ -274,7 +264,7 @@ export default function HotelDetailPage() {
                           <div className="flex items-center rounded-xl border border-border/80 bg-card">
                             <button
                               type="button"
-                              aria-label="-"
+                              aria-label="ลดจำนวนห้อง"
                               className="grid h-9 w-8 place-items-center text-muted-foreground transition-colors hover:text-foreground disabled:opacity-40"
                               disabled={quantity <= 1}
                               onClick={() =>
@@ -291,12 +281,13 @@ export default function HotelDetailPage() {
                             </span>
                             <button
                               type="button"
-                              aria-label="+"
+                              aria-label="เพิ่มจำนวนห้อง"
+                              disabled={minAvailable !== null && quantity >= minAvailable}
                               className="grid h-9 w-8 place-items-center text-muted-foreground transition-colors hover:text-foreground"
                               onClick={() =>
                                 setQtyByRoom((prev) => ({
                                   ...prev,
-                                  [room.id]: (prev[room.id] ?? 1) + 1,
+                                  [room.id]: Math.min(quantity + 1, minAvailable ?? 99),
                                 }))
                               }
                             >
@@ -308,7 +299,7 @@ export default function HotelDetailPage() {
 
                       <AddToCartButton
                         onAdd={() => addRoom(room)}
-                        disabled={soldOut || !bothDatesValid}
+                        disabled={soldOut || !bothDatesValid || minAvailable === null}
                         disabledLabel={
                           soldOut ? t("catalog.outOfStock") : "กรุณาเลือกวันเข้าพัก"
                         }

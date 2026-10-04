@@ -64,6 +64,7 @@ class FoodMenu(models.Model):
 
 
 class WellnessService(models.Model):
+    image_url = models.URLField(max_length=1000, blank=True, default="")
     """A bookable spa / massage / wellness session by a WELLNESS_OWNER."""
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)

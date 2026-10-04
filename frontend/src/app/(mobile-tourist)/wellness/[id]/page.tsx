@@ -57,6 +57,7 @@ export default function WellnessDetailPage() {
         slot.end_time,
       )} (${slot.slot_date})`,
       unit_price: toNumber(service.price),
+      image_url: service.image_url,
     });
   }
 
@@ -91,7 +92,7 @@ export default function WellnessDetailPage() {
             <div className="relative h-64 w-full bg-forest-900 sm:h-80 md:h-96">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src={displayImage(undefined, "wellness", service.id, 1200)}
+                src={displayImage(service.image_url, "wellness", service.id, 1200)}
                 alt={service.title}
                 className="h-full w-full object-cover opacity-90"
               />

@@ -13,12 +13,14 @@ import {
   Upload,
   CreditCard,
   ArrowRight,
+  Copy,
 } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useEffect, useMemo, useState, type ChangeEvent } from "react";
 import Link from "next/link";
 
 import { ListError, ListLoading } from "@/components/catalog/DataStates";
+import { BookingSteps } from "@/components/travel/BookingSteps";
 import { Button } from "@/components/ui/button";
 import { extractErrorMessage } from "@/lib/api/errors";
 import { getPaymentDetail, uploadPaymentSlip } from "@/lib/api/booking";
@@ -52,6 +54,7 @@ export default function PaymentPage() {
 
   const [now, setNow] = useState(() => Date.now());
   const [copied, setCopied] = useState(false);
+  const [copyError, setCopyError] = useState("");
   useEffect(() => {
     if (!targetExpiresAt) {
       return;
@@ -73,8 +76,8 @@ export default function PaymentPage() {
 
   const payeeReady = Boolean(
     payment &&
-      (payment.payee_account_number ||
-        payment.payee_account_name ||
+      (payment.payee_account_number &&
+        payment.payee_account_name &&
         payment.payee_bank),
   );
 
@@ -93,6 +96,7 @@ export default function PaymentPage() {
 
   return (
     <div className="mx-auto max-w-2xl space-y-8 px-4 pb-16 pt-6 sm:px-6">
+      <BookingSteps step={2}/>
       {/* Header */}
       <div className="flex items-center gap-3 border-b border-border/60 pb-4">
         <Landmark className="h-6 w-6 text-forest-800" aria-hidden="true" />
@@ -166,33 +170,15 @@ export default function PaymentPage() {
               <div className="flex items-center justify-between border-b border-border/60 pb-3">
                 <div className="flex items-center gap-2">
                   <CreditCard className="h-4 w-4 text-forest-800" />
-                  <h2 className="font-serif font-bold text-foreground">ชำระเงินผ่าน PromptPay / โอนผ่านธนาคาร</h2>
+                  <h2 className="font-serif font-bold text-foreground">โอนเงินผ่านบัญชีธนาคาร</h2>
                 </div>
                 <span className="inline-flex items-center gap-1.5 rounded-full border border-forest-800/20 bg-forest-50 px-2.5 py-0.5 text-[11px] font-bold text-forest-900">
-                  ⚡ EasySlip Verification
+                  ตรวจสอบสลิป
                 </span>
               </div>
 
-              {/* PromptPay QR Code Mockup Box */}
-              <div className="flex flex-col items-center justify-center rounded-2xl bg-cream-50/80 p-6 border border-border/60 text-center space-y-3">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-forest-900 text-cream-100 text-xs font-semibold">
-                  <Landmark className="h-3.5 w-3.5" />
-                  <span>สแกน QR Code ตามยอดชำระ</span>
-                </div>
-                <div className="relative p-3 bg-white rounded-2xl shadow-inner border border-border/70">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=PROMPTPAY-WELLTRIP-${payment.amount}`}
-                    alt="PromptPay QR Code"
-                    className="h-44 w-44 object-contain rounded-lg"
-                  />
-                  <div className="mt-2 text-center">
-                    <p className="text-[11px] font-semibold text-muted-foreground">ยอดเงินที่ต้องโอนตรงตามสลิป</p>
-                    <p className="font-serif text-xl font-bold text-forest-900">{formatPriceText(payment.amount, locale)}</p>
-                  </div>
-                </div>
-              </div>
-
+              {!payeeReady && <p className="wt-error" role="alert">ยังไม่มีข้อมูลบัญชีรับเงินครบถ้วน กรุณารอผู้ดูแลตั้งค่าก่อนโอนเงิน</p>}
+              {copyError && <p role="alert" className="wt-error">{copyError}</p>}
               {/* Bank Account Details with Copy Button */}
               {payeeReady && (
                 <div className="space-y-3 rounded-xl bg-cream-50/60 p-4 border border-border/50 text-sm">
@@ -211,15 +197,12 @@ export default function PaymentPage() {
                           variant="ghost"
                           size="sm"
                           className="h-7 px-2 text-xs font-semibold text-forest-800 hover:bg-forest-100/50"
-                          onClick={() => {
-                            if (typeof navigator !== "undefined" && navigator.clipboard) {
-                              navigator.clipboard.writeText(payment.payee_account_number);
-                              setCopied(true);
-                              setTimeout(() => setCopied(false), 2000);
-                            }
+                          onClick={async () => {
+                            try { await navigator.clipboard.writeText(payment.payee_account_number); setCopied(true); setCopyError(""); }
+                            catch { setCopied(false); setCopyError("คัดลอกไม่สำเร็จ กรุณาจดหรือเลือกเลขบัญชีด้วยตนเอง"); }
                           }}
                         >
-                          {copied ? "✓ คัดลอกแล้ว!" : "คัดลอก"}
+                          {copied ? <CheckCircle2 className="mr-1 h-4 w-4"/> : <Copy className="mr-1 h-4 w-4"/>}{copied ? "คัดลอกแล้ว" : "คัดลอก"}
                         </Button>
                       </div>
                     </div>
@@ -242,19 +225,19 @@ export default function PaymentPage() {
                 id="slip-file"
                 type="file"
                 accept="image/*"
-                className="hidden"
+                className="sr-only"
                 onChange={onPickSlip}
-                disabled={upload.isPending}
+                disabled={upload.isPending || !payeeReady || secondsLeft === 0}
               />
               <div className="space-y-1">
-                <h3 className="font-serif font-bold text-foreground">แนบสลิปเพื่อตรวจเช็กด้วย EasySlip</h3>
+                <h3 className="font-serif font-bold text-foreground">แนบหลักฐานการโอนเงิน</h3>
                 <p className="text-xs text-muted-foreground">ระบบจะสแกนและตรวจสอบยอดโอนอัตโนมัติทันทีที่แนบสลิป</p>
               </div>
 
               <label
                 htmlFor="slip-file"
-                aria-disabled={upload.isPending}
-                className="inline-flex min-h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-forest-900 px-6 py-3 text-sm font-semibold text-cream-100 shadow-md transition-all hover:bg-forest-950 disabled:pointer-events-none disabled:opacity-50"
+                aria-disabled={upload.isPending || !payeeReady || secondsLeft === 0}
+                className="inline-flex min-h-12 peer-focus-visible:outline w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-forest-900 px-6 py-3 text-sm font-semibold text-cream-100 shadow-md transition-all hover:bg-forest-950 disabled:pointer-events-none disabled:opacity-50"
               >
                 {upload.isPending ? (
                   <>
@@ -273,7 +256,7 @@ export default function PaymentPage() {
               )}
               <p className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
                 <ShieldCheck className="h-4 w-4 text-forest-700" aria-hidden="true" />
-                <span>ตรวจสอบข้อมูลโดย EasySlip Gateway · ปลอดภัย 100%</span>
+                <span>ผลการตรวจสอบจะแสดงในสถานะของสลิปแต่ละรายการ</span>
               </p>
             </section>
           )}

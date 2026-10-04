@@ -44,7 +44,7 @@ def analyze_health_deepseek(profile_data: dict) -> str:
                 f"ข้อมูลนักท่องเที่ยว: น้ำหนัก {profile_data.get('weight_kg')} kg, ส่วนสูง {profile_data.get('height_cm')} cm, "
                 f"BMI {bmi}, BMR {profile_data.get('bmr')} kcal, เพศ {profile_data.get('gender')}, อายุ {profile_data.get('age')} ปี\n"
                 f"เป้าหมายสุขภาพ: {goal}, ข้อจำกัดทางอาหาร: {diet}\n"
-                f"โปรดวิเคราะห์สภาวะสุขภาพสั้นๆ และเสนอแนะแนวทางการฟื้นฟูด้วยอาหาร สปาล้านนา และกิจกรรมผ่อนคลาย"
+                f"โปรดวิเคราะห์สภาวะสุขภาพสั้นๆ และแนะนำความสนใจด้านการท่องเที่ยวชุมชนและกิจกรรมผ่อนคลายในอีสาน ห้ามวินิจฉัยโรคหรืออ้างผลการรักษา"
             )
             req_data = json.dumps({
                 "model": "deepseek-chat",
@@ -64,108 +64,61 @@ def analyze_health_deepseek(profile_data: dict) -> str:
             with urllib.request.urlopen(req, timeout=10) as resp:
                 res_json = json.loads(resp.read().decode("utf-8"))
                 content = res_json["choices"][0]["message"]["content"]
-                return f"[DeepSeek Clinical Reasoning]\n{content}"
+                return content
         except Exception:
             pass
 
-    # High-quality fallback analysis when API key is pending
-    goal_descriptions = {
-        "STRESS_RELIEF": "เน้นการผ่อนคลายความเหนื่อยล้าสะสม คลายกล้ามเนื้อคอบ่าไหล่ด้วยนวดประคบสมุนไพรล้านนาต้มสด",
-        "DETOX": "เน้นอาหารออร์แกนิคใยอาหารสูง จิบชาสมุนไพรขับสารพิษ และแช่น้ำแร่ออนเซ็นบำรุงผิวพรรณ",
-        "BLOOD_SUGAR_CONTROL": "เน้นอาหารดัชนีน้ำตาลต่ำ (Low Sugar) โซเดียมต่ำ และเดินชมสวนสมุนไพรธรรมชาติ",
-        "FATIGUE_RECOVERY": "เน้นการพักผ่อนในโฮมสเตย์ล้านนาเงียบสงบ ฟื้นฟูพละกำลังด้วยอาหารสมุนไพรล้านนาต้มสด",
-    }
-    desc = goal_descriptions.get(goal, "ส่งเสริมการพักผ่อนแบบองค์รวมท่ามกลางธรรมชาติล้านนา")
-    return (
-        f"[DeepSeek Reasoning Engine]\n"
-        f"วิเคราะห์สภาวะสุขภาพ: ดัชนีมวลกาย BMI = {bmi} (อยู่ในเกณฑ์เหมาะสม). "
-        f"คำแนะนำทางการแพทย์เชิงป้องกัน: {desc} ร่วมกับอาหารออร์แกนิค {diet}"
-    )
+    return "ขณะนี้ยังไม่สามารถสร้างคำแนะนำจาก AI ได้ รายการด้านล่างเป็นตัวเลือกจากแคตตาล็อกปัจจุบัน ไม่ใช่ผลวิเคราะห์สุขภาพเฉพาะบุคคล"
 
 
 def recommend_package_gemini(health_analysis: str, profile_data: dict) -> dict:
     """Stage 2: Gemini AI Engine - Database Catalog Matching & Structured JSON Output."""
-    # Fetch active database catalog rows from PostgreSQL
-    accommodations = list(Accommodation.objects.filter(status="ACTIVE")[:3])
-    foods = list(FoodMenu.objects.filter(is_available=True)[:5])
-    wellness_services = list(WellnessService.objects.filter(is_active=True)[:3])
-    otop_products = list(OTOPProduct.objects.filter(is_active=True)[:5])
-
-    api_key = getattr(settings, "GEMINI_API_KEY", "") or ""
-    if api_key:
-        try:
-            # Gemini API Structured JSON matching
-            pass
-        except Exception:
-            pass
-
-    # Assemble structured package from PostgreSQL objects
-    selected_acc = accommodations[0] if accommodations else None
-    selected_foods = foods[:2]
-    selected_wellness = wellness_services[:1]
-    selected_otop = otop_products[:2]
-
+    # Catalog suggestions remain explicitly unpersonalized until matching is implemented.
+    accommodations = Accommodation.objects.filter(status="ACTIVE").prefetch_related("rooms__images")[:3]
+    foods = FoodMenu.objects.filter(is_available=True)[:2]
+    wellness_services = WellnessService.objects.filter(is_active=True)[:2]
+    otop_products = OTOPProduct.objects.filter(is_active=True, stock_quantity__gt=0)[:2]
     package_items = []
     total_price = Decimal("0.00")
-
-    if selected_acc:
-        first_room = selected_acc.rooms.first()
-        room_price = first_room.base_price_per_night if first_room else Decimal("2200.00")
-        total_price += room_price
+    for accommodation in accommodations:
+        rooms = [room for room in accommodation.rooms.all() if room.is_active]
+        if not rooms:
+            continue
+        room = min(rooms, key=lambda row: row.base_price_per_night)
+        images = list(room.images.all())
         package_items.append({
-            "item_type": "ROOM_RESERVATION",
-            "entity_id": str(first_room.id) if first_room else str(selected_acc.id),
-            "title": f"ที่พัก: {selected_acc.name} ({first_room.name if first_room else 'Standard'})",
-            "unit_price": str(room_price),
-            "quantity": 1,
-            "category_label": "โฮมสเตย์ธรรมชาติ",
-            "image_url": "/images/hero-lanna-homestay.jpg",
+            "item_type": "ROOM_RESERVATION", "entity_id": str(room.id),
+            "title": f"{accommodation.name} · {room.name}", "unit_price": str(room.base_price_per_night),
+            "quantity": 1, "category_label": "ราคาเริ่มต้นต่อคืน · เลือกวันก่อนจอง",
+            "image_url": images[0].image_url if images else "",
+            "detail_url": f"/hotels/{accommodation.id}", "requires_selection": True,
         })
-
-    for f in selected_foods:
-        total_price += f.price
+    for food in foods:
+        total_price += food.price
         package_items.append({
-            "item_type": "FOOD_ORDER",
-            "entity_id": str(f.id),
-            "title": f"อาหาร: {f.name}",
-            "unit_price": str(f.price),
-            "quantity": 1,
-            "category_label": f.get_wellness_category_display(),
-            "image_url": f.image_url or "/images/organic-food.jpg",
+            "item_type": "FOOD_ORDER", "entity_id": str(food.id), "title": food.name,
+            "unit_price": str(food.price), "quantity": 1, "category_label": food.get_wellness_category_display(),
+            "image_url": food.image_url, "detail_url": "/foods", "requires_selection": False,
         })
-
-    for w in selected_wellness:
-        total_price += w.price
-        first_slot = w.time_slots.filter(capacity_available__gt=0).first()
+    for service in wellness_services:
         package_items.append({
-            "item_type": "WELLNESS_SESSION",
-            "entity_id": str(first_slot.id) if first_slot else str(w.id),
-            "title": f"สปา/นวด: {w.title}",
-            "unit_price": str(w.price),
-            "quantity": 1,
-            "category_label": f"{w.duration_minutes} นาที",
-            "image_url": "/images/eco-spa.jpg",
+            "item_type": "WELLNESS_SESSION", "entity_id": str(service.id), "title": service.title,
+            "unit_price": str(service.price), "quantity": 1, "category_label": f"{service.duration_minutes} นาที · เลือกรอบก่อนจอง",
+            "image_url": service.image_url, "detail_url": f"/wellness/{service.id}", "requires_selection": True,
         })
-
-    for o in selected_otop:
-        total_price += o.price
+    for product in otop_products:
+        total_price += product.price
         package_items.append({
-            "item_type": "OTOP_GOODS",
-            "entity_id": str(o.id),
-            "title": f"OTOP: {o.name}",
-            "unit_price": str(o.price),
-            "quantity": 1,
-            "category_label": o.get_category_display(),
-            "image_url": "/images/otop-craft.jpg",
+            "item_type": "OTOP_GOODS", "entity_id": str(product.id), "title": product.name,
+            "unit_price": str(product.price), "quantity": 1, "category_label": product.get_category_display(),
+            "image_url": product.image_url, "detail_url": "/otop", "requires_selection": False,
         })
-
     return {
-        "package_title": f"แพ็กเกจทริปสุขภาพล้านนา (เพื่อ{profile_data.get('health_goal_display', 'ฟื้นฟูสุขภาพองค์รวม')})",
-        "duration_label": "2 วัน 1 คืน (2D1N Special Package)",
+        "package_title": "ไอเดียสำหรับวันพักผ่อนของคุณ",
+        "duration_label": "เลือกวันและกิจกรรมได้ตามต้องการ",
         "total_package_price": str(total_price),
-        "items": package_items,
-        "ai_providers": ["DeepSeek Reasoning Engine", "Gemini Structured Matching API"],
-        "disclaimer": "คำแนะนำนี้มีวัตถุประสงค์เพื่อการส่งเสริมสุขภาพเบื้องต้นและการท่องเที่ยวเชิงนิเวศ ไม่ใช่การวินิจฉัยหรือสั่งการรักษาทางการแพทย์",
+        "items": package_items, "ai_providers": [],
+        "disclaimer": "รายการจากแคตตาล็อกปัจจุบัน ยังไม่ได้จับคู่ตามข้อมูลสุขภาพ ไม่ใช่คำวินิจฉัยหรือการรักษา เลือกวันและรอบก่อนจองที่พักหรือกิจกรรม",
     }
 
 

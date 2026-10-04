@@ -5,7 +5,7 @@ from django.db.models import Count, Sum
 from django.utils import timezone
 
 from apps.accommodations.models import Accommodation
-from apps.bookings.models import Booking
+from apps.bookings.models import Booking, BookingItem
 from apps.otop.models import OTOPProduct
 from apps.payments.models import Payment
 
@@ -13,30 +13,24 @@ from apps.payments.models import Payment
 def get_community_analytics_data() -> dict:
     """Aggregate community-level sales, occupancy rates & tourist demographics."""
     total_gmv = (
-        Payment.objects.filter(status="PAID").aggregate(total=Sum("amount"))["total"]
+        Payment.objects.filter(status="SUCCESS").aggregate(total=Sum("amount"))["total"]
         or 0
     )
     total_bookings = Booking.objects.count()
-    completed_bookings = Booking.objects.filter(status="CONFIRMED").count()
+    completed_bookings = Booking.objects.filter(status="COMPLETED").count()
 
     total_accommodations = Accommodation.objects.count()
-    occupancy_rate = 78.5 if total_accommodations > 0 else 0.0
+    occupancy_rate = None  # No reporting window/inventory denominator has been configured.
 
-    # Top selling OTOP products
+    # Paid order snapshots supply actual sales, even if a catalog row changes later.
     top_otop = list(
-        OTOPProduct.objects.values("id", "name", "price")
-        .annotate(total_sales=Count("id"))
+        BookingItem.objects.filter(item_type="OTOP_GOODS", booking__payment__status="SUCCESS")
+        .values("entity_id", "item_title_snapshot")
+        .annotate(total_sales=Sum("quantity"), sales_amount=Sum("total_price"))
         .order_by("-total_sales")[:5]
     )
-
-    # Demographic breakdown (simulated stats)
-    tourist_provinces = [
-        {"province": "กรุงเทพมหานคร", "count": 450, "percentage": 35.2},
-        {"province": "เชียงใหม่", "count": 280, "percentage": 21.8},
-        {"province": "นนทบุรี", "count": 190, "percentage": 14.8},
-        {"province": "ชลบุรี", "count": 140, "percentage": 10.9},
-        {"province": "อื่นๆ", "count": 220, "percentage": 17.3},
-    ]
+    # No provenance-backed demographic field exists; do not fabricate visitor origins.
+    tourist_provinces = []
 
     return {
         "generated_at": timezone.now().isoformat(),
@@ -68,7 +62,7 @@ def generate_analytics_csv_report() -> str:
     writer.writerow(["Total Revenue (GMV)", f"{data['summary']['total_gmv']:,.2f} THB"])
     writer.writerow(["Total Bookings", data["summary"]["total_bookings"]])
     writer.writerow(["Completed Bookings", data["summary"]["completed_bookings"]])
-    writer.writerow(["Occupancy Rate", f"{data['summary']['occupancy_rate_percent']:.1f}%"])
+    writer.writerow(["Occupancy Rate", "Not available"])
     writer.writerow([])
 
     # Demographic Table

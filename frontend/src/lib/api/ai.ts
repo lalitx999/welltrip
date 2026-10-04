@@ -22,6 +22,8 @@ export interface PackageItem {
   quantity: number;
   category_label: string;
   image_url: string;
+  detail_url?: string;
+  requires_selection?: boolean;
 }
 
 export interface RecommendedPackage {

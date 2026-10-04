@@ -13,13 +13,13 @@
        - Muted: Warm Sand (#F3F0EA -> HSL 40 18% 94%)
        - Border: Soft Organic Border (#E8E4DD -> HSL 40 15% 88%)
     */
-    --background: 40 25% 97%;
-    --foreground: 30 15% 15%;
+    --background: 47 47% 96%;
+    --foreground: 157 43% 17%;
 
     --card: 0 0% 100%;
     --card-foreground: 30 15% 15%;
 
-    --primary: 152 42% 16%; /* #1B3B2B Deep Forest Green */
+    --primary: 157 43% 17%; /* #1B3B2B Deep Forest Green */
     --primary-foreground: 40 25% 97%;
 
     --secondary: 40 30% 93%; /* #F4EFE6 Soft Warm Linen */

@@ -27,8 +27,17 @@ class RoomImageSerializer(serializers.ModelSerializer):
 class AccommodationSerializer(serializers.ModelSerializer):
     """Public/detail representation of an accommodation listing."""
 
+    image_url = serializers.SerializerMethodField()
     min_price_per_night = serializers.SerializerMethodField()
     room_count = serializers.SerializerMethodField()
+
+    def get_image_url(self, obj):
+        rooms = getattr(obj, "active_rooms", None)
+        if rooms is None:
+            rooms = obj.rooms.filter(is_active=True).prefetch_related("images")
+        images = [image for room in rooms for image in room.images.all()]
+        images.sort(key=lambda image: (not image.is_primary, image.order, image.id))
+        return images[0].image_url if images else ""
 
     class Meta:
         model = Accommodation
@@ -47,6 +56,7 @@ class AccommodationSerializer(serializers.ModelSerializer):
             "checkin_time",
             "checkout_time",
             "status",
+            "image_url",
             "min_price_per_night",
             "room_count",
             "created_at",

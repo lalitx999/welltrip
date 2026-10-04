@@ -14,11 +14,14 @@ export function TouristAuthGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
 
+  const publicPage = ["/home", "/hotels", "/foods", "/wellness", "/otop", "/news", "/community", "/recommended", "/stories", "/cart"].some((path) => pathname === path || pathname.startsWith(`${path}/`));
   useEffect(() => {
-    if (status === "guest") {
+    if (status === "guest" && !publicPage) {
       router.replace(`/login?redirect=${encodeURIComponent(pathname)}`);
     }
-  }, [status, router, pathname]);
+  }, [status, router, pathname, publicPage]);
+
+  if (publicPage) return <>{children}</>;
 
   if (status === "loading") {
     return (
@@ -39,7 +42,7 @@ export function TouristAuthGuard({ children }: { children: React.ReactNode }) {
           กรุณาเข้าสู่ระบบก่อนเข้าใช้งาน
         </h2>
         <p className="max-w-md text-xs text-muted-foreground">
-          เพื่อความปลอดภัยของข้อมูลการจองและสิทธิประโยชน์การสะสมแต้ม โปรดเข้าสู่ระบบหรือสมัครสมาชิกก่อนเข้าชมบริการ
+          เข้าสู่ระบบเพื่อจัดการข้อมูลส่วนตัวและรายการจองของคุณ
         </p>
       </div>
     );

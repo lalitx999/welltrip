@@ -56,7 +56,10 @@ export function LoginForm() {
     setServerError(null);
     try {
       const loggedUser = await login(values.email, values.password);
-      const redirectPath = getRoleRedirectPath(loggedUser?.role);
+      const requested = new URLSearchParams(window.location.search).get("redirect");
+      const allowed = /^\/(home|hotels|foods|wellness|otop|news|community|recommended|health|ai-recommendation|profile|settings|cart|checkout|my-bookings)(\/|\?|$)/;
+      const redirectPath = loggedUser?.role === "TOURIST" && requested && allowed.test(requested) && !requested.includes("\\")
+        ? requested : getRoleRedirectPath(loggedUser?.role);
       router.replace(redirectPath);
     } catch (error) {
       setServerError(extractApiErrorMessage(error));

@@ -208,3 +208,13 @@ ADMIN_EMAIL = env("ADMIN_EMAIL", default="promlikit@sskru.ac.th")
 
 
 
+
+# Optional location logging: coarse coordinates, explicit consent, limited retention.
+LOCATION_CONSENT_VERSION = "2026-10-coarse-v1"
+LOCATION_LOG_RETENTION_DAYS = max(1, min(90, env.int("LOCATION_LOG_RETENTION_DAYS", default=30)))
+CELERY_BEAT_SCHEDULE = {
+    **globals().get("CELERY_BEAT_SCHEDULE", {}),
+    "purge-expired-location-events": {
+        "task": "apps.community.tasks.purge_expired_location_events", "schedule": 3600.0,
+    },
+}

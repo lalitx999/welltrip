@@ -8,7 +8,7 @@ const config: Config = {
       fontFamily: {
         // Brand font (Kanit) injected by next/font as --font-kanit.
         sans: ["var(--font-kanit)", ...defaultTheme.fontFamily.sans],
-        serif: ["Georgia", "Cambria", "Times New Roman", ...defaultTheme.fontFamily.serif],
+        serif: ["Georgia", "var(--font-kanit)", "Cambria", "Times New Roman", ...defaultTheme.fontFamily.serif],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -17,7 +17,7 @@ const config: Config = {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         forest: {
-          DEFAULT: "#1B3B2B",
+          DEFAULT: "#193E30",
           50: "#F2F7F4",
           100: "#E2EDE6",
           200: "#C4DBD0",
@@ -26,7 +26,7 @@ const config: Config = {
           500: "#27543E",
           600: "#1E4431",
           700: "#183728",
-          800: "#1B3B2B",
+          800: "#193E30",
           900: "#12291E",
           950: "#0B1A13",
         },
@@ -44,9 +44,9 @@ const config: Config = {
           900: "#443216",
         },
         cream: {
-          DEFAULT: "#FAF8F5",
+          DEFAULT: "#FAF8F1",
           50: "#FFFFFF",
-          100: "#FAF8F5",
+          100: "#FAF8F1",
           200: "#F4EFE6",
           300: "#EAE3D5",
           400: "#DDD4C3",

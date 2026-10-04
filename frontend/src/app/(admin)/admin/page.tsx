@@ -110,7 +110,7 @@ export default function AdminDashboardOverviewPage() {
               {stats.total_bookings.toLocaleString()} รายการ
             </p>
             <p className="mt-1 text-[11px] font-medium text-muted-foreground">
-              รายการจองที่พัก/บริการสำเร็จ
+              รายการจองทุกสถานะ
             </p>
           </div>
         </div>
@@ -146,7 +146,7 @@ export default function AdminDashboardOverviewPage() {
               {stats.total_merchants.toLocaleString()} ราย
             </p>
             <p className="mt-1 text-[11px] font-medium text-muted-foreground">
-              พันธมิตรชุมชนที่ยืนยันแล้ว
+              บัญชีผู้ประกอบการทุกสถานะ
             </p>
           </div>
         </div>
@@ -166,7 +166,7 @@ export default function AdminDashboardOverviewPage() {
                 {stats.pending_approvals} รายการที่รอการอนุมัติ
               </h3>
               <p className="text-xs text-muted-foreground">
-                ที่พัก แพ็กเกจสปา หรือสินค้า OTOP ที่ลงทะเบียนเข้ามาใหม่และรอ Admin ตรวจสอบ
+                ที่พักที่มีสถานะรอการตรวจสอบในระบบ
               </p>
             </div>
             <span className="grid h-10 w-10 place-items-center rounded-xl bg-gold-500/20 text-gold-700 font-bold">
@@ -198,7 +198,7 @@ export default function AdminDashboardOverviewPage() {
                 {stats.pending_payments} สลิปที่ต้องยืนยัน
               </h3>
               <p className="text-xs text-muted-foreground">
-                การชำระเงินผ่าน PromptPay QR ที่รอยืนยันความถูกต้องของสลิปการโอน
+                สลิปโอนเงินที่มีสถานะรอตรวจสอบในระบบ
               </p>
             </div>
             <span className="grid h-10 w-10 place-items-center rounded-xl bg-emerald-500/20 text-emerald-800 font-bold">

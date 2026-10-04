@@ -43,6 +43,8 @@ export function TravelShell({ children }: { children: React.ReactNode }) {
   useEffect(() => { setPanel(null); }, [pathname]);
   useEffect(() => {
     if (!panel) return;
+    const menu = document.getElementById(`travel-${panel}-menu`);
+    menu?.querySelector<HTMLElement>("a,button")?.focus();
     function closeOutside(event: PointerEvent) {
       const target = event.target as HTMLElement;
       if (!header.current?.contains(target) && !target.closest('[data-travel-toggle]')) setPanel(null);
@@ -60,7 +62,7 @@ export function TravelShell({ children }: { children: React.ReactNode }) {
   }
   const active = (href: string) => pathname === href || (href !== "/home" && pathname.startsWith(href + "/"));
   const isVendor = user && ["HOMESTAY_OWNER", "RESTAURANT_OWNER", "WELLNESS_OWNER", "OTOP_OWNER", "SUPER_ADMIN"].includes(user.role);
-  return <div className={styles.shell}>
+  return <div className={`${styles.shell} wt-tourist`}>
     <a className={styles.skip} href="#travel-main">{copy("ข้ามไปเนื้อหา", "Skip to content")}</a>
     <header ref={header} className={styles.header}>
       <div className={styles.topbar}>

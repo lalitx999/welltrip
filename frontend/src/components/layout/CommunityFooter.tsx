@@ -59,7 +59,7 @@ export function CommunityFooter() {
             <span>© 2026 Smart Wellness Tourism Platform for Community. All rights reserved.</span>
           </div>
           <div className="font-serif font-semibold text-gold-300 text-sm">
-            “เที่ยวดี สุขภาพดี รายได้สู่ชุมชน” ไปด้วยกัน อย่างยั่งยืน 🌿
+            “เที่ยวดี สุขภาพดี รายได้สู่ชุมชน” ไปด้วยกัน อย่างยั่งยืน
           </div>
         </div>
       </div>

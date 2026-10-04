@@ -20,6 +20,8 @@ import {
   Menu,
   X,
   Package,
+  Newspaper,
+  MapPin,
 } from "lucide-react";
 
 import { LanguageToggle } from "@/components/ui/language-toggle";
@@ -34,9 +36,12 @@ interface NavigationItem {
   href: string;
   label: string;
   icon: typeof LayoutDashboard;
+  superOnly?: boolean;
 }
 
 const NAV_ITEMS: NavigationItem[] = [
+  { href: "/admin/content", label: "เรื่องราวและชุมชน", icon: Newspaper, superOnly: true },
+  { href: "/admin/location", label: "บันทึกตำแหน่ง", icon: MapPin, superOnly: true },
   { href: "/admin", label: "ภาพรวมระบบ & สถิติ", icon: LayoutDashboard },
   { href: "/admin/catalog", label: "จัดการสินค้า & สถานที่", icon: Package },
   { href: "/admin/users", label: "จัดการผู้ใช้ & ผู้ประกอบการ", icon: Users },
@@ -93,7 +98,7 @@ export default function AdminLayout({
   }
 
   return (
-    <div className="flex min-h-screen w-full flex-col bg-background">
+    <div className="wt-management flex min-h-screen w-full flex-col bg-background">
       {/* Header Bar */}
       <header className="sticky top-0 z-40 border-b border-border/80 bg-card/95 backdrop-blur shadow-xs">
         <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
@@ -164,7 +169,7 @@ export default function AdminLayout({
           </div>
 
           <div className="flex flex-col gap-1.5">
-            {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
+            {NAV_ITEMS.filter(item => !item.superOnly || role === "SUPER_ADMIN").map(({ href, label, icon: Icon }) => {
               const active =
                 href === "/admin"
                   ? pathname === "/admin"
