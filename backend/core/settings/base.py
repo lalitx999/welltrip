@@ -175,7 +175,14 @@ CELERY_TASK_EAGER_PROPAGATES = True
 # ---------------------------------------------------------------------------
 from corsheaders.defaults import default_headers
 
-CORS_ALLOWED_ORIGINS = env.list("CORS_ALLOWED_ORIGINS")
+CORS_ALLOWED_ORIGINS = env.list("CORS_ALLOWED_ORIGINS", default=[
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "https://welltripthailand.com",
+    "https://www.welltripthailand.com",
+    "https://welltrip.vercel.app",
+])
+CORS_ALLOW_ALL_ORIGINS = env.bool("CORS_ALLOW_ALL_ORIGINS", default=True)
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_HEADERS = list(default_headers) + [
     "idempotency-key",
