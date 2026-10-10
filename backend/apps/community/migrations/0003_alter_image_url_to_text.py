@@ -9,8 +9,9 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.AlterField(
-            model_name='communitystory',
+            model_name='editorialentry',
             name='image_url',
             field=models.TextField(blank=True, default=''),
         ),
+
     ]
