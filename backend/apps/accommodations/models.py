@@ -134,7 +134,8 @@ class RoomImage(models.Model):
     """Gallery photo of a Room (BIGSERIAL id per spec §2.2 room_images)."""
 
     room = models.ForeignKey(Room, on_delete=models.CASCADE, related_name="images")
-    image_url = models.CharField(max_length=1000)
+    image_url = models.TextField(blank=True, default="")
+
     order = models.PositiveIntegerField(default=0)
     is_primary = models.BooleanField(default=False)
 

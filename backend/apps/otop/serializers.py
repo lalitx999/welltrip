@@ -20,7 +20,8 @@ from .models import OTOPProduct
 class OTOPProductSerializer(serializers.ModelSerializer):
     """OTOPProduct row; owner is injected by the view, never read from body."""
 
-    image_url = serializers.CharField(max_length=500000, required=False, allow_blank=True)
+    image_url = serializers.CharField(required=False, allow_blank=True, default="")
+
     price = serializers.DecimalField(
         max_digits=10, decimal_places=2, min_value=Decimal("0.01")
     )

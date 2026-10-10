@@ -142,7 +142,11 @@ def google_oauth_view(request):
 # ---------------------------------------------------------------------------
 class EnvelopedTokenRefreshView(TokenRefreshView):
     def post(self, request, *args, **kwargs):
-        response = super().post(request, *args, **kwargs)
+        try:
+            response = super().post(request, *args, **kwargs)
+        except User.DoesNotExist:
+            from rest_framework_simplejwt.exceptions import InvalidToken
+            raise InvalidToken("Token is invalid or user no longer exists.")
         if response.status_code == 200:
             return api_success(
                 {
@@ -152,6 +156,7 @@ class EnvelopedTokenRefreshView(TokenRefreshView):
                 message="Token refreshed.",
             )
         return response
+
 
 
 # ---------------------------------------------------------------------------

@@ -30,7 +30,8 @@ class OTOPCategory(models.TextChoices):
 
 
 class OTOPProduct(models.Model):
-    image_url = models.URLField(max_length=1000, blank=True, default="")
+    image_url = models.TextField(blank=True, default="")
+
     """A single retail product sold by an OTOP_OWNER."""
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)

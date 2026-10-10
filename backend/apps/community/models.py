@@ -111,7 +111,8 @@ class EditorialEntry(models.Model):
     summary_en = models.TextField(blank=True)
     body = models.TextField(blank=True)
     body_en = models.TextField(blank=True)
-    image_url = models.URLField(max_length=1000, blank=True)
+    image_url = models.TextField(blank=True, default="")
+
     image_alt = models.CharField(max_length=200, blank=True)
     location = models.CharField(max_length=200, blank=True)
     starts_at = models.DateTimeField(null=True, blank=True)

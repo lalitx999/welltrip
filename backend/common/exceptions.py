@@ -8,13 +8,20 @@ NOT handled by DRF we re-raise it so the developer still gets Django's
 interactive debug page. In production the same case returns a JSON 500.
 """
 from django.conf import settings
+from django.core.exceptions import ObjectDoesNotExist, ValidationError as DjangoValidationError
+from rest_framework import exceptions, status
 from rest_framework.response import Response
 from rest_framework.views import exception_handler
 
-from rest_framework import status
-
 
 def standardized_exception_handler(exc, context):
+    if isinstance(exc, ObjectDoesNotExist):
+        exc = exceptions.NotFound(detail=str(exc))
+    elif isinstance(exc, DjangoValidationError):
+        exc = exceptions.ValidationError(
+            detail=exc.message_dict if hasattr(exc, "message_dict") else exc.messages
+        )
+
     response = exception_handler(exc, context)
 
     if response is not None:
@@ -42,3 +49,4 @@ def standardized_exception_handler(exc, context):
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
     return response
+
