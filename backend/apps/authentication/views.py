@@ -311,7 +311,7 @@ def admin_approvals_list_view(request):
     if not (request.user.is_superuser or request.user.role in [UserRoles.SUPER_ADMIN, UserRoles.COMMUNITY_ADMIN]):
         return api_error("PERMISSION_DENIED", "Admin access required.", status=status.HTTP_403_FORBIDDEN)
     
-    profiles = MerchantProfile.objects.all().order_by("-created_at")[:100]
+    profiles = MerchantProfile.objects.filter(status=MerchantApprovalStatus.PENDING).order_by("-created_at")[:100]
     data = []
     for p in profiles:
         data.append({
