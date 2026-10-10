@@ -37,14 +37,15 @@ class EnvelopeMixin:
 def can_manage_vendor_object(user, obj):
     """True when `user` may write to a vendor-owned object (`obj.owner_id`).
 
-    SUPER_ADMIN is allowed to act on any vendor's content (common/permissions
-    grants it through the owner role gates), so it bypasses the plain ownership
+    SUPER_ADMIN and COMMUNITY_ADMIN or superusers are allowed to act on any vendor's content
+    (common/permissions grants it through the owner role gates), so it bypasses the plain ownership
     test. Any other user must be the record's owner - this is the IDOR guard
     shared by every vendor app (accommodations, services, otop, ...).
 
     NOTE: for rows without an owner column (Room -> accommodation, time slot ->
     service) the caller resolves the owning parent and passes THAT object here.
     """
-    if user.role == UserRoles.SUPER_ADMIN:
+    if getattr(user, "is_superuser", False) or getattr(user, "role", None) in (UserRoles.SUPER_ADMIN, UserRoles.COMMUNITY_ADMIN):
         return True
     return getattr(obj, "owner_id", None) == user.id
+

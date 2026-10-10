@@ -163,8 +163,8 @@ class MyOTOPProductListView(EnvelopeMixin, generics.ListAPIView):
         return OTOPProduct.objects.filter(owner=self.request.user)
 
 
-class OTOPProductDetailUpdateView(EnvelopeMixin, generics.RetrieveUpdateAPIView):
-    """Retrieve or update an OTOP product by ID."""
+class OTOPProductDetailUpdateView(EnvelopeMixin, generics.RetrieveUpdateDestroyAPIView):
+    """Retrieve, update or delete an OTOP product by ID."""
 
     serializer_class = OTOPProductSerializer
     queryset = OTOPProduct.objects.all()
@@ -173,16 +173,18 @@ class OTOPProductDetailUpdateView(EnvelopeMixin, generics.RetrieveUpdateAPIView)
     def success_message(self):
         if self.request and self.request.method in ("PATCH", "PUT"):
             return "OTOP product updated."
+        if self.request and self.request.method == "DELETE":
+            return "OTOP product deleted."
         return "OTOP product retrieved."
 
     def get_permissions(self):
-        if self.request.method in ("PATCH", "PUT"):
+        if self.request.method in ("PATCH", "PUT", "DELETE"):
             return [IsOtopOwner()]
         return [AllowAny()]
 
     def get_object(self):
         product = super().get_object()
-        if self.request.method in ("PATCH", "PUT") and not can_manage_vendor_object(
+        if self.request.method in ("PATCH", "PUT", "DELETE") and not can_manage_vendor_object(
             self.request.user, product
         ):
             raise PermissionDenied("You can only manage your own OTOP product.")

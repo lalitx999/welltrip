@@ -433,8 +433,8 @@ class MyAccommodationListView(EnvelopeMixin, generics.ListAPIView):
 # ---------------------------------------------------------------------------
 # GET/PATCH /api/v1/accommodations/{id}/
 # ---------------------------------------------------------------------------
-class AccommodationDetailUpdateView(EnvelopeMixin, generics.RetrieveUpdateAPIView):
-    """Retrieve or update an accommodation by ID."""
+class AccommodationDetailUpdateView(EnvelopeMixin, generics.RetrieveUpdateDestroyAPIView):
+    """Retrieve, update or delete an accommodation by ID."""
 
     serializer_class = AccommodationSerializer
     queryset = Accommodation.objects.all()
@@ -443,16 +443,18 @@ class AccommodationDetailUpdateView(EnvelopeMixin, generics.RetrieveUpdateAPIVie
     def success_message(self):
         if self.request and self.request.method in ("PATCH", "PUT"):
             return "Accommodation updated."
+        if self.request and self.request.method == "DELETE":
+            return "Accommodation deleted."
         return "Accommodation retrieved."
 
     def get_permissions(self):
-        if self.request.method in ("PATCH", "PUT"):
+        if self.request.method in ("PATCH", "PUT", "DELETE"):
             return [IsHomestayOwner()]
         return [AllowAny()]
 
     def get_object(self):
         acc = super().get_object()
-        if self.request.method in ("PATCH", "PUT") and not can_manage_vendor_object(
+        if self.request.method in ("PATCH", "PUT", "DELETE") and not can_manage_vendor_object(
             self.request.user, acc
         ):
             raise PermissionDenied("You can only manage your own accommodation.")

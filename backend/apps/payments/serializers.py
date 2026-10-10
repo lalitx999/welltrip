@@ -40,20 +40,30 @@ class PaymentDetailSerializer(serializers.ModelSerializer):
     """
 
     booking_code = serializers.CharField(source="booking.booking_code", read_only=True)
+    booking_reference = serializers.CharField(source="booking.booking_code", read_only=True)
     expires_at = serializers.DateTimeField(source="booking.expires_at", read_only=True)
     slips = PaymentSlipSerializer(many=True, read_only=True)
+    customer_name = serializers.SerializerMethodField()
+    customer_phone = serializers.SerializerMethodField()
+    slip_image_url = serializers.SerializerMethodField()
+    payment_method = serializers.CharField(source="payment_channel", read_only=True)
 
     class Meta:
         model = Payment
         fields = (
             "id",
             "booking_code",
+            "booking_reference",
+            "customer_name",
+            "customer_phone",
             "payment_channel",
+            "payment_method",
             "payee_account_number",
             "payee_account_name",
             "payee_bank",
             "amount",
             "status",
+            "slip_image_url",
             "expires_at",
             "paid_at",
             "created_at",
@@ -61,6 +71,28 @@ class PaymentDetailSerializer(serializers.ModelSerializer):
             "slips",
         )
         read_only_fields = fields
+
+    def get_customer_name(self, obj):
+        if hasattr(obj, "booking") and obj.booking:
+            if getattr(obj.booking, "customer_name", None):
+                return obj.booking.customer_name
+            if getattr(obj.booking, "user", None):
+                return obj.booking.user.full_name
+        return "นักท่องเที่ยว"
+
+    def get_customer_phone(self, obj):
+        if hasattr(obj, "booking") and obj.booking:
+            if getattr(obj.booking, "customer_phone", None):
+                return obj.booking.customer_phone
+            if getattr(obj.booking, "user", None):
+                return obj.booking.user.phone_number
+        return ""
+
+    def get_slip_image_url(self, obj):
+        slip = obj.slips.first()
+        if slip and slip.image:
+            return slip.image.url
+        return ""
 
 
 class SlipUploadSerializer(serializers.Serializer):

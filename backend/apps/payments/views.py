@@ -139,12 +139,23 @@ def admin_approve_payment_view(request, payment_id):
     except Payment.DoesNotExist:
         raise NotFound("Payment not found.")
     
-    payment.status = PaymentStatus.COMPLETED
+    req_status = request.data.get("status", "VERIFIED").upper()
+    if req_status in ["REJECTED", "FAILED"]:
+        payment.status = PaymentStatus.FAILED
+        if payment.booking:
+            payment.booking.status = "CANCELLED"
+            payment.booking.save()
+        message = "Payment rejected."
+    else:
+        payment.status = PaymentStatus.COMPLETED
+        if payment.booking:
+            payment.booking.status = "CONFIRMED"
+            payment.booking.save()
+        message = "Payment approved successfully."
+
     payment.save()
-    if payment.booking:
-        payment.booking.status = "CONFIRMED"
-        payment.booking.save()
-    return api_success(PaymentDetailSerializer(payment, context={"request": request}).data, message="Payment approved successfully.")
+    return api_success(PaymentDetailSerializer(payment, context={"request": request}).data, message=message)
+
 
 
 

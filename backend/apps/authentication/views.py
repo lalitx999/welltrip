@@ -318,7 +318,7 @@ def admin_approvals_list_view(request):
             "id": str(p.id),
             "title": p.business_name,
             "type": p.business_category,
-            "owner_name": p.user.full_name or p.user.email if p.user else "N/A",
+            "owner_name": p.user.full_name if p.user else "N/A",
             "owner_email": p.user.email if p.user else "N/A",
             "province": "ศรีสะเกษ",
             "price": 0,
@@ -337,8 +337,8 @@ def admin_approval_action_view(request, entity_id):
     
     try:
         profile = MerchantProfile.objects.get(id=entity_id)
-    except MerchantProfile.DoesNotExist:
-        return api_error("NOT_FOUND", "Entity not found.", status=status.HTTP_404_NOT_FOUND)
+    except Exception:
+        return api_error("NOT_FOUND", "Entity not found or invalid ID.", status=status.HTTP_404_NOT_FOUND)
     
     new_status = request.data.get("status")
     if new_status in ["APPROVED", "REJECTED"]:
@@ -346,10 +346,16 @@ def admin_approval_action_view(request, entity_id):
         if request.data.get("rejection_reason"):
             profile.rejection_reason = request.data.get("rejection_reason")
         profile.save()
-        if new_status == "APPROVED" and profile.user:
-            profile.user.is_verified = True
+
+        if profile.user:
+            if new_status == "APPROVED":
+                profile.user.is_verified = True
+            else:
+                profile.user.is_verified = False
             profile.user.save()
+
     return api_success({"id": str(profile.id), "status": profile.status})
+
 
 
 

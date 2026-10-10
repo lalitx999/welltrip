@@ -40,6 +40,7 @@ export interface UserProfile {
   role: UserRole;
   is_verified: boolean;
   is_active: boolean;
+  is_superuser?: boolean;
   merchant_profile?: MerchantProfile | null;
   created_at: string;
   updated_at: string;

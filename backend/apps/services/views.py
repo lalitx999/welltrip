@@ -230,8 +230,8 @@ class MyFoodListView(EnvelopeMixin, generics.ListAPIView):
         return FoodMenu.objects.filter(owner=self.request.user)
 
 
-class FoodDetailUpdateView(EnvelopeMixin, generics.RetrieveUpdateAPIView):
-    """Retrieve or update a food item by ID."""
+class FoodDetailUpdateView(EnvelopeMixin, generics.RetrieveUpdateDestroyAPIView):
+    """Retrieve, update or delete a food item by ID."""
 
     serializer_class = FoodMenuSerializer
     queryset = FoodMenu.objects.all()
@@ -240,16 +240,18 @@ class FoodDetailUpdateView(EnvelopeMixin, generics.RetrieveUpdateAPIView):
     def success_message(self):
         if self.request and self.request.method in ("PATCH", "PUT"):
             return "Food menu item updated."
+        if self.request and self.request.method == "DELETE":
+            return "Food menu item deleted."
         return "Food menu item retrieved."
 
     def get_permissions(self):
-        if self.request.method in ("PATCH", "PUT"):
+        if self.request.method in ("PATCH", "PUT", "DELETE"):
             return [IsRestaurantOwner()]
         return [AllowAny()]
 
     def get_object(self):
         item = super().get_object()
-        if self.request.method in ("PATCH", "PUT") and not can_manage_vendor_object(
+        if self.request.method in ("PATCH", "PUT", "DELETE") and not can_manage_vendor_object(
             self.request.user, item
         ):
             raise PermissionDenied("You can only manage your own food menu item.")
@@ -271,8 +273,8 @@ class MyWellnessListView(EnvelopeMixin, generics.ListAPIView):
         return WellnessService.objects.filter(owner=self.request.user)
 
 
-class WellnessDetailUpdateView(EnvelopeMixin, generics.RetrieveUpdateAPIView):
-    """Retrieve or update a wellness service by ID."""
+class WellnessDetailUpdateView(EnvelopeMixin, generics.RetrieveUpdateDestroyAPIView):
+    """Retrieve, update or delete a wellness service by ID."""
 
     serializer_class = WellnessServiceSerializer
     queryset = WellnessService.objects.all()
@@ -281,19 +283,22 @@ class WellnessDetailUpdateView(EnvelopeMixin, generics.RetrieveUpdateAPIView):
     def success_message(self):
         if self.request and self.request.method in ("PATCH", "PUT"):
             return "Wellness service updated."
+        if self.request and self.request.method == "DELETE":
+            return "Wellness service deleted."
         return "Wellness service retrieved."
 
     def get_permissions(self):
-        if self.request.method in ("PATCH", "PUT"):
+        if self.request.method in ("PATCH", "PUT", "DELETE"):
             return [IsWellnessOwner()]
         return [AllowAny()]
 
     def get_object(self):
         service = super().get_object()
-        if self.request.method in ("PATCH", "PUT") and not can_manage_vendor_object(
+        if self.request.method in ("PATCH", "PUT", "DELETE") and not can_manage_vendor_object(
             self.request.user, service
         ):
             raise PermissionDenied("You can only manage your own wellness service.")
         return service
+
 
 
