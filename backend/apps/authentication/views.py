@@ -278,7 +278,7 @@ def users_list_view(request):
     if not (request.user.is_superuser or request.user.role in [UserRoles.SUPER_ADMIN, UserRoles.COMMUNITY_ADMIN]):
         return api_error("PERMISSION_DENIED", "Admin access required.", status=status.HTTP_403_FORBIDDEN)
     
-    users = User.objects.all().order_by("-date_joined")[:100]
+    users = User.objects.all().order_by("-created_at")[:100]
     serializer = UserProfileSerializer(users, many=True)
     return api_success(serializer.data)
 
