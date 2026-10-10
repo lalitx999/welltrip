@@ -21,7 +21,7 @@ from .serializers import (
     RegisterSerializer,
     UserProfileSerializer,
 )
-from .services import authenticate_with_google, issue_tokens_for_user
+from .services import authenticate_with_google, build_unique_username, issue_tokens_for_user
 
 
 # ---------------------------------------------------------------------------
@@ -299,6 +299,8 @@ def update_user_role_view(request, user_id):
         user.role = role
     if "is_verified" in request.data:
         user.is_verified = bool(request.data.get("is_verified"))
+    if "is_active" in request.data:
+        user.is_active = bool(request.data.get("is_active"))
     user.save()
     return api_success(UserProfileSerializer(user).data)
 
@@ -315,7 +317,7 @@ def admin_approvals_list_view(request):
         data.append({
             "id": str(p.id),
             "title": p.business_name,
-            "type": p.business_type,
+            "type": p.business_category,
             "owner_name": p.user.full_name or p.user.email if p.user else "N/A",
             "owner_email": p.user.email if p.user else "N/A",
             "province": "ศรีสะเกษ",
