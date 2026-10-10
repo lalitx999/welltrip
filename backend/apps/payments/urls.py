@@ -17,17 +17,17 @@ urlpatterns = [
         name="admin-pending-payments",
     ),
     path(
-        "admin/approve/<uuid:payment_id>/",
+        "admin/approve/<str:payment_id>/",
         views.admin_approve_payment_view,
         name="admin-approve-payment",
     ),
     path(
-        "<uuid:payment_id>/verify/",
+        "<str:payment_id>/verify/",
         views.admin_approve_payment_view,
         name="payment-verify",
     ),
     path(
-        "<uuid:payment_id>/",
+        "<str:payment_id>/",
         views.PaymentDetailView.as_view(),
         name="payment-detail",
     ),

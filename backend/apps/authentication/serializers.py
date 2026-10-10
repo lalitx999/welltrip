@@ -45,6 +45,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
     """Public user profile - NEVER exposes password / google_sub_id."""
 
     merchant_profile = MerchantProfileSerializer(read_only=True)
+    is_superuser = serializers.BooleanField(read_only=True)
 
     class Meta:
         model = User
@@ -58,6 +59,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
             "role",
             "is_verified",
             "is_active",
+            "is_superuser",
             "merchant_profile",
             "created_at",
             "updated_at",
