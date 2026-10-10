@@ -14,7 +14,7 @@ from rest_framework_simplejwt.views import TokenRefreshView
 
 from common.responses import api_error, api_success
 
-from .models import User
+from .models import MerchantApprovalStatus, MerchantProfile, User, UserRoles
 from .serializers import (
     GoogleIdTokenSerializer,
     LoginSerializer,
