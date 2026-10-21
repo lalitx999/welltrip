@@ -55,10 +55,14 @@ export default function AdminApprovalsPage() {
       status: "APPROVED" | "REJECTED";
       reason?: string;
     }) => updateEntityApprovalStatus(id, status, reason),
-    onSuccess: () => {
+    onSuccess: (res, variables) => {
       void queryClient.invalidateQueries({ queryKey: ["admin-pending-approvals"] });
       setRejectingItem(null);
       setRejectionReason("");
+      alert(variables.status === "APPROVED" ? "อนุมัติรายการเรียบร้อยแล้ว" : "ปฏิเสธรายการเรียบร้อยแล้ว");
+    },
+    onError: (err) => {
+      alert(`ไม่สามารถทำรายการได้: ${extractErrorMessage(err, "เกิดข้อผิดพลาดในการอนุมัติ")}`);
     },
   });
 
@@ -72,7 +76,8 @@ export default function AdminApprovalsPage() {
     const matchesSearch =
       item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (item.owner_name ?? "").toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesFilter && matchesSearch;
+    const isPending = item.status === "PENDING" || !item.status;
+    return matchesFilter && matchesSearch && isPending;
   });
 
   const paginatedItems = filteredItems.slice((page - 1) * perPage, page * perPage);

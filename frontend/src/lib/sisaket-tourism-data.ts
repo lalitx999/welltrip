@@ -817,8 +817,8 @@ export interface FallbackEditorialEntry {
   is_published: boolean;
   updated_at: string;
 }
-
-export const FALLBACK_EDITORIAL_ENTRIES: FallbackEditorialEntry[] = [
+export const FALLBACK_EDITORIAL_ENTRIES: FallbackEditorialEntry[] = [];
+const _DISABLED_MOCK_ENTRIES: any[] = [
   {
     id: "story-resonance-calendar-2026",
     kind: "STORY",

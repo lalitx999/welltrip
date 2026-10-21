@@ -3,6 +3,7 @@ import type { Metadata, Viewport } from "next";
 
 import { Providers } from "@/components/providers";
 import { SisaketJsonLd } from "@/components/seo/JsonLd";
+import { PWAInstallBanner } from "@/components/pwa/pwa-install-banner";
 import "./globals.css";
 import "@/components/travel/experience.css";
 
@@ -14,7 +15,7 @@ const kanit = Kanit({
 });
 
 export const viewport: Viewport = {
-  themeColor: "#193E30",
+  themeColor: "#1B2A24",
   width: "device-width",
   initialScale: 1,
   maximumScale: 5,
@@ -24,6 +25,21 @@ export const metadata: Metadata = {
   title: "WellTrip Sisaket · แพลตฟอร์มท่องเที่ยวสุขภาพและวิถีชุมชนยั่งยืน จังหวัดศรีสะเกษ",
   description:
     "ค้นพบโฮมสเตย์เรือนไม้ สวนทุเรียนภูเขาไฟ GI กาแฟขุนหาญดินภูเขาไฟ อาหารสุขภาพพื้นถิ่น สปาสมุนไพร ปราสาทขอมโบราณ 31 แห่ง และปฏิทินกิจกรรม Sound of Sisaket 2026",
+  icons: {
+    icon: [
+      { url: "/logoWelltrip.ico", sizes: "any" },
+      { url: "/logoWelltrip.jpg", type: "image/jpeg" },
+    ],
+    shortcut: "/logoWelltrip.ico",
+    apple: [
+      { url: "/logoWelltrip.jpg", sizes: "180x180", type: "image/jpeg" },
+    ],
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "WellTrip",
+  },
   keywords: [
     "ศรีสะเกษ",
     "เที่ยวศรีสะเกษ",
@@ -92,10 +108,14 @@ export default function RootLayout({
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link rel="apple-touch-icon" href="/icon-192.png" />
       </head>
       <body>
         <SisaketJsonLd />
-        <Providers>{children}</Providers>
+        <Providers>
+          {children}
+          <PWAInstallBanner />
+        </Providers>
       </body>
     </html>
   );

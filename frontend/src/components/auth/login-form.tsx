@@ -70,7 +70,7 @@ export function LoginForm() {
     <div className="space-y-5">
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
         <div className="space-y-1.5">
-          <Label htmlFor="email" className="text-xs font-semibold text-[#193e30]">
+          <Label htmlFor="email" className="text-xs font-semibold text-[#1f2925]">
             {t("auth.emailLabel")}
           </Label>
           <Input
@@ -78,41 +78,41 @@ export function LoginForm() {
             type="email"
             autoComplete="email"
             placeholder={t("auth.emailPlaceholder")}
-            className="rounded-xl border-[#d8ddce] focus-visible:ring-[#224e39]"
+            className="rounded-2xl border-slate-300 bg-white text-xs min-h-[46px] focus-visible:ring-[#1f2925] focus-visible:border-[#1f2925]"
             aria-invalid={errors.email ? "true" : undefined}
             {...register("email")}
           />
           {errors.email && (
-            <p className="text-xs text-destructive">{errors.email.message}</p>
+            <p className="text-xs text-rose-600 font-medium">{errors.email.message}</p>
           )}
         </div>
 
         <div className="space-y-1.5">
-          <Label htmlFor="password" className="text-xs font-semibold text-[#193e30]">
+          <Label htmlFor="password" className="text-xs font-semibold text-[#1f2925]">
             {t("auth.passwordLabel")}
           </Label>
           <Input
             id="password"
             type="password"
             autoComplete="current-password"
-            className="rounded-xl border-[#d8ddce] focus-visible:ring-[#224e39]"
+            className="rounded-2xl border-slate-300 bg-white text-xs min-h-[46px] focus-visible:ring-[#1f2925] focus-visible:border-[#1f2925]"
             aria-invalid={errors.password ? "true" : undefined}
             {...register("password")}
           />
           {errors.password && (
-            <p className="text-xs text-destructive">{errors.password.message}</p>
+            <p className="text-xs text-rose-600 font-medium">{errors.password.message}</p>
           )}
         </div>
 
         {serverError && (
-          <p role="alert" className="rounded-xl bg-destructive/10 p-3 text-xs text-destructive">
+          <p role="alert" className="rounded-2xl bg-rose-50 border border-rose-200 p-3 text-xs text-rose-700 font-medium">
             {serverError}
           </p>
         )}
 
         <Button
           type="submit"
-          className="w-full rounded-xl bg-[#224e39] py-3 text-sm font-semibold text-white hover:bg-[#173a29] transition"
+          className="w-full min-h-[48px] rounded-2xl bg-[#1f2925] text-[#faf9f6] text-xs font-bold hover:bg-[#2b3832] transition shadow-md"
           disabled={isSubmitting}
         >
           {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
@@ -120,10 +120,10 @@ export function LoginForm() {
         </Button>
       </form>
 
-      <div className="my-4 flex items-center gap-3 text-xs text-[#657468]">
-        <div className="h-px flex-1 bg-[#e1e2d8]" />
+      <div className="my-4 flex items-center gap-3 text-xs text-slate-400 font-medium">
+        <div className="h-px flex-1 bg-slate-200" />
         {t("auth.orDivider")}
-        <div className="h-px flex-1 bg-[#e1e2d8]" />
+        <div className="h-px flex-1 bg-slate-200" />
       </div>
 
       <GoogleLoginButton />

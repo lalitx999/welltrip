@@ -10,6 +10,7 @@ urlpatterns = [
     path("register/merchant/", views.register_merchant_view, name="register-merchant"),
     path("otp/request/", views.request_email_otp_view, name="otp-request"),
     path("otp/verify/", views.verify_email_otp_view, name="otp-verify"),
+    path("test-email/", views.test_send_email_view, name="test-email"),
     path("login/", views.login_view, name="login"),
     path("refresh/", views.EnvelopedTokenRefreshView.as_view(), name="refresh"),
     path("oauth/google/", views.google_oauth_view, name="google-oauth"),

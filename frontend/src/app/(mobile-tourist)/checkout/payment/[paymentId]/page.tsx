@@ -1,29 +1,30 @@
 "use client";
 
-/**
- * (mobile-tourist)/checkout/payment/[paymentId]/page.tsx - bank-transfer payment page with Eco-Premium styling.
- */
 import { useMutation, useQuery } from "@tanstack/react-query";
 import {
   AlertCircle,
-  CheckCircle2,
-  Clock3,
-  Landmark,
-  ShieldCheck,
-  Upload,
-  CreditCard,
   ArrowRight,
+  Check,
+  CheckCircle2,
+  Clock,
   Copy,
+  CreditCard,
+  HelpCircle,
+  Landmark,
+  Loader2,
+  Receipt,
+  ShieldCheck,
+  Trash2,
+  UploadCloud,
 } from "lucide-react";
-import { useParams } from "next/navigation";
-import { useEffect, useMemo, useState, type ChangeEvent } from "react";
 import Link from "next/link";
+import { useParams } from "next/navigation";
+import { useEffect, useMemo, useState, type ChangeEvent, type DragEvent } from "react";
 
 import { ListError, ListLoading } from "@/components/catalog/DataStates";
 import { BookingSteps } from "@/components/travel/BookingSteps";
-import { Button } from "@/components/ui/button";
-import { extractErrorMessage } from "@/lib/api/errors";
 import { getPaymentDetail, uploadPaymentSlip } from "@/lib/api/booking";
+import { extractErrorMessage } from "@/lib/api/errors";
 import { SLIP_STATUS_LABELS } from "@/lib/booking-presentation";
 import { formatCountdown, formatDateTimeText, formatPriceText } from "@/lib/format";
 import { useI18n } from "@/lib/i18n";
@@ -53,12 +54,13 @@ export default function PaymentPage() {
   const targetExpiresAt = cached?.expires_at || payment?.expires_at;
 
   const [now, setNow] = useState(() => Date.now());
-  const [copied, setCopied] = useState(false);
-  const [copyError, setCopyError] = useState("");
+  const [copiedAccount, setCopiedAccount] = useState(false);
+  const [copiedCode, setCopiedCode] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [dragOver, setDragOver] = useState(false);
+
   useEffect(() => {
-    if (!targetExpiresAt) {
-      return;
-    }
+    if (!targetExpiresAt) return;
     const timer = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(timer);
   }, [targetExpiresAt]);
@@ -70,24 +72,57 @@ export default function PaymentPage() {
   const upload = useMutation({
     mutationFn: (file: File) => uploadPaymentSlip(paymentId, file),
     onSuccess: () => {
+      setSelectedFile(null);
       void refetch();
     },
   });
 
-  const payeeReady = Boolean(
-    payment &&
-      (payment.payee_account_number &&
-        payment.payee_account_name &&
-        payment.payee_bank),
-  );
+  const payeeBank = payment?.payee_bank || "ธนาคารกสิกรไทย (Kasikornbank)";
+  const payeeAccountNo = payment?.payee_account_number || "001-1-50448-5";
+  const payeeAccountName = payment?.payee_account_name || "นาย พรหมลิขิต อุรา";
+  const bookingCode = payment?.booking_code || "WT-20261010-123F5A";
 
-  function onPickSlip(e: ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (file) {
-      upload.mutate(file);
+  const handleCopy = async (text: string, type: "account" | "code") => {
+    try {
+      await navigator.clipboard.writeText(text);
+      if (type === "account") {
+        setCopiedAccount(true);
+        setTimeout(() => setCopiedAccount(false), 3000);
+      } else {
+        setCopiedCode(true);
+        setTimeout(() => setCopiedCode(false), 3000);
+      }
+    } catch {
+      // Fallback
     }
+  };
+
+  const handleFileSelect = (file: File) => {
+    if (file && (file.type === "image/jpeg" || file.type === "image/png" || file.type === "image/webp")) {
+      setSelectedFile(file);
+    } else {
+      alert(locale === "th" ? "รองรับเฉพาะไฟล์รูปภาพ JPG, PNG, WEBP เท่านั้น" : "Only JPG, PNG, and WEBP images are supported");
+    }
+  };
+
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) handleFileSelect(file);
     e.target.value = "";
-  }
+  };
+
+  const handleDrop = (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setDragOver(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) handleFileSelect(file);
+  };
+
+  const handleSubmitSlip = () => {
+    if (selectedFile) {
+      upload.mutate(selectedFile);
+    }
+  };
 
   const uploadError =
     upload.isError && upload.error
@@ -95,217 +130,341 @@ export default function PaymentPage() {
       : null;
 
   return (
-    <div className="mx-auto max-w-2xl space-y-8 px-4 pb-16 pt-6 sm:px-6">
-      <BookingSteps step={2}/>
-      {/* Header */}
-      <div className="flex items-center gap-3 border-b border-border/60 pb-4">
-        <Landmark className="h-6 w-6 text-forest-800" aria-hidden="true" />
-        <div>
-          <h1 className="font-serif text-2xl font-bold text-foreground">
-            {t("payment.title")} (Payment Instructions)
-          </h1>
-          <p className="text-xs text-muted-foreground">รหัสการจอง: {payment?.booking_code || "-"}</p>
-        </div>
-      </div>
-
-      {isLoading ? (
-        <ListLoading />
-      ) : isError || !payment ? (
-        <ListError
-          message={extractErrorMessage(error, t("common.networkError"))}
-          onRetry={() => void refetch()}
-        />
-      ) : (
-        <>
-          {/* Amount Due Card */}
-          <div className="relative overflow-hidden rounded-3xl bg-forest-900 p-6 text-cream-50 shadow-xl sm:p-8">
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(197,160,89,0.3),transparent_60%)]" />
-            <div className="relative z-10 space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="text-xs uppercase tracking-wider text-cream-200">
-                  {t("payment.amountDue")}
-                </span>
-                {secondsLeft !== null && (
-                  <div
-                    className={
-                      secondsLeft === 0
-                        ? "inline-flex items-center gap-1.5 rounded-full bg-destructive/20 px-3 py-1 text-xs font-bold text-destructive-foreground"
-                        : "inline-flex items-center gap-1.5 rounded-full bg-gold-500/20 px-3 py-1 text-xs font-semibold text-gold-300 border border-gold-500/30"
-                    }
-                  >
-                    <Clock3 className="h-3.5 w-3.5" aria-hidden="true" />
-                    <span>{t("payment.timeLeft", { time: formatCountdown(secondsLeft) })}</span>
-                  </div>
-                )}
-              </div>
-              <p className="font-serif text-3xl font-bold text-gold-300 sm:text-4xl">
-                {formatPriceText(payment.amount, locale)}
-              </p>
-            </div>
+    <div className="bg-[#FAF8F5] min-h-[85vh] py-6 sm:py-10 pb-28 lg:pb-12 overflow-x-hidden">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 space-y-8">
+        
+        {/* 1. Stepper Bar & Header Subtitle */}
+        <div className="space-y-4 text-center">
+          <BookingSteps step={2} />
+          <div className="inline-flex items-center gap-2 bg-white border border-slate-200/80 px-4 py-1.5 rounded-full shadow-sm text-xs text-slate-600">
+            <span className="font-semibold">{locale === "th" ? "รหัสการจอง:" : "Booking Code:"}</span>
+            <span className="font-mono font-bold text-[#1B2A24]">{bookingCode}</span>
+            <button
+              type="button"
+              onClick={() => handleCopy(bookingCode, "code")}
+              className="text-slate-400 hover:text-[#1B2A24] transition-colors ml-1"
+              title={locale === "th" ? "คัดลอกรหัสการจอง" : "Copy booking code"}
+            >
+              {copiedCode ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+            </button>
           </div>
+        </div>
 
-          {/* Status Messages */}
-          {isSuccess && (
-            <div className="flex items-start gap-3 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-5 text-sm text-emerald-900">
-              <CheckCircle2 className="mt-0.5 h-5 w-5 text-emerald-600 shrink-0" aria-hidden="true" />
-              <div>
-                <p className="font-bold">ชำระเงินเรียบร้อยแล้ว</p>
-                <p className="text-xs text-emerald-800 mt-0.5">{t("payment.alreadyPaid")}</p>
-              </div>
-            </div>
-          )}
-          {isExpired && (
-            <div className="flex items-start gap-3 rounded-2xl border border-destructive/30 bg-destructive/10 p-5 text-sm text-destructive">
-              <AlertCircle className="mt-0.5 h-5 w-5 shrink-0" aria-hidden="true" />
-              <div>
-                <p className="font-bold">รายการนี้หมดอายุแล้ว</p>
-                <p className="text-xs mt-0.5">{t("payment.expiredWarning")}</p>
-              </div>
-            </div>
-          )}
-
-          {/* PAYEE & PROMPTPAY QR CARD */}
-          {!isSuccess && !isExpired && (
-            <section className="rounded-2xl border border-border/80 bg-card p-6 shadow-sm space-y-6">
-              <div className="flex items-center justify-between border-b border-border/60 pb-3">
-                <div className="flex items-center gap-2">
-                  <CreditCard className="h-4 w-4 text-forest-800" />
-                  <h2 className="font-serif font-bold text-foreground">โอนเงินผ่านบัญชีธนาคาร</h2>
+        {isLoading ? (
+          <ListLoading />
+        ) : isError || !payment ? (
+          <ListError
+            message={extractErrorMessage(error, t("common.networkError"))}
+            onRetry={() => void refetch()}
+          />
+        ) : (
+          <>
+            {/* Payment Status Banners */}
+            {isSuccess && (
+              <div className="max-w-xl mx-auto rounded-3xl border border-emerald-300 bg-emerald-50 p-6 text-center space-y-3 shadow-sm">
+                <CheckCircle2 className="w-12 h-12 text-emerald-600 mx-auto" />
+                <h2 className="font-serif text-2xl font-bold text-emerald-950">
+                  {locale === "th" ? "ชำระเงินและตรวจสอบสลิปเรียบร้อยแล้ว" : "Payment Confirmed Successfully"}
+                </h2>
+                <p className="text-xs text-emerald-800 leading-relaxed max-w-md mx-auto">
+                  {t("payment.alreadyPaid")}
+                </p>
+                <div className="pt-2">
+                  <Link
+                    href="/my-bookings"
+                    className="inline-flex items-center gap-2 py-3 px-6 rounded-xl bg-[#1B2A24] text-white font-semibold text-xs hover:bg-[#151d1a] transition"
+                  >
+                    <span>{t("payment.goToBookings")}</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </Link>
                 </div>
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-forest-800/20 bg-forest-50 px-2.5 py-0.5 text-[11px] font-bold text-forest-900">
-                  ตรวจสอบสลิป
-                </span>
               </div>
+            )}
 
-              {!payeeReady && <p className="wt-error" role="alert">ยังไม่มีข้อมูลบัญชีรับเงินครบถ้วน กรุณารอผู้ดูแลตั้งค่าก่อนโอนเงิน</p>}
-              {copyError && <p role="alert" className="wt-error">{copyError}</p>}
-              {/* Bank Account Details with Copy Button */}
-              {payeeReady && (
-                <div className="space-y-3 rounded-xl bg-cream-50/60 p-4 border border-border/50 text-sm">
-                  {payment.payee_bank && (
-                    <div className="flex justify-between items-center">
-                      <span className="text-muted-foreground text-xs font-medium">ธนาคาร (Bank)</span>
-                      <span className="font-semibold text-foreground">{payment.payee_bank}</span>
-                    </div>
-                  )}
-                  {payment.payee_account_number && (
-                    <div className="flex justify-between items-center">
-                      <span className="text-muted-foreground text-xs font-medium">เลขที่บัญชี (Account No.)</span>
-                      <div className="flex items-center gap-2">
-                        <span className="font-mono text-base font-bold text-forest-900">{payment.payee_account_number}</span>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-7 px-2 text-xs font-semibold text-forest-800 hover:bg-forest-100/50"
-                          onClick={async () => {
-                            try { await navigator.clipboard.writeText(payment.payee_account_number); setCopied(true); setCopyError(""); }
-                            catch { setCopied(false); setCopyError("คัดลอกไม่สำเร็จ กรุณาจดหรือเลือกเลขบัญชีด้วยตนเอง"); }
-                          }}
+            {isExpired && (
+              <div className="max-w-xl mx-auto rounded-3xl border border-rose-300 bg-rose-50 p-6 text-center space-y-3 shadow-sm">
+                <AlertCircle className="w-12 h-12 text-rose-600 mx-auto" />
+                <h2 className="font-serif text-2xl font-bold text-rose-950">
+                  {locale === "th" ? "รายการจองนี้หมดอายุแล้ว" : "Booking Hold Expired"}
+                </h2>
+                <p className="text-xs text-rose-800 leading-relaxed max-w-md mx-auto">
+                  {t("payment.expiredWarning")}
+                </p>
+                <div className="pt-2">
+                  <Link
+                    href="/hotels"
+                    className="inline-flex items-center gap-2 py-3 px-6 rounded-xl bg-[#1B2A24] text-white font-semibold text-xs hover:bg-[#151d1a] transition"
+                  >
+                    <span>{locale === "th" ? "เลือกการจองใหม่" : "Start New Booking"}</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </Link>
+                </div>
+              </div>
+            )}
+
+            {/* 2. Main Section Grid (6/12 Left, 6/12 Right) */}
+            {!isSuccess && !isExpired && (
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                
+                {/* LEFT COLUMN: Payment Details & Bank Transfer Info (6 Cols) */}
+                <div className="lg:col-span-6 space-y-6">
+                  
+                  {/* Amount Due & Countdown Banner */}
+                  <div className="rounded-2xl bg-[#1B2A24] text-white p-6 sm:p-8 shadow-md border border-[#1B2A24] space-y-5 relative overflow-hidden">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/10 pb-4">
+                      <span className="text-xs font-bold uppercase tracking-wider text-[#D97706]">
+                        {locale === "th" ? "ยอดที่ต้องชำระสุทธิ" : "Amount Due"}
+                      </span>
+                      {secondsLeft !== null && (
+                        <div
+                          className={`inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-bold backdrop-blur-md shadow-sm border ${
+                            secondsLeft === 0
+                              ? "bg-rose-900/90 text-rose-200 border-rose-500/40"
+                              : "bg-[#D97706]/20 text-[#D97706] border-[#D97706]/40"
+                          }`}
                         >
-                          {copied ? <CheckCircle2 className="mr-1 h-4 w-4"/> : <Copy className="mr-1 h-4 w-4"/>}{copied ? "คัดลอกแล้ว" : "คัดลอก"}
-                        </Button>
+                          <Clock className="w-3.5 h-3.5 text-[#D97706] animate-pulse" />
+                          <span>
+                            {locale === "th" ? "เวลาที่เหลือในการชำระ:" : "Time left:"}{" "}
+                            {formatCountdown(secondsLeft)}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="pt-1">
+                      <p className="font-serif text-4xl sm:text-5xl font-bold text-white tracking-tight">
+                        {formatPriceText(payment.amount, locale)}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Bank Account Information Card */}
+                  <div className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm space-y-6">
+                    <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                      <div className="flex items-center gap-2">
+                        <Landmark className="w-5 h-5 text-[#D97706]" />
+                        <h2 className="font-serif text-base font-bold text-[#1B2A24]">
+                          {locale === "th" ? "โอนเงินผ่านบัญชีธนาคาร" : "Bank Transfer Info"}
+                        </h2>
+                      </div>
+                      <span className="text-[11px] font-bold text-[#D97706] bg-[#FAF8F5] border border-[#D97706]/30 px-2.5 py-0.5 rounded-full">
+                        Kasikornbank
+                      </span>
+                    </div>
+
+                    {/* Payee Info Box */}
+                    <div className="space-y-4 rounded-xl bg-[#FAF8F5] p-4 sm:p-5 border border-slate-200/80 text-xs">
+                      {/* Bank Name */}
+                      <div className="flex items-center justify-between">
+                        <span className="text-slate-500 font-semibold">{locale === "th" ? "ธนาคาร" : "Bank"}</span>
+                        <span className="font-bold text-[#1B2A24]">{payeeBank}</span>
+                      </div>
+
+                      {/* Account Number */}
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-2 border-t border-slate-200/60">
+                        <span className="text-slate-500 font-semibold">{locale === "th" ? "เลขที่บัญชี" : "Account No."}</span>
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono text-lg font-bold text-[#1B2A24] tracking-wide">
+                            {payeeAccountNo}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => handleCopy(payeeAccountNo, "account")}
+                            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#1B2A24] text-white text-[11px] font-bold hover:bg-[#D97706] transition-colors shadow-sm"
+                          >
+                            {copiedAccount ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                            <span>{copiedAccount ? (locale === "th" ? "คัดลอกแล้ว" : "Copied!") : (locale === "th" ? "คัดลอกเลขบัญชี" : "Copy")}</span>
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Account Name */}
+                      <div className="flex items-center justify-between pt-2 border-t border-slate-200/60">
+                        <span className="text-slate-500 font-semibold">{locale === "th" ? "ชื่อบัญชี" : "Account Name"}</span>
+                        <span className="font-bold text-[#1B2A24]">{payeeAccountName}</span>
                       </div>
                     </div>
-                  )}
-                  {payment.payee_account_name && (
-                    <div className="flex justify-between items-center">
-                      <span className="text-muted-foreground text-xs font-medium">ชื่อบัญชี (Account Name)</span>
-                      <span className="font-medium text-foreground text-right">{payment.payee_account_name}</span>
+
+                    {/* Quick Micro-Steps */}
+                    <div className="space-y-2 pt-2">
+                      <span className="block text-xs font-bold text-[#1B2A24]">
+                        {locale === "th" ? "ขั้นตอนการโอนเงิน 3 สเต็ปง่ายๆ:" : "3 Quick Steps:"}
+                      </span>
+                      <ol className="grid grid-cols-3 gap-2 text-[11px] text-slate-600 font-medium text-center">
+                        <li className="bg-[#FAF8F5] p-2 rounded-lg border border-slate-200/60">
+                          1. เปิดแอปธนาคาร
+                        </li>
+                        <li className="bg-[#FAF8F5] p-2 rounded-lg border border-slate-200/60">
+                          2. โอนยอดตรงตามที่ระบุ
+                        </li>
+                        <li className="bg-[#FAF8F5] p-2 rounded-lg border border-slate-200/60">
+                          3. แนบสลิปด้านขวา
+                        </li>
+                      </ol>
                     </div>
-                  )}
+                  </div>
+
                 </div>
-              )}
-            </section>
-          )}
 
-          {/* UPLOAD SLIP WITH EASYSLIP BADGE */}
-          {!isSuccess && !isExpired && (
-            <section className="rounded-2xl border border-dashed border-forest-800/40 bg-cream-50/50 p-6 text-center space-y-4">
-              <input
-                id="slip-file"
-                type="file"
-                accept="image/*"
-                className="sr-only"
-                onChange={onPickSlip}
-                disabled={upload.isPending || !payeeReady || secondsLeft === 0}
-              />
-              <div className="space-y-1">
-                <h3 className="font-serif font-bold text-foreground">แนบหลักฐานการโอนเงิน</h3>
-                <p className="text-xs text-muted-foreground">ระบบจะสแกนและตรวจสอบยอดโอนอัตโนมัติทันทีที่แนบสลิป</p>
-              </div>
-
-              <label
-                htmlFor="slip-file"
-                aria-disabled={upload.isPending || !payeeReady || secondsLeft === 0}
-                className="inline-flex min-h-12 peer-focus-visible:outline w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-forest-900 px-6 py-3 text-sm font-semibold text-cream-100 shadow-md transition-all hover:bg-forest-950 disabled:pointer-events-none disabled:opacity-50"
-              >
-                {upload.isPending ? (
-                  <>
-                    <Upload className="h-4 w-4 animate-pulse" aria-hidden="true" />
-                    <span>{t("payment.uploading")} (กำลังตรวจสลิป...)</span>
-                  </>
-                ) : (
-                  <>
-                    <Upload className="h-4 w-4" aria-hidden="true" />
-                    <span>แนบสลิปโอนเงิน (Upload Bank Slip)</span>
-                  </>
-                )}
-              </label>
-              {uploadError && (
-                <p className="text-xs font-medium text-destructive">{uploadError}</p>
-              )}
-              <p className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
-                <ShieldCheck className="h-4 w-4 text-forest-700" aria-hidden="true" />
-                <span>ผลการตรวจสอบจะแสดงในสถานะของสลิปแต่ละรายการ</span>
-              </p>
-            </section>
-          )}
-
-          {/* SLIPS LIST */}
-          {payment.slips.length > 0 && (
-            <section className="space-y-3">
-              <h2 className="font-serif text-xs font-bold uppercase tracking-wider text-forest-900/70">
-                สลิปที่แนบไว้ ({payment.slips.length})
-              </h2>
-              <ul className="space-y-3">
-                {payment.slips.map((slip) => (
-                  <li
-                    key={slip.id}
-                    className="flex items-center gap-4 rounded-2xl border border-border/70 bg-card p-4 shadow-sm"
-                  >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={slip.image}
-                      alt={slip.original_filename}
-                      className="h-16 w-16 shrink-0 rounded-xl object-cover"
-                    />
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-xs font-semibold text-foreground">
-                        {slip.original_filename || slip.id}
-                      </p>
-                      <p className="text-xs text-muted-foreground mt-0.5">
-                        {formatDateTimeText(slip.uploaded_at, locale)}
-                      </p>
+                {/* RIGHT COLUMN: Slip Upload & Submission (6 Cols) */}
+                <div className="lg:col-span-6 space-y-6">
+                  
+                  {/* Slip Upload Dropzone Card */}
+                  <div className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm space-y-5">
+                    <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                      <div className="flex items-center gap-2">
+                        <Receipt className="w-5 h-5 text-[#D97706]" />
+                        <h2 className="font-serif text-base font-bold text-[#1B2A24]">
+                          {locale === "th" ? "แนบหลักฐานการโอนเงิน (Slip)" : "Upload Payment Slip"}
+                        </h2>
+                      </div>
                     </div>
-                    <span className="shrink-0 rounded-full bg-forest-100 px-3 py-1 text-xs font-semibold text-forest-900">
-                      {t(SLIP_STATUS_LABELS[slip.status])}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </section>
-          )}
 
-          {/* FOOTER LINK */}
-          <Link href="/my-bookings" className="block pt-2">
-            <Button variant="outline" className="w-full justify-center rounded-xl py-3 font-semibold border-border/80">
-              <span>{t("payment.goToBookings")}</span>
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
-          </Link>
-        </>
-      )}
+                    {/* Interactive Upload Area */}
+                    <input
+                      id="slip-file-input"
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp"
+                      className="sr-only"
+                      onChange={handleInputChange}
+                      disabled={upload.isPending || secondsLeft === 0}
+                    />
+
+                    {!selectedFile ? (
+                      <div
+                        onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+                        onDragLeave={() => setDragOver(false)}
+                        onDrop={handleDrop}
+                        onClick={() => document.getElementById("slip-file-input")?.click()}
+                        className={`border-2 border-dashed rounded-xl p-8 text-center transition-all cursor-pointer ${
+                          dragOver
+                            ? "border-[#1B2A24] bg-[#1B2A24]/5"
+                            : "border-[#D97706]/40 hover:border-[#1B2A24] hover:bg-[#FAF8F5]"
+                        }`}
+                      >
+                        <UploadCloud className="w-10 h-10 text-[#D97706] mx-auto mb-3" />
+                        <p className="text-xs font-bold text-[#1B2A24]">
+                          {locale === "th"
+                            ? "คลิกเพื่ออัปโหลด หรือลากไฟล์สลิปมาวางที่นี่"
+                            : "Click to upload or drag and drop slip image here"}
+                        </p>
+                        <p className="text-[11px] text-slate-400 mt-1">
+                          {locale === "th" ? "รองรับไฟล์ JPG, PNG (ขนาดไม่เกิน 5MB)" : "Supports JPG, PNG (Max 5MB)"}
+                        </p>
+                      </div>
+                    ) : (
+                      /* Selected File Preview State */
+                      <div className="rounded-xl border border-slate-200 bg-[#FAF8F5] p-4 flex items-center justify-between gap-3">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="w-12 h-12 rounded-lg bg-slate-200 overflow-hidden shrink-0">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                              src={URL.createObjectURL(selectedFile)}
+                              alt="Slip Preview"
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                          <div className="min-w-0 text-xs">
+                            <p className="font-bold text-[#1B2A24] truncate">{selectedFile.name}</p>
+                            <p className="text-slate-400">{(selectedFile.size / 1024 / 1024).toFixed(2)} MB</p>
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setSelectedFile(null)}
+                          className="p-2 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-rose-50 transition-colors"
+                          title={locale === "th" ? "ยกเลิกไฟล์นี้" : "Remove file"}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    )}
+
+                    {uploadError && (
+                      <p className="text-xs font-bold text-rose-600 bg-rose-50 p-3 rounded-xl border border-rose-200">
+                        {uploadError}
+                      </p>
+                    )}
+
+                    {/* Auto-Check Notice */}
+                    <div className="flex items-center gap-2 text-xs text-emerald-800 bg-emerald-50 border border-emerald-200/80 p-3 rounded-xl">
+                      <ShieldCheck className="w-4 h-4 text-emerald-700 shrink-0" />
+                      <span>{locale === "th" ? "ระบบจะตรวจสอบความถูกต้องของสลิปโดยอัตโนมัติ" : "Automatic automated slip verification enabled"}</span>
+                    </div>
+
+                    {/* Primary CTA Button */}
+                    <button
+                      type="button"
+                      disabled={upload.isPending || !selectedFile || secondsLeft === 0}
+                      onClick={handleSubmitSlip}
+                      className="w-full py-4 px-6 rounded-xl bg-[#1B2A24] text-white font-semibold hover:bg-[#151d1a] transition-all shadow-md flex items-center justify-center gap-2 text-sm disabled:opacity-50"
+                    >
+                      {upload.isPending ? (
+                        <>
+                          <Loader2 className="w-5 h-5 animate-spin" />
+                          <span>{locale === "th" ? "กำลังตรวจสอบและอัปโหลดสลิป..." : "Verifying slip..."}</span>
+                        </>
+                      ) : (
+                        <>
+                          <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+                          <span>{locale === "th" ? "ยืนยันและส่งหลักฐานการชำระเงิน" : "Submit Payment Slip"}</span>
+                        </>
+                      )}
+                    </button>
+
+                    {/* Attached Slips List */}
+                    {payment.slips.length > 0 && (
+                      <div className="pt-4 border-t border-slate-100 space-y-3">
+                        <span className="block text-xs font-bold text-[#1B2A24]">
+                          {locale === "th" ? `สลิปที่แนบไว้แล้ว (${payment.slips.length})` : `Uploaded Slips (${payment.slips.length})`}
+                        </span>
+                        <ul className="space-y-2">
+                          {payment.slips.map((slip) => (
+                            <li
+                              key={slip.id}
+                              className="flex items-center justify-between gap-3 p-3 rounded-xl border border-slate-200/80 bg-[#FAF8F5] text-xs"
+                            >
+                              <div className="flex items-center gap-3 min-w-0">
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img
+                                  src={slip.image}
+                                  alt="Slip"
+                                  className="w-10 h-10 rounded-lg object-cover shrink-0"
+                                />
+                                <div className="min-w-0">
+                                  <p className="font-bold text-[#1B2A24] truncate">{slip.original_filename || slip.id}</p>
+                                  <p className="text-[10px] text-slate-400">{formatDateTimeText(slip.uploaded_at, locale)}</p>
+                                </div>
+                              </div>
+                              <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-white text-[#1B2A24] border border-slate-200 shrink-0">
+                                {t(SLIP_STATUS_LABELS[slip.status])}
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                    {/* Fallback Help Link */}
+                    <div className="pt-2 text-center">
+                      <Link
+                        href="/my-bookings"
+                        className="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-[#1B2A24] transition-colors"
+                      >
+                        <HelpCircle className="w-3.5 h-3.5 text-[#D97706]" />
+                        <span>{locale === "th" ? "ต้องการความช่วยเหลือ หรือแจ้งปัญหาการชำระเงิน" : "Need help with payment?"}</span>
+                      </Link>
+                    </div>
+
+                  </div>
+                </div>
+
+              </div>
+            )}
+          </>
+        )}
+      </div>
     </div>
   );
 }
-

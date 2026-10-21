@@ -79,34 +79,34 @@ export function RegisterForm() {
   return (
     <div className="space-y-4">
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div className="space-y-1.5">
-            <Label htmlFor="first_name" className="text-xs font-semibold text-[#193e30]">
+            <Label htmlFor="first_name" className="text-xs font-semibold text-[#1f2925]">
               {t("auth.firstNameLabel")}
             </Label>
             <Input
               id="first_name"
               autoComplete="given-name"
-              className="rounded-xl border-[#d8ddce] focus-visible:ring-[#224e39]"
+              className="rounded-2xl border-slate-300 bg-white text-xs min-h-[46px] focus-visible:ring-[#1f2925] focus-visible:border-[#1f2925]"
               {...register("first_name")}
             />
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="last_name" className="text-xs font-semibold text-[#193e30]">
+            <Label htmlFor="last_name" className="text-xs font-semibold text-[#1f2925]">
               {t("auth.lastNameLabel")}
             </Label>
             <Input
               id="last_name"
               autoComplete="family-name"
-              className="rounded-xl border-[#d8ddce] focus-visible:ring-[#224e39]"
+              className="rounded-2xl border-slate-300 bg-white text-xs min-h-[46px] focus-visible:ring-[#1f2925] focus-visible:border-[#1f2925]"
               {...register("last_name")}
             />
           </div>
         </div>
 
         <div className="space-y-1.5">
-          <Label htmlFor="email" className="text-xs font-semibold text-[#193e30]">
+          <Label htmlFor="email" className="text-xs font-semibold text-[#1f2925]">
             {t("auth.emailLabel")}
           </Label>
           <Input
@@ -114,17 +114,17 @@ export function RegisterForm() {
             type="email"
             autoComplete="email"
             placeholder={t("auth.emailPlaceholder")}
-            className="rounded-xl border-[#d8ddce] focus-visible:ring-[#224e39]"
+            className="rounded-2xl border-slate-300 bg-white text-xs min-h-[46px] focus-visible:ring-[#1f2925] focus-visible:border-[#1f2925]"
             aria-invalid={errors.email ? "true" : undefined}
             {...register("email")}
           />
           {errors.email && (
-            <p className="text-xs text-destructive">{errors.email.message}</p>
+            <p className="text-xs text-rose-600 font-medium">{errors.email.message}</p>
           )}
         </div>
 
         <div className="space-y-1.5">
-          <Label htmlFor="phone_number" className="text-xs font-semibold text-[#193e30]">
+          <Label htmlFor="phone_number" className="text-xs font-semibold text-[#1f2925]">
             {t("auth.phoneLabel")}
           </Label>
           <Input
@@ -133,43 +133,43 @@ export function RegisterForm() {
             inputMode="numeric"
             autoComplete="tel-national"
             placeholder={t("auth.phonePlaceholder")}
-            className="rounded-xl border-[#d8ddce] focus-visible:ring-[#224e39]"
+            className="rounded-2xl border-slate-300 bg-white text-xs min-h-[46px] focus-visible:ring-[#1f2925] focus-visible:border-[#1f2925]"
             aria-invalid={errors.phone_number ? "true" : undefined}
             {...register("phone_number")}
           />
           {errors.phone_number && (
-            <p className="text-xs text-destructive">
+            <p className="text-xs text-rose-600 font-medium">
               {errors.phone_number.message}
             </p>
           )}
         </div>
 
         <div className="space-y-1.5">
-          <Label htmlFor="password" className="text-xs font-semibold text-[#193e30]">
+          <Label htmlFor="password" className="text-xs font-semibold text-[#1f2925]">
             {t("auth.passwordLabel")}
           </Label>
           <Input
             id="password"
             type="password"
             autoComplete="new-password"
-            className="rounded-xl border-[#d8ddce] focus-visible:ring-[#224e39]"
+            className="rounded-2xl border-slate-300 bg-white text-xs min-h-[46px] focus-visible:ring-[#1f2925] focus-visible:border-[#1f2925]"
             aria-invalid={errors.password ? "true" : undefined}
             {...register("password")}
           />
           {errors.password && (
-            <p className="text-xs text-destructive">{errors.password.message}</p>
+            <p className="text-xs text-rose-600 font-medium">{errors.password.message}</p>
           )}
         </div>
 
         {serverError && (
-          <p role="alert" className="rounded-xl bg-destructive/10 p-3 text-xs text-destructive">
+          <p role="alert" className="rounded-2xl bg-rose-50 border border-rose-200 p-3 text-xs text-rose-700 font-medium">
             {serverError}
           </p>
         )}
 
         <Button
           type="submit"
-          className="w-full rounded-xl bg-[#224e39] py-3 text-sm font-semibold text-white hover:bg-[#173a29] transition"
+          className="w-full min-h-[48px] rounded-2xl bg-[#1f2925] text-[#faf9f6] text-xs font-bold hover:bg-[#2b3832] transition shadow-md"
           disabled={isSubmitting}
         >
           {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}

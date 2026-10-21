@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   CheckCircle2,
@@ -12,13 +12,20 @@ import {
   ShieldCheck,
   XCircle,
   Navigation,
+  Trash2,
+  Loader2,
 } from "lucide-react";
 
 import { AdminPagination } from "@/components/admin/AdminPagination";
 import { ListError, ListLoading } from "@/components/catalog/DataStates";
 import { useAuth } from "@/hooks/use-auth";
 import { extractErrorMessage } from "@/lib/api/errors";
-import { getLocationLogs, getLocationPolicy } from "@/lib/api/experience";
+import {
+  deleteAdminLocationLogs,
+  getLocationLogs,
+  getLocationPolicy,
+} from "@/lib/api/experience";
+import { getDistanceToSisaket, reverseGeocode, formatDistanceText } from "@/lib/geo";
 import { useI18n } from "@/lib/i18n";
 
 const labels: Record<string, { th: string; en: string; tone: "success" | "danger" | "warning" }> = {
@@ -28,19 +35,58 @@ const labels: Record<string, { th: string; en: string; tone: "success" | "danger
   unavailable: { th: "หาตำแหน่งไม่ได้", en: "Unavailable", tone: "danger" },
 };
 
-function getDistrictFromCoords(lat: string | number | null, lng: string | number | null): string {
-  if (lat === null || lng === null || lat === "" || lng === "") return "ไม่ระบุตำแหน่ง (No GPS)";
-  const numLat = typeof lat === "number" ? lat : parseFloat(lat);
-  const numLng = typeof lng === "number" ? lng : parseFloat(lng);
-  if (isNaN(numLat) || isNaN(numLng)) return "ไม่ระบุตำแหน่ง";
+function RealLocationCell({
+  lat,
+  lng,
+  locale,
+}: {
+  lat: string | number | null;
+  lng: string | number | null;
+  locale: string;
+}) {
+  const [address, setAddress] = useState<string>("");
+  const [loading, setLoading] = useState(false);
 
-  if (numLat >= 14.4 && numLat <= 14.7 && numLng >= 104.5 && numLng <= 104.8) return "อ.กันทรลักษ์, จ.ศรีสะเกษ";
-  if (numLat >= 14.4 && numLat <= 14.7 && numLng >= 104.3 && numLng < 104.5) return "อ.ขุนหาญ, จ.ศรีสะเกษ";
-  if (numLat >= 14.4 && numLat <= 14.6 && numLng >= 104.0 && numLng < 104.3) return "อ.ภูสิงห์, จ.ศรีสะเกษ";
-  if (numLat >= 14.9 && numLat <= 15.2 && numLng >= 104.2 && numLng <= 104.5) return "อ.เมืองศรีสะเกษ, จ.ศรีสะเกษ";
-  if (numLat >= 15.0 && numLat <= 15.2 && numLng >= 104.0 && numLng < 104.2) return "อ.อุทุมพรพิสัย, จ.ศรีสะเกษ";
-  if (numLat >= 15.2 && numLat <= 15.5 && numLng >= 104.0 && numLng <= 104.4) return "อ.ราษีไศล, จ.ศรีสะเกษ";
-  return "อ.เมือง, จ.ศรีสะเกษ";
+  const numLat = lat !== null && lat !== "" ? (typeof lat === "number" ? lat : parseFloat(lat)) : null;
+  const numLng = lng !== null && lng !== "" ? (typeof lng === "number" ? lng : parseFloat(lng)) : null;
+  const isValid = numLat !== null && numLng !== null && !isNaN(numLat) && !isNaN(numLng);
+
+  useEffect(() => {
+    if (!isValid) return;
+    let active = true;
+    setLoading(true);
+    reverseGeocode(numLat, numLng)
+      .then((addr) => {
+        if (active) setAddress(addr);
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [isValid, numLat, numLng]);
+
+  if (!isValid) {
+    return <span className="text-slate-400">ไม่ระบุพิกัด (No GPS)</span>;
+  }
+
+  const dist = getDistanceToSisaket({ lat: numLat, lng: numLng });
+
+  return (
+    <div>
+      <div className="font-bold flex items-center gap-1.5 text-xs text-[#1B2A24]">
+        <Navigation className="w-3.5 h-3.5 text-[#D97706] shrink-0" />
+        <span>{loading ? "กำลังระบุที่อยู่จริง..." : address || `พิกัด ${numLat}, ${numLng}`}</span>
+      </div>
+      <div className="flex flex-wrap items-center gap-1.5 font-mono text-[11px] text-slate-500 mt-0.5">
+        <span>Lat: {numLat}, Long: {numLng}</span>
+        <span className="text-slate-400 font-sans">
+          • ห่างจากศรีสะเกษ {formatDistanceText(dist, locale === "th")}
+        </span>
+      </div>
+    </div>
+  );
 }
 
 export default function LocationAdminPage() {
@@ -55,6 +101,8 @@ export default function LocationAdminPage() {
   const [outcomeFilter, setOutcomeFilter] = useState("ALL");
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(10);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [clearingAll, setClearingAll] = useState(false);
 
   const query = useQuery({
     queryKey: ["location-admin"],
@@ -69,6 +117,32 @@ export default function LocationAdminPage() {
     enabled: allowed,
   });
 
+  async function handleDeleteSingle(id: number) {
+    if (!confirm("ยืนยันลบรายการบันทึกตำแหน่งนี้?")) return;
+    setDeletingId(id);
+    try {
+      await deleteAdminLocationLogs(id);
+      await query.refetch();
+    } catch (err) {
+      alert(`ลบไม่สำเร็จ: ${extractErrorMessage(err)}`);
+    } finally {
+      setDeletingId(null);
+    }
+  }
+
+  async function handleClearAll() {
+    if (!confirm("คุณต้องการล้างประวัติการบันทึกตำแหน่งทั้งหมดในระบบใช่หรือไม่?")) return;
+    setClearingAll(true);
+    try {
+      await deleteAdminLocationLogs(undefined, true);
+      await query.refetch();
+    } catch (err) {
+      alert(`ล้างข้อมูลไม่สำเร็จ: ${extractErrorMessage(err)}`);
+    } finally {
+      setClearingAll(false);
+    }
+  }
+
   if (!allowed) {
     return (
       <div className="rounded-3xl border border-dashed border-slate-200 bg-white p-12 text-center text-slate-500 font-medium">
@@ -81,10 +155,8 @@ export default function LocationAdminPage() {
 
   const filteredLogs = logsList.filter((log) => {
     const coordStr = `${log.latitude ?? ""}, ${log.longitude ?? ""}`;
-    const locationName = getDistrictFromCoords(log.latitude, log.longitude);
     const matchesSearch =
       coordStr.includes(searchQuery) ||
-      locationName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       String(log.id).toLowerCase().includes(searchQuery.toLowerCase()) ||
       String(log.consent_version ?? "").toLowerCase().includes(searchQuery.toLowerCase());
     const matchesOutcome = outcomeFilter === "ALL" || log.outcome === outcomeFilter;
@@ -113,15 +185,34 @@ export default function LocationAdminPage() {
           </p>
         </div>
 
-        <button
-          type="button"
-          disabled={query.isFetching}
-          onClick={() => void query.refetch()}
-          className="px-4 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-[#1B2A24] hover:text-white text-[#1B2A24] font-semibold text-xs transition-all flex items-center justify-center gap-2 shadow-xs shrink-0"
-        >
-          <RefreshCw className={`w-4 h-4 ${query.isFetching ? "animate-spin text-[#D97706]" : ""}`} />
-          <span>โหลดข้อมูลล่าสุด</span>
-        </button>
+        <div className="flex items-center gap-2 shrink-0">
+          {logsList.length > 0 && (
+            <button
+              type="button"
+              disabled={clearingAll}
+              onClick={() => void handleClearAll()}
+              className="px-3.5 py-2.5 rounded-xl border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-700 font-semibold text-xs transition-all flex items-center justify-center gap-1.5 shadow-xs cursor-pointer disabled:opacity-50"
+              title="ล้างข้อมูลบันทึกตำแหน่งทั้งหมดออกจากฐานข้อมูล"
+            >
+              {clearingAll ? (
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              ) : (
+                <Trash2 className="w-3.5 h-3.5 text-rose-600" />
+              )}
+              <span>{clearingAll ? "กำลังล้าง..." : "ล้างประวัติทั้งหมด"}</span>
+            </button>
+          )}
+
+          <button
+            type="button"
+            disabled={query.isFetching}
+            onClick={() => void query.refetch()}
+            className="px-4 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-[#1B2A24] hover:text-white text-[#1B2A24] font-semibold text-xs transition-all flex items-center justify-center gap-2 shadow-xs shrink-0 cursor-pointer"
+          >
+            <RefreshCw className={`w-4 h-4 ${query.isFetching ? "animate-spin text-[#D97706]" : ""}`} />
+            <span>โหลดข้อมูลล่าสุด</span>
+          </button>
+        </div>
       </div>
 
       {/* Filter and Search Bar */}
@@ -175,7 +266,7 @@ export default function LocationAdminPage() {
         <div className="rounded-3xl border border-dashed border-slate-200 bg-white p-12 text-center text-slate-500 space-y-2">
           <MapPin className="mx-auto h-10 w-10 text-slate-300" />
           <p className="text-base font-bold text-[#1B2A24]">
-            {locale === "th" ? "ไม่พบบันทึกตำแหน่งที่ตรงตามเงื่อนไข" : "No location logs found"}
+            {locale === "th" ? "ไม่พบบันทึกตำแหน่งในระบบ (ฐานข้อมูลว่าง)" : "No location logs in database"}
           </p>
         </div>
       ) : (
@@ -190,13 +281,13 @@ export default function LocationAdminPage() {
                     <th className="px-4 py-3.5">อำเภอ / จังหวัด (พิกัด GPS)</th>
                     <th className="px-4 py-3.5">ความคลาดเคลื่อน</th>
                     <th className="px-4 py-3.5">วันหมดอายุบันทึก (TTL)</th>
-                    <th className="px-4 py-3.5 text-right">เวอร์ชัน</th>
+                    <th className="px-4 py-3.5">เวอร์ชัน</th>
+                    <th className="px-4 py-3.5 text-right">จัดการ</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
                   {paginatedLogs.map((row) => {
                     const tagInfo = labels[row.outcome] || { th: row.outcome, en: row.outcome, tone: "warning" };
-                    const districtName = getDistrictFromCoords(row.latitude, row.longitude);
 
                     return (
                       <tr key={row.id} className="hover:bg-slate-50/50 transition-colors">
@@ -217,15 +308,7 @@ export default function LocationAdminPage() {
                           </span>
                         </td>
                         <td className="px-4 py-3.5 text-[#1B2A24]">
-                          <div className="font-bold flex items-center gap-1.5 text-xs text-[#1B2A24]">
-                            <Navigation className="w-3.5 h-3.5 text-[#D97706] shrink-0" />
-                            <span>{districtName}</span>
-                          </div>
-                          <div className="font-mono text-[11px] text-slate-400 mt-0.5">
-                            {row.latitude !== null && row.longitude !== null
-                              ? `Lat: ${row.latitude}, Long: ${row.longitude}`
-                              : "—"}
-                          </div>
+                          <RealLocationCell lat={row.latitude} lng={row.longitude} locale={locale} />
                         </td>
                         <td className="px-4 py-3.5 text-slate-600">
                           {row.accuracy_m === null ? "—" : `±${row.accuracy_m} เมตร`}
@@ -233,8 +316,23 @@ export default function LocationAdminPage() {
                         <td className="px-4 py-3.5 text-slate-500 text-[11px]">
                           {row.expires_at ? new Date(row.expires_at).toLocaleDateString("th-TH") : "—"}
                         </td>
-                        <td className="px-4 py-3.5 text-right font-mono font-bold text-slate-400">
+                        <td className="px-4 py-3.5 font-mono font-bold text-slate-400">
                           v{row.consent_version}
+                        </td>
+                        <td className="px-4 py-3.5 text-right">
+                          <button
+                            type="button"
+                            disabled={deletingId === row.id}
+                            onClick={() => void handleDeleteSingle(row.id)}
+                            className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer disabled:opacity-50"
+                            title="ลบรายการนี้ออกจากฐานข้อมูล"
+                          >
+                            {deletingId === row.id ? (
+                              <Loader2 className="w-4 h-4 animate-spin text-rose-600" />
+                            ) : (
+                              <Trash2 className="w-4 h-4" />
+                            )}
+                          </button>
                         </td>
                       </tr>
                     );

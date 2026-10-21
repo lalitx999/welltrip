@@ -30,10 +30,32 @@ export interface MerchantRegisterPayload {
   phone_number: string;
   business_name: string;
   business_category: string;
+  otp_code: string;
   description?: string;
   google_maps_url?: string;
   opening_hours?: string;
   cover_image_url?: string;
+}
+
+export async function apiRequestEmailOtp(
+  email: string,
+  purpose: string = "MERCHANT_REGISTER"
+): Promise<{ sent: boolean; expires_in_seconds: number; message: string }> {
+  const { data } = await apiClient.post<
+    ApiSuccess<{ sent: boolean; expires_in_seconds: number; message: string }>
+  >("/api/v1/auth/otp/request/", { email, purpose });
+  return data.data;
+}
+
+export async function apiVerifyEmailOtp(
+  email: string,
+  otp_code: string,
+  purpose: string = "MERCHANT_REGISTER"
+): Promise<{ verified: boolean; message: string }> {
+  const { data } = await apiClient.post<
+    ApiSuccess<{ verified: boolean; message: string }>
+  >("/api/v1/auth/otp/verify/", { email, otp_code, purpose });
+  return data.data;
 }
 
 export async function apiRegister(

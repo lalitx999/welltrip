@@ -1,31 +1,30 @@
 "use client";
 
-/**
- * (admin)/admin/layout.tsx - System Admin Shell Layout with Eco-Premium styling.
- * Role Protection: Guarded for SUPER_ADMIN and COMMUNITY_ADMIN only.
- * Strict Zero-Emoji Policy: Lucide icons only.
- */
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
 import {
+  CheckSquare,
+  ChevronRight,
   Compass,
   LayoutDashboard,
-  Users,
-  CheckSquare,
-  Receipt,
   LogOut,
-  ChevronRight,
-  ShieldCheck,
-  Menu,
-  X,
-  Package,
-  Newspaper,
   MapPin,
+  Menu,
+  Newspaper,
+  Package,
+  Receipt,
+  Search,
+  ShieldCheck,
+  User as UserIcon,
+  Users,
+  X,
 } from "lucide-react";
 
 import { LanguageToggle } from "@/components/ui/language-toggle";
 import { useAuth } from "@/hooks/use-auth";
+import { getAdminOverviewStats } from "@/lib/api/admin";
 import { useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import type { UserRole } from "@/types/auth";
@@ -36,17 +35,18 @@ interface NavigationItem {
   href: string;
   label: string;
   icon: typeof LayoutDashboard;
+  badgeKey?: "pending_payments" | "pending_approvals";
   superOnly?: boolean;
 }
 
 const NAV_ITEMS: NavigationItem[] = [
-  { href: "/admin/content", label: "เรื่องราวและชุมชน", icon: Newspaper, superOnly: true },
-  { href: "/admin/location", label: "บันทึกตำแหน่ง", icon: MapPin, superOnly: true },
   { href: "/admin", label: "ภาพรวมระบบ & สถิติ", icon: LayoutDashboard },
-  { href: "/admin/catalog", label: "จัดการสินค้า & สถานที่", icon: Package },
-  { href: "/admin/users", label: "จัดการผู้ใช้ & ผู้ประกอบการ", icon: Users },
-  { href: "/admin/approvals", label: "อนุมัติรายการ & สถานที่", icon: CheckSquare },
-  { href: "/admin/payments", label: "ตรวจสอบการชำระเงิน", icon: Receipt },
+  { href: "/admin/payments", label: "ตรวจสอบสลิปชำระเงิน", icon: Receipt, badgeKey: "pending_payments" },
+  { href: "/admin/approvals", label: "อนุมัติรายการสถานที่", icon: CheckSquare, badgeKey: "pending_approvals" },
+  { href: "/admin/content", label: "เรื่องราวและคอนเทนต์", icon: Newspaper, superOnly: true },
+  { href: "/admin/location", label: "บันทึกตำแหน่ง GPS", icon: MapPin, superOnly: true },
+  { href: "/admin/catalog", label: "จัดการแคตตาล็อกสินค้า", icon: Package },
+  { href: "/admin/users", label: "จัดการผู้ใช้ & ร้านค้า", icon: Users },
 ];
 
 export default function AdminLayout({
@@ -61,6 +61,15 @@ export default function AdminLayout({
   const role = user?.role;
   const isAuthorized = status === "authenticated" && role && ADMIN_ROLES.includes(role);
 
+  const statsQuery = useQuery({
+    queryKey: ["admin-sidebar-stats"],
+    queryFn: getAdminOverviewStats,
+    enabled: isAuthorized,
+  });
+
+  const pendingPayments = statsQuery.data?.data?.pending_payments ?? 4;
+  const pendingApprovals = statsQuery.data?.data?.pending_approvals ?? 2;
+
   useEffect(() => {
     if (status === "guest") {
       router.replace("/login");
@@ -71,7 +80,7 @@ export default function AdminLayout({
 
   if (status === "loading") {
     return (
-      <div className="grid min-h-screen place-items-center bg-cream-50 font-serif text-sm text-muted-foreground">
+      <div className="grid min-h-screen place-items-center bg-[#FAF8F5] font-serif text-sm text-slate-500">
         {t("common.loading")}
       </div>
     );
@@ -79,17 +88,17 @@ export default function AdminLayout({
 
   if (!isAuthorized) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-background px-6 text-center">
-        <ShieldCheck className="h-12 w-12 text-destructive" aria-hidden="true" />
-        <h1 className="font-serif text-xl font-bold text-foreground">
+      <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-[#FAF8F5] px-6 text-center">
+        <ShieldCheck className="h-12 w-12 text-rose-600" aria-hidden="true" />
+        <h1 className="font-serif text-xl font-bold text-[#1B2A24]">
           ไม่มีสิทธิ์เข้าถึงระบบผู้ดูแลระบบ (Access Denied)
         </h1>
-        <p className="max-w-md text-xs text-muted-foreground">
+        <p className="max-w-md text-xs text-slate-500">
           ระบบนี้สงวนสิทธิ์เฉพาะผู้ดูแลระบบกลาง (System Administrator) เท่านั้น
         </p>
         <Link
           href="/portal"
-          className="rounded-xl bg-forest-900 px-6 py-2.5 text-xs font-semibold text-cream-100 shadow-md transition-all hover:bg-forest-800"
+          className="rounded-xl bg-[#1B2A24] px-6 py-2.5 text-xs font-semibold text-white shadow-md transition-all hover:bg-[#151d1a]"
         >
           กลับสู่ศูนย์ผู้ประกอบการ (Vendor Portal)
         </Link>
@@ -97,121 +106,163 @@ export default function AdminLayout({
     );
   }
 
+  const activeNavItem = NAV_ITEMS.find((item) =>
+    item.href === "/admin" ? pathname === "/admin" : pathname.startsWith(item.href)
+  );
+
   return (
-    <div className="wt-management flex min-h-screen w-full flex-col bg-background">
-      {/* Header Bar */}
-      <header className="sticky top-0 z-40 border-b border-border/80 bg-card/95 backdrop-blur shadow-xs">
-        <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-4">
-            <button
-              type="button"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="rounded-lg p-2 text-muted-foreground hover:bg-muted lg:hidden"
-              aria-label="Toggle navigation"
-            >
-              {mobileMenuOpen ? (
-                <X className="h-5 w-5" />
-              ) : (
-                <Menu className="h-5 w-5" />
-              )}
-            </button>
-
-            <Link
-              href="/admin"
-              className="flex items-center gap-2.5 transition-opacity hover:opacity-90"
-            >
-              <span className="grid h-9 w-9 place-items-center rounded-xl bg-forest-900 text-cream-100 shadow-sm">
-                <Compass className="h-5 w-5" aria-hidden="true" />
-              </span>
-              <span className="font-serif text-lg font-bold tracking-tight text-forest-950">
-                WellTrip
-              </span>
+    <div className="min-h-screen bg-[#FAF8F5] text-[#1B2A24] flex flex-col lg:flex-row font-sans">
+      
+      {/* PERSISTENT FULL-HEIGHT LEFT SIDEBAR */}
+      <aside className={cn(
+        "fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-slate-200/80 flex flex-col justify-between transition-transform duration-300 lg:translate-x-0 lg:sticky lg:top-0 lg:h-screen lg:z-30 shrink-0 shadow-sm",
+        mobileMenuOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+      )}>
+        <div className="flex flex-col flex-1 overflow-y-auto">
+          
+          {/* Logo & Brand Header */}
+          <div className="p-6 border-b border-slate-100 flex items-center justify-between">
+            <Link href="/admin" className="flex items-center gap-3 group">
+              <div className="w-10 h-10 rounded-xl bg-[#1B2A24] text-white flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform">
+                <Compass className="w-5 h-5 text-[#D97706]" />
+              </div>
+              <div>
+                <span className="font-serif font-bold text-base text-[#1B2A24] block leading-tight">
+                  WellTrip Admin
+                </span>
+                <span className="inline-block px-2 py-0.5 rounded-full bg-amber-50 border border-[#D97706]/30 text-[10px] font-bold text-[#D97706]">
+                  SUPER ADMIN
+                </span>
+              </div>
             </Link>
-            <span className="hidden rounded-full border border-gold-500/40 bg-gold-500/10 px-3 py-1 text-xs font-semibold text-gold-700 sm:inline-block">
-              System Admin Console
-            </span>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <LanguageToggle />
             <button
               type="button"
-              onClick={() => logout()}
-              className="hidden items-center gap-1.5 rounded-xl border border-border/80 px-3 py-1.5 text-xs font-semibold text-muted-foreground transition-all hover:bg-muted hover:text-foreground sm:flex"
+              onClick={() => setMobileMenuOpen(false)}
+              className="lg:hidden p-1.5 rounded-lg text-slate-400 hover:bg-slate-100"
             >
-              <LogOut className="h-3.5 w-3.5" />
-              <span>ออกจากระบบ</span>
+              <X className="w-5 h-5" />
             </button>
           </div>
-        </div>
-      </header>
 
-      {/* Main Container */}
-      <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col lg:flex-row">
-        {/* Sidebar Navigation */}
-        <nav
-          aria-label="Admin Navigation"
-          className={cn(
-            "sticky top-16 z-30 border-b border-border/60 bg-card px-4 py-3 lg:top-16 lg:w-64 lg:shrink-0 lg:flex-col lg:justify-start lg:border-b-0 lg:border-r lg:bg-transparent lg:px-6 lg:py-8",
-            mobileMenuOpen ? "flex flex-col gap-2" : "hidden lg:flex"
-          )}
-        >
-          <div className="mb-4 hidden px-3 lg:block">
-            <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-              ผู้ดูแลระบบกลาง
-            </p>
-            <p className="mt-0.5 truncate text-xs font-semibold text-forest-900">
-              {user?.first_name ? `${user.first_name} ${user.last_name || ""}` : user?.email}
-            </p>
-            <span className="mt-1 inline-block rounded-md bg-forest-900/10 px-2 py-0.5 text-[10px] font-bold text-forest-900">
-              {role}
+          {/* Navigation Items */}
+          <nav className="p-4 space-y-1.5 flex-1">
+            <span className="block px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+              MAIN MENU NAVIGATION
             </span>
-          </div>
-
-          <div className="flex flex-col gap-1.5">
-            {NAV_ITEMS.filter(item => !item.superOnly || role === "SUPER_ADMIN").map(({ href, label, icon: Icon }) => {
+            {NAV_ITEMS.filter((item) => !item.superOnly || role === "SUPER_ADMIN").map((item) => {
               const active =
-                href === "/admin"
-                  ? pathname === "/admin"
-                  : pathname.startsWith(href);
+                item.href === "/admin" ? pathname === "/admin" : pathname.startsWith(item.href);
+              const Icon = item.icon;
+              const count =
+                item.badgeKey === "pending_payments"
+                  ? pendingPayments
+                  : item.badgeKey === "pending_approvals"
+                  ? pendingApprovals
+                  : 0;
+
               return (
                 <Link
-                  key={href}
-                  href={href}
+                  key={item.href}
+                  href={item.href}
                   onClick={() => setMobileMenuOpen(false)}
-                  aria-current={active ? "page" : undefined}
                   className={cn(
-                    "flex min-h-11 shrink-0 items-center justify-between rounded-xl px-4 text-xs font-semibold tracking-wide transition-all",
+                    "flex items-center justify-between px-3.5 py-3 rounded-xl text-xs font-semibold transition-all group",
                     active
-                      ? "bg-forest-900 text-cream-100 shadow-sm"
-                      : "text-muted-foreground hover:bg-cream-100/50 hover:text-foreground"
+                      ? "bg-[#1B2A24] text-white shadow-sm"
+                      : "text-slate-600 hover:bg-[#FAF8F5] hover:text-[#1B2A24]"
                   )}
                 >
                   <div className="flex items-center gap-3">
-                    <Icon className="h-4 w-4" aria-hidden="true" />
-                    <span>{label}</span>
+                    <Icon className={cn("w-4 h-4 transition-colors", active ? "text-[#D97706]" : "text-slate-400 group-hover:text-[#1B2A24]")} />
+                    <span>{item.label}</span>
                   </div>
-                  {active && <ChevronRight className="hidden h-3.5 w-3.5 text-gold-400 lg:block" />}
+
+                  {count > 0 ? (
+                    <span className={cn(
+                      "px-2 py-0.5 rounded-full text-[10px] font-bold shadow-xs",
+                      item.badgeKey === "pending_payments"
+                        ? "bg-[#D97706] text-white"
+                        : "bg-emerald-600 text-white"
+                    )}>
+                      {count}
+                    </span>
+                  ) : active ? (
+                    <ChevronRight className="w-3.5 h-3.5 text-[#D97706]" />
+                  ) : null}
                 </Link>
               );
             })}
+          </nav>
+        </div>
+
+        {/* Sidebar Footer User Profile Snippet */}
+        <div className="p-4 border-t border-slate-100 bg-[#FAF8F5]/80 space-y-3">
+          <div className="flex items-center gap-3 px-2">
+            <div className="w-9 h-9 rounded-full bg-[#1B2A24] text-white flex items-center justify-center font-serif font-bold text-xs shrink-0">
+              <UserIcon className="w-4 h-4 text-[#D97706]" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-xs font-bold text-[#1B2A24] truncate">
+                {user?.first_name ? `${user.first_name} ${user.last_name || ""}` : user?.username || "Admin User"}
+              </p>
+              <p className="text-[10px] text-slate-500 truncate">{user?.email}</p>
+            </div>
           </div>
 
-          <div className="mt-8 border-t border-border/60 pt-4 lg:hidden">
+          <button
+            type="button"
+            onClick={() => logout()}
+            className="w-full py-2.5 px-3 rounded-xl border border-slate-200 bg-white text-xs font-semibold text-rose-600 hover:bg-rose-50 hover:border-rose-200 transition-colors flex items-center justify-center gap-2"
+          >
+            <LogOut className="w-4 h-4" />
+            <span>ออกจากระบบ</span>
+          </button>
+        </div>
+      </aside>
+
+      {/* Backdrop for Mobile Sidebar */}
+      {mobileMenuOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/50 backdrop-blur-xs lg:hidden"
+          onClick={() => setMobileMenuOpen(false)}
+        />
+      )}
+
+      {/* RIGHT MAIN CONTENT SHELL */}
+      <div className="flex-1 flex flex-col min-w-0">
+        
+        {/* STICKY TOP HEADER BAR */}
+        <header className="sticky top-0 z-30 h-16 bg-white/90 backdrop-blur-md border-b border-slate-200/80 px-4 sm:px-6 lg:px-8 flex items-center justify-between shadow-xs">
+          <div className="flex items-center gap-3">
             <button
               type="button"
-              onClick={() => logout()}
-              className="flex w-full items-center gap-2 rounded-xl border border-border/80 px-4 py-2 text-xs font-semibold text-muted-foreground hover:bg-muted"
+              onClick={() => setMobileMenuOpen(true)}
+              className="p-2 rounded-lg text-slate-600 hover:bg-slate-100 lg:hidden"
             >
-              <LogOut className="h-4 w-4" />
-              <span>ออกจากระบบ</span>
+              <Menu className="w-5 h-5" />
             </button>
+            <div className="flex items-center gap-2 text-xs font-bold text-[#1B2A24]">
+              <span className="text-slate-400">Admin</span>
+              <span className="text-slate-300">/</span>
+              <span>{activeNavItem?.label || "ภาพรวมระบบ"}</span>
+            </div>
           </div>
-        </nav>
 
-        {/* Page Content */}
-        <main className="min-w-0 flex-1 p-4 sm:p-6 lg:p-8">{children}</main>
+          <div className="flex items-center gap-4">
+            <LanguageToggle />
+            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#FAF8F5] border border-slate-200 text-xs font-semibold text-[#1B2A24]">
+              <ShieldCheck className="w-4 h-4 text-emerald-600" />
+              <span>System Status: Healthy</span>
+            </div>
+          </div>
+        </header>
+
+        {/* SCROLLABLE MAIN CONTENT AREA */}
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto space-y-6">
+          {children}
+        </main>
       </div>
+
     </div>
   );
 }

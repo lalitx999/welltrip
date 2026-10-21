@@ -1,9 +1,9 @@
-/* Eco-Premium Header & Mobile Shell System */
+/* Travilla Luxury Header & Mobile Shell System */
 .shell {
-  --travel-ink: #193E30;
-  --travel-muted: #657267;
-  --travel-paper: #FAF8F1;
-  --travel-line: #dfe3d8;
+  --travel-ink: #1F2925;
+  --travel-muted: #4B5563;
+  --travel-paper: #FAF9F6;
+  --travel-line: #e5e7eb;
   min-height: 100vh;
   background: var(--travel-paper);
   color: var(--travel-ink);
@@ -19,7 +19,7 @@
   top: -80px;
   left: 20px;
   padding: 12px 20px;
-  background: #193E30;
+  background: #1F2925;
   color: white;
   z-index: 100;
 }
@@ -28,22 +28,23 @@
   top: 12px;
 }
 
-/* Sticky Header in Forest Green (#193E30) */
+/* Sticky Navbar in Travilla Minimal Light Floating Header (#FAF9F6) with Backdrop Blur */
 .header {
   position: sticky;
   top: 0;
   z-index: 50;
-  background: #193E30;
-  color: #FAF8F1;
-  border-bottom: 1px solid rgba(197, 160, 89, 0.25);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  background: rgba(250, 249, 246, 0.94);
+  backdrop-filter: blur(16px);
+  color: #1F2925;
+  border-bottom: 1px solid rgba(196, 154, 69, 0.3);
+  box-shadow: 0 4px 20px rgba(31, 41, 37, 0.05);
 }
 
 .topbar {
-  max-width: 1200px;
+  max-width: 1440px;
   margin: auto;
-  height: 64px;
-  padding: 0 16px;
+  height: 72px;
+  padding: 0 32px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -53,36 +54,36 @@
 .brand {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   flex-shrink: 0;
-  font-family: Georgia, serif;
-  font-size: 22px;
+  font-family: var(--font-display);
+  font-size: 24px;
   font-weight: 700;
-  color: #FAF8F1;
+  color: #1F2925;
   text-decoration: none;
 }
 
 .brand > svg {
-  width: 24px;
-  height: 24px;
-  color: #C5A059;
+  width: 26px;
+  height: 26px;
+  color: #C49A45;
 }
 
 .brand small {
   font-family: var(--font-kanit), sans-serif;
   display: block;
   font-size: 8px;
-  font-weight: 400;
-  letter-spacing: 1.5px;
-  color: #C5A059;
+  font-weight: 700;
+  letter-spacing: 1.8px;
+  color: #C49A45;
 }
 
 /* Desktop Navigation Links */
 .desktopNav {
   display: flex;
   align-items: center;
-  gap: 20px;
-  font-size: 13px;
+  gap: 10px;
+  font-size: 13.5px;
 }
 
 .desktopNav a,
@@ -90,53 +91,62 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  min-height: 44px;
+  min-height: 40px;
+  padding: 6px 16px;
+  border-radius: 9999px;
   white-space: nowrap;
-  color: #FAF8F1;
+  color: #2B3832;
   background: transparent;
-  border: none;
-  font-size: 13px;
-  font-weight: 500;
+  border: 1px solid transparent;
+  font-size: 13.5px;
+  font-weight: 600;
   cursor: pointer;
-  transition: color 0.2s;
+  transition: all 0.2s ease;
 }
 
 .desktopNav a:hover,
 .desktopNav button:hover {
-  color: #C5A059;
+  color: #C49A45;
+  background: rgba(196, 154, 69, 0.08);
 }
 
 .desktopNav [aria-current="page"] {
-  color: #C5A059;
-  font-weight: 600;
+  color: #FAF9F6;
+  background: #1F2925;
+  border: 1px solid #C49A45;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(31, 41, 37, 0.15);
 }
 
 /* Header Action Buttons */
 .headerActions {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   flex-shrink: 0;
 }
 
 .iconButton {
-  width: 40px;
-  height: 40px;
+  width: 42px;
+  height: 42px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   position: relative;
   border-radius: 50%;
   flex-shrink: 0;
-  color: #FAF8F1;
-  background: transparent;
-  border: none;
+  color: #1F2925;
+  background: #FFFFFF;
+  border: 1px solid rgba(196, 154, 69, 0.35);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
   cursor: pointer;
-  transition: background 0.2s;
+  transition: all 0.2s;
 }
 
 .iconButton:hover {
-  background: rgba(255, 255, 255, 0.12);
+  background: #1F2925;
+  border-color: #1F2925;
+  color: #FAF9F6;
 }
 
 .accountButton {
@@ -144,35 +154,40 @@
   align-items: center;
   justify-content: center;
   gap: 6px;
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  border-radius: 30px;
-  height: 38px;
-  padding: 0 14px;
-  font-size: 13px;
-  color: #FAF8F1;
-  background: transparent;
+  border: 1px solid rgba(196, 154, 69, 0.45);
+  border-radius: 9999px;
+  height: 42px;
+  padding: 0 18px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #1F2925;
+  background: #FFFFFF;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
   cursor: pointer;
-  transition: background 0.2s;
+  transition: all 0.2s;
 }
 
 .accountButton:hover {
-  background: rgba(255, 255, 255, 0.12);
+  background: #1F2925;
+  border-color: #1F2925;
+  color: #FAF9F6;
 }
 
 .badge {
   position: absolute;
-  top: 2px;
-  right: 2px;
-  min-width: 18px;
-  height: 18px;
+  top: -2px;
+  right: -2px;
+  min-width: 20px;
+  height: 20px;
   padding: 0 4px;
-  background: #C5A059;
-  border-radius: 20px;
-  color: #193E30;
-  font-size: 10px;
-  font-weight: 700;
+  background: #C49A45;
+  border-radius: 9999px;
+  color: #1F2925;
+  font-size: 11px;
+  font-weight: 800;
   display: grid;
   place-items: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
 
 /* Mobile Slide-down Menu Panel */
@@ -181,14 +196,19 @@
   top: 100%;
   left: 0;
   right: 0;
-  background: #FAF8F1;
-  color: #193E30;
-  border-bottom: 1px solid #dfe3d8;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-  padding: 20px 16px;
-  max-height: calc(100vh - 80px);
+  width: 100%;
+  max-width: calc(100vw - 1rem);
+  margin: 0 auto;
+  background: #FFFFFF;
+  color: #1F2925;
+  border-bottom: 1px solid rgba(196, 154, 69, 0.3);
+  box-shadow: 0 20px 40px rgba(31, 41, 37, 0.12);
+  padding: 16px 12px;
+  max-height: calc(85vh - 72px);
   overflow-y: auto;
+  overflow-x: hidden;
   z-index: 60;
+  border-radius: 0 0 24px 24px;
 }
 
 .menuPanel[hidden] {
@@ -199,18 +219,18 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-size: 14px;
-  font-weight: 600;
-  color: #193E30;
-  margin-bottom: 16px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid #dfe3d8;
+  font-size: 15px;
+  font-weight: 700;
+  color: #1F2925;
+  margin-bottom: 18px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e5e7eb;
 }
 
 .menuGrid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 8px;
+  gap: 10px;
 }
 
 .menuGrid a,
@@ -218,40 +238,41 @@
   display: flex;
   gap: 12px;
   align-items: center;
-  padding: 12px 14px;
+  padding: 14px 16px;
   font-size: 14px;
-  font-weight: 500;
-  color: #193E30;
-  border-radius: 12px;
-  background: white;
-  border: 1px solid #dfe3d8;
+  font-weight: 600;
+  color: #1F2925;
+  border-radius: 20px;
+  background: #FAF9F6;
+  border: 1px solid #e5e7eb;
   text-decoration: none;
   transition: all 0.2s;
 }
 
 .menuGrid a:hover,
 .accountLinks a:hover {
-  border-color: #C5A059;
-  background: #FAF8F1;
+  border-color: #1F2925;
+  background: #1F2925;
+  color: #FAF9F6;
 }
 
 .accountPanel {
-  max-width: 360px;
+  max-width: 380px;
   left: auto;
-  right: 16px;
-  border-radius: 0 0 16px 16px;
+  right: 20px;
+  border-radius: 0 0 24px 24px;
 }
 
 .accountLinks {
-  margin-top: 12px;
+  margin-top: 14px;
   display: grid;
-  gap: 8px;
+  gap: 10px;
 }
 
 .main {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 16px;
+  width: 100%;
+  margin: 0;
+  padding: 0;
   min-height: 60vh;
 }
 
@@ -261,9 +282,9 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  min-height: 44px;
-  padding: 10px 20px;
-  border-radius: 30px;
+  min-height: 46px;
+  padding: 12px 24px;
+  border-radius: 9999px;
   font-size: 14px;
   font-weight: 600;
   text-decoration: none;
@@ -271,65 +292,71 @@
 }
 
 .primary {
-  background: #193E30;
-  color: #FAF8F1;
+  background: #1F2925;
+  color: #FAF9F6;
   border: none;
 }
 
 .primary:hover {
-  background: #122c22;
+  background: #151d1a;
 }
 
 .secondary {
-  border: 1px solid #dfe3d8;
+  border: 1px solid #e5e7eb;
   background: white;
-  color: #193E30;
+  color: #1F2925;
 }
 
 .footer {
-  max-width: 1200px;
-  margin: 48px auto 0;
-  padding: 32px 16px 24px;
-  border-top: 1px solid #dfe3d8;
+  max-width: 1440px;
+  margin: 56px auto 0;
+  padding: 36px 32px 28px;
+  border-top: 1px solid #e5e7eb;
 }
 
 .footerTop {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 24px;
+  gap: 28px;
 }
 
 .footerTop p {
-  color: #657267;
-  font-size: 13px;
+  color: #4B5563;
+  font-size: 14px;
   line-height: 1.8;
-  margin: 12px 0;
+  margin: 14px 0;
 }
 
 .footerTop > div:not(:first-child) {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  font-size: 13px;
+  gap: 12px;
+  font-size: 14px;
 }
 
 .footerTop a {
-  color: #193E30;
+  color: #1F2925;
+  font-weight: 500;
   text-decoration: none;
+  transition: color 0.2s;
+}
+
+.footerTop a:hover {
+  color: #C49A45;
 }
 
 .footerBottom {
   display: flex;
   justify-content: space-between;
   gap: 12px;
-  border-top: 1px solid #dfe3d8;
-  margin-top: 24px;
-  padding-top: 16px;
-  font-size: 12px;
-  color: #657267;
+  border-top: 1px solid #e5e7eb;
+  margin-top: 28px;
+  padding-top: 20px;
+  font-size: 13px;
+  color: #4B5563;
 }
 
-/* Mobile Fixed Bottom Bar (5 Items) */
+/* Mobile Fixed Bottom Navigation Bar (5 Items) */
 .bottomNav {
   position: fixed;
   bottom: 0;
@@ -338,10 +365,11 @@
   z-index: 50;
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  padding: 6px 4px calc(6px + env(safe-area-inset-bottom));
-  background: #FAF8F1;
-  border-top: 1px solid #dfe3d8;
-  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.05);
+  padding: 8px 6px calc(8px + env(safe-area-inset-bottom));
+  background: rgba(250, 249, 246, 0.98);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid #e5e7eb;
+  box-shadow: 0 -6px 20px rgba(31, 41, 37, 0.08);
 }
 
 .bottomNav > a,
@@ -353,7 +381,8 @@
   justify-content: center;
   gap: 3px;
   font-size: 11px;
-  color: #657267;
+  font-weight: 600;
+  color: #4B5563;
   background: transparent;
   border: none;
   text-decoration: none;
@@ -366,12 +395,12 @@
 }
 
 .bottomNav [aria-current="page"] {
-  color: #193E30;
-  font-weight: 600;
+  color: #1F2925;
+  font-weight: 700;
 }
 
 .bottomNav [aria-current="page"] > svg {
-  color: #193E30;
+  color: #C49A45;
 }
 
 .cartIcon {
@@ -385,7 +414,7 @@
 /* Responsive Media Queries */
 @media (min-width: 1024px) {
   .topbar {
-    height: 72px;
+    height: 76px;
     padding: 0 32px;
   }
   .brand {

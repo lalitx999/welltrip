@@ -38,7 +38,7 @@
   align-items: center;
   gap: 10px;
   min-width: 0;
-  font-family: Georgia, serif;
+  font-family: var(--font-display);
   font-size: 24px;
   font-weight: 700;
   letter-spacing: -1px;
@@ -253,8 +253,9 @@
 
 /* ภาษาไทย: ห้าม letter-spacing ติดลบ และ line-height ต้องพอให้สระ/วรรณยุกต์ไม่ชน */
 .copy h1 {
+  font-family: var(--font-display);
   font-size: clamp(36px, 4.5vw, 64px);
-  font-weight: 500;
+  font-weight: 600;
   line-height: 1.4;
   letter-spacing: 0;
   margin: 22px 0;
@@ -558,7 +559,7 @@
 }
 
 .formPanel h1 {
-  font-family: Georgia, serif;
+  font-family: var(--font-display);
   font-size: 28px;
   font-weight: 700;
   color: #193e30;

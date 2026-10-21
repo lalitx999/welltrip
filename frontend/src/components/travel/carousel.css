@@ -67,7 +67,7 @@
 
 .wt-carousel-copy h1,
 .wt-carousel-copy h2 {
-  font-family: Georgia, var(--font-kanit), serif !important;
+  font-family: var(--font-display) !important;
   font-size: clamp(24px, 6.5vw, 38px) !important;
   font-weight: 400;
   max-width: 420px;

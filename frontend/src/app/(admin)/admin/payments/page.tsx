@@ -64,10 +64,14 @@ export default function AdminPaymentsPage() {
       status: "VERIFIED" | "REJECTED";
       note?: string;
     }) => verifyPaymentSlip(id, status, note),
-    onSuccess: () => {
+    onSuccess: (res, variables) => {
       void queryClient.invalidateQueries({ queryKey: ["admin-pending-payments"] });
       setSelectedPayment(null);
       setRejectNote("");
+      alert(variables.status === "VERIFIED" ? "อนุมัติการชำระเงินเรียบร้อยแล้ว" : "ปฏิเสธสลิปการชำระเงินเรียบร้อยแล้ว");
+    },
+    onError: (err) => {
+      alert(`ไม่สามารถทำรายการได้: ${extractErrorMessage(err, "เกิดข้อผิดพลาดในการตรวจสอบสลิป")}`);
     },
   });
 

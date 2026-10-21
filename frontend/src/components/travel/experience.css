@@ -1,40 +1,33 @@
-/* Typography-led Editorial Web Design System - WellTrip Sisaket */
-:root {
-  --wt-cream: #FAF8F1;
-  --wt-forest: #193E30;
-  --wt-gold: #C5A059;
-  --wt-muted: #5C6B60;
-  --wt-line: rgba(25, 62, 48, 0.14);
-  --wt-radius: 16px;
-}
+/* Travilla Luxury Eco-Tourism Web Design System - WellTrip */
 
 body {
   background: var(--wt-cream);
-  font-family: var(--font-kanit), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  color: var(--wt-forest);
+  font-family: var(--font-body);
+  color: var(--wt-forest-dark);
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
-/* Typography Hierarchy & Font Weight Contrast */
+/* Heading rhythm - Color set to inherit by default to respect dark container backgrounds */
 h1, h2, h3, .font-serif {
-  font-family: Georgia, var(--font-kanit), serif;
-  line-height: 1.35;
-  letter-spacing: -0.02em;
-  color: var(--wt-forest);
+  font-family: var(--font-display);
+  line-height: var(--lh-heading);
+  letter-spacing: var(--ls-th);
+  color: inherit;
 }
 
 h1 {
-  font-size: 32px;
+  font-size: var(--fs-h1);
   font-weight: 700;
 }
 
 h2 {
-  font-size: 24px;
+  font-size: var(--fs-h2);
   font-weight: 600;
 }
 
 h3 {
-  font-size: 18px;
+  font-size: var(--fs-h3);
   font-weight: 600;
 }
 
@@ -69,39 +62,40 @@ html {
   scroll-padding-top: 90px;
 }
 
-/* Editorial Container & Headings */
+/* Travilla Container & Page Headings */
 .wt-page {
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 16px 16px 36px;
+  padding: 20px 16px 48px;
+  color: var(--wt-forest-dark);
 }
 
 .wt-page-head {
-  margin: 12px 0 32px;
-  max-width: 720px;
+  margin: 16px 0 36px;
+  max-width: 760px;
 }
 
 .wt-page-head h1 {
-  font-size: 34px;
+  font-size: 36px;
   font-weight: 700;
   margin: 10px 0 12px;
-  color: var(--wt-forest);
+  color: var(--wt-forest-dark);
 }
 
 .wt-page-head p {
   font-size: 15px;
   line-height: 1.75;
-  color: var(--wt-muted);
+  color: #4b5563; /* High contrast Slate Gray */
   font-weight: 400;
   max-width: 65ch;
 }
 
-/* Eyebrow Subtitles */
+/* Travilla Eyebrow Subtitles */
 .wt-eyebrow {
   font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.16em;
+  font-weight: 700;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--wt-gold);
   display: flex;
@@ -109,9 +103,9 @@ html {
   gap: 8px;
 }
 
-/* Editorial Section Layout */
+/* Travilla Section Layout */
 .wt-section {
-  margin-top: 48px;
+  margin-top: 52px;
 }
 
 .wt-section-title {
@@ -119,19 +113,20 @@ html {
   align-items: flex-end;
   justify-content: space-between;
   gap: 16px;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
 }
 
 .wt-section-title h2 {
-  font-size: 26px;
+  font-size: 28px;
   font-weight: 700;
   margin-top: 4px;
+  color: var(--wt-forest-dark);
 }
 
 .wt-section-title a {
   font-size: 13px;
-  font-weight: 600;
-  color: var(--wt-forest);
+  font-weight: 700;
+  color: var(--wt-gold-deep);
   display: flex;
   align-items: center;
   gap: 4px;
@@ -141,43 +136,44 @@ html {
 }
 
 .wt-section-title a:hover {
-  color: var(--wt-gold);
+  color: var(--wt-forest-dark);
 }
 
 .wt-section-title p {
   font-size: 14px;
   line-height: 1.7;
-  color: var(--wt-muted);
+  color: #4b5563;
   margin-top: 6px;
   font-weight: 400;
 }
 
-/* Primary Action Buttons */
+/* Travilla Primary Capsule Buttons */
 .wt-button {
   min-height: 48px;
-  border-radius: 30px;
-  padding: 12px 24px;
+  border-radius: 9999px; /* Pill Capsule shape */
+  padding: 12px 26px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  background: var(--wt-forest);
-  color: var(--wt-cream);
+  background: var(--wt-forest-dark);
+  color: #FAF9F6;
   font-size: 14px;
   font-weight: 600;
   border: 1px solid transparent;
   transition: all 0.2s ease;
-  box-shadow: 0 4px 14px rgba(25, 62, 48, 0.12);
+  box-shadow: 0 4px 16px rgba(31, 41, 37, 0.12);
 }
 
 .wt-button:hover {
-  background: #122c22;
+  background: #151d1a;
   transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(31, 41, 37, 0.18);
 }
 
 .wt-button.secondary {
   background: #FFFFFF;
-  color: var(--wt-forest);
+  color: var(--wt-forest-dark);
   border-color: var(--wt-line);
   box-shadow: none;
 }
@@ -194,13 +190,14 @@ html {
   gap: 12px;
 }
 
-/* Editorial Panel Card */
+/* Travilla Panel Card */
 .wt-panel {
   background: #FFFFFF;
   border: 1px solid var(--wt-line);
   border-radius: var(--wt-radius);
-  padding: 24px;
-  box-shadow: 0 4px 20px rgba(25, 62, 48, 0.04);
+  padding: 28px;
+  color: var(--wt-forest-dark);
+  box-shadow: 0 6px 24px rgba(31, 41, 37, 0.04);
 }
 
 .wt-grid {
@@ -209,15 +206,36 @@ html {
   gap: 24px;
 }
 
-/* Minimal Editorial Card */
+/* Travilla Luxury Destination Card */
 .wt-card {
   min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 12px;
   text-decoration: none;
-  color: inherit;
-  transition: transform 0.2s ease;
+  color: var(--wt-forest-dark);
+  background: #FFFFFF;
+  border: 1px solid var(--wt-line);
+  border-radius: 24px;
+  padding: 14px;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 18px rgba(31, 41, 37, 0.03);
+}
+
+.wt-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--wt-gold);
+  box-shadow: 0 10px 30px rgba(31, 41, 37, 0.08);
+}
+
+.wt-card h2,
+.wt-card h3 {
+  font-size: 19px;
+  font-weight: 700;
+  margin: 4px 0 0;
+  line-height: 1.4;
+  color: var(--wt-forest-dark);
+  transition: color 0.2s ease;
 }
 
 .wt-card:hover h3,
@@ -225,41 +243,31 @@ html {
   color: var(--wt-gold);
 }
 
-.wt-card h2,
-.wt-card h3 {
-  font-size: 19px;
-  font-weight: 600;
-  margin: 0;
-  line-height: 1.4;
-  overflow-wrap: anywhere;
-  transition: color 0.2s ease;
-}
-
 .wt-card p {
   font-size: 14px;
   line-height: 1.7;
-  color: var(--wt-muted);
+  color: #4b5563; /* Crisp readable gray */
   font-weight: 400;
 }
 
 .wt-card .wt-price {
-  font-size: 17px;
+  font-size: 18px;
   font-weight: 700;
-  color: var(--wt-forest);
+  color: var(--wt-forest-dark);
   margin-top: 2px;
 }
 
 .wt-card .wt-price small {
   font-size: 12px;
   font-weight: 400;
-  color: var(--wt-muted);
+  color: #6b7280;
 }
 
 .wt-media {
   position: relative;
   aspect-ratio: 4/3;
   background: #EAE6DB;
-  border-radius: 14px;
+  border-radius: 18px;
   overflow: hidden;
   display: grid;
   place-items: center;
@@ -269,18 +277,18 @@ html {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.3s ease;
+  transition: transform 0.4s ease;
 }
 
 .wt-card:hover .wt-media img {
-  transform: scale(1.03);
+  transform: scale(1.04);
 }
 
 .wt-media-fallback {
   display: grid;
   justify-items: center;
   gap: 8px;
-  color: var(--wt-muted);
+  color: #6b7280;
   font-size: 12px;
 }
 
@@ -288,82 +296,55 @@ html {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 12px;
-  color: var(--wt-muted);
-  font-weight: 400;
-}
-
-/* Horizontal Scroll Row */
-.wt-scroll-row {
-  display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: 82%;
-  gap: 20px;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  padding-bottom: 12px;
-  overscroll-behavior-inline: contain;
-  scrollbar-width: none;
-}
-
-.wt-scroll-row::-webkit-scrollbar {
-  display: none;
-}
-
-.wt-scroll-row > * {
-  scroll-snap-align: start;
-  min-width: 0;
-}
-
-/* Category Grid */
-.wt-categories {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 12px;
-}
-
-.wt-categories a {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  font-size: 13px;
+  font-size: var(--fs-caption);
+  color: #4b5563;
   font-weight: 500;
-  text-align: center;
-  text-decoration: none;
-  color: var(--wt-forest);
-  min-height: 80px;
-  transition: color 0.2s;
 }
 
-.wt-categories a:hover {
+/* Travilla Price Badge Overlay */
+.travilla-badge-price {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  background: rgba(31, 41, 37, 0.92);
+  backdrop-filter: blur(8px);
+  color: #FAF9F6;
+  padding: 6px 14px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 700;
+  border: 1px solid rgba(196, 154, 69, 0.5);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+.travilla-badge-price span {
   color: var(--wt-gold);
 }
 
-.wt-categories svg {
-  width: 48px;
-  height: 48px;
-  padding: 12px;
-  background: #FFFFFF;
-  border: 1px solid var(--wt-line);
-  border-radius: 16px;
-  color: var(--wt-forest);
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 8px rgba(25, 62, 48, 0.04);
+/* Travilla Floating Search Bar Capsule */
+.travilla-pill-bar {
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(229, 231, 235, 0.9);
+  border-radius: 24px;
+  padding: 8px 12px;
+  box-shadow: 0 12px 36px rgba(31, 41, 37, 0.14);
+  color: var(--wt-forest-dark);
 }
 
-.wt-categories a:hover svg {
-  border-color: var(--wt-gold);
-  transform: translateY(-2px);
+@media (min-width: 640px) {
+  .travilla-pill-bar {
+    border-radius: 9999px;
+  }
 }
 
-/* Filter Chips */
+/* Filter Chips Capsule */
 .wt-filters {
   display: flex;
-  gap: 8px;
+  gap: 10px;
   overflow-x: auto;
   padding: 4px 0 14px;
-  margin-bottom: 14px;
+  margin-bottom: 16px;
   scrollbar-width: none;
 }
 
@@ -373,22 +354,22 @@ html {
 
 .wt-chip {
   flex-shrink: 0;
-  padding: 10px 18px;
+  padding: 10px 20px;
   min-height: 44px;
   border: 1px solid var(--wt-line);
-  border-radius: 30px;
+  border-radius: 9999px;
   background: #FFFFFF;
   font-size: 13px;
-  font-weight: 500;
-  color: var(--wt-forest);
+  font-weight: 600;
+  color: var(--wt-forest-dark);
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .wt-chip[aria-pressed="true"] {
-  background: var(--wt-forest);
-  color: var(--wt-cream);
-  border-color: var(--wt-forest);
+  background: var(--wt-forest-dark);
+  color: #FAF9F6;
+  border-color: var(--wt-forest-dark);
 }
 
 /* Form Controls */
@@ -402,7 +383,7 @@ html {
   gap: 8px;
   font-size: 14px;
   font-weight: 600;
-  color: var(--wt-forest);
+  color: var(--wt-forest-dark);
 }
 
 .wt-form input,
@@ -410,12 +391,12 @@ html {
 .wt-form textarea {
   width: 100%;
   min-height: 48px;
-  padding: 12px 14px;
+  padding: 12px 18px;
   border: 1px solid var(--wt-line);
-  border-radius: 12px;
+  border-radius: 16px;
   background: #FFFFFF;
   font-size: 15px;
-  color: var(--wt-forest);
+  color: var(--wt-forest-dark);
   outline: none;
   transition: border-color 0.2s;
 }
@@ -423,7 +404,7 @@ html {
 .wt-form input:focus,
 .wt-form select:focus,
 .wt-form textarea:focus {
-  border-color: var(--wt-forest);
+  border-color: var(--wt-forest-dark);
 }
 
 .wt-empty {
@@ -432,93 +413,36 @@ html {
   border-radius: var(--wt-radius);
   text-align: center;
   font-size: 14px;
-  color: var(--wt-muted);
+  color: #4b5563;
   background: #FFFFFF;
 }
 
 .wt-muted {
-  color: var(--wt-muted);
+  color: #4b5563;
   font-size: 14px;
   line-height: 1.75;
   font-weight: 400;
 }
 
-.wt-story-link {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  border: 1px solid var(--wt-line);
-  background: #FFFFFF;
-  border-radius: var(--wt-radius);
-  padding: 20px;
-  font-size: 16px;
-  text-decoration: none;
-  color: var(--wt-forest);
-  transition: all 0.2s ease;
-}
-
-.wt-story-link:hover {
-  border-color: var(--wt-gold);
-  transform: translateY(-1px);
-}
-
-.wt-story-link strong {
-  display: block;
-  font-size: 16px;
-  font-weight: 600;
-}
-
-.wt-story-link small {
-  display: block;
-  color: var(--wt-muted);
-  font-size: 13px;
-  margin-top: 4px;
-  font-weight: 400;
-}
-
-/* Media Queries for Desktop Grid & Typography */
+/* Media Queries */
 @media (min-width: 640px) {
   .wt-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-  .wt-scroll-row {
-    grid-auto-columns: 44%;
-  }
-  .wt-page-head h1 {
-    font-size: 38px;
   }
 }
 
 @media (min-width: 1024px) {
   .wt-page {
-    padding-top: 24px;
-    padding-bottom: 48px;
+    padding-top: 28px;
+    padding-bottom: 56px;
   }
   .wt-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
-  .wt-scroll-row {
-    grid-auto-flow: row;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    overflow: visible;
-  }
   .wt-section {
-    margin-top: 60px;
-  }
-  .wt-page-head h1 {
-    font-size: 42px;
+    margin-top: 64px;
   }
   .wt-panel {
-    padding: 32px;
-  }
-}
-
-@media (max-width: 639px) {
-  .wt-page-head h1 {
-    font-size: 28px !important;
-  }
-  .wt-section-title h2 {
-    font-size: 22px !important;
+    padding: 36px;
   }
 }

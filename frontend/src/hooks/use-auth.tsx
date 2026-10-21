@@ -19,6 +19,7 @@ import {
 import { useQueryClient } from "@tanstack/react-query";
 
 import {
+  apiGetMe,
   apiGoogleLogin,
   apiLogin,
   apiRegister,
@@ -61,12 +62,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setStatus("loading");
       try {
         await refreshAccessToken();
-        const cachedUser = tokenManager.getCachedUser();
+        let activeUser: UserProfile | null = null;
+        try {
+          activeUser = await apiGetMe();
+          tokenManager.cacheUser(activeUser);
+        } catch {
+          activeUser = tokenManager.getCachedUser();
+        }
         if (cancelled) {
           return;
         }
-        if (cachedUser) {
-          setSession(cachedUser);
+        if (activeUser) {
+          setSession(activeUser);
         } else {
           // Fresh pair obtained but no cached profile -> safest to log in again.
           clearSession();

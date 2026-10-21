@@ -6,9 +6,22 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        // Brand font (Kanit) injected by next/font as --font-kanit.
-        sans: ["var(--font-kanit)", ...defaultTheme.fontFamily.sans],
-        serif: ["Georgia", "var(--font-kanit)", "Cambria", "Times New Roman", ...defaultTheme.fontFamily.serif],
+        // Central tokens from globals.css. --font-body / --font-display are
+        // the CI slots (DB Heavent / Clone Rounded Latin); they currently
+        // resolve to Kanit so the app keeps rendering until files ship.
+        sans: ["var(--font-body)", ...defaultTheme.fontFamily.sans],
+        display: ["var(--font-display)", "var(--font-body)", ...defaultTheme.fontFamily.sans],
+        // `serif` is remapped to the display token so every existing
+        // `font-serif` heading follows the CI automatically.
+        serif: ["var(--font-display)", ...defaultTheme.fontFamily.sans],
+      },
+      fontSize: {
+        // Editorial type scale tokens — text-display / text-title / text-body / text-caption
+        display: ["var(--fs-display)", { lineHeight: "var(--lh-display)", letterSpacing: "var(--ls-display)", fontWeight: "700" }],
+        title: ["var(--fs-h1)", { lineHeight: "var(--lh-heading)", fontWeight: "700" }],
+        "title-sm": ["var(--fs-h2)", { lineHeight: "var(--lh-heading)", fontWeight: "600" }],
+        body: ["var(--fs-body)", { lineHeight: "var(--lh-body)" }],
+        caption: ["var(--fs-caption)", { lineHeight: "1.6" }],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -90,6 +103,7 @@ const config: Config = {
       },
       maxWidth: {
         shell: "28rem",
+        measure: "var(--measure)",
       },
     },
   },

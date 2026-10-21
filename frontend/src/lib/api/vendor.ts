@@ -159,3 +159,64 @@ export async function updateOtopProduct<T = any>(
   return data;
 }
 
+export async function createOtopProduct<T = any>(
+  payload: Record<string, unknown>,
+): Promise<ApiSuccess<T>> {
+  const { data } = await apiClient.post<ApiSuccess<T>>(
+    "/api/v1/otop/",
+    payload,
+  );
+  return data;
+}
+
+export async function createFood<T = any>(
+  payload: Record<string, unknown>,
+): Promise<ApiSuccess<T>> {
+  const { data } = await apiClient.post<ApiSuccess<T>>(
+    "/api/v1/foods/",
+    payload,
+  );
+  return data;
+}
+
+export async function createWellness<T = any>(
+  payload: Record<string, unknown>,
+): Promise<ApiSuccess<T>> {
+  const { data } = await apiClient.post<ApiSuccess<T>>(
+    "/api/v1/wellness/",
+    payload,
+  );
+  return data;
+}
+
+export async function createAccommodation<T = any>(
+  payload: Record<string, unknown>,
+): Promise<ApiSuccess<T>> {
+  const { data } = await apiClient.post<ApiSuccess<T>>(
+    "/api/v1/accommodations/",
+    payload,
+  );
+  return data;
+}
+
+export async function deleteAccommodation<T = any>(id: string): Promise<ApiSuccess<T>> {
+  const { data } = await apiClient.delete<ApiSuccess<T>>(`/api/v1/accommodations/${id}/`);
+  return data;
+}
+
+export async function deleteWellness<T = any>(id: string): Promise<ApiSuccess<T>> {
+  const { data } = await apiClient.delete<ApiSuccess<T>>(`/api/v1/wellness/${id}/`);
+  return data;
+}
+
+export async function deleteFood<T = any>(id: string): Promise<ApiSuccess<T>> {
+  const { data } = await apiClient.delete<ApiSuccess<T>>(`/api/v1/foods/${id}/`);
+  return data;
+}
+
+export async function deleteOtopProduct<T = any>(id: string): Promise<ApiSuccess<T>> {
+  const { data } = await apiClient.delete<ApiSuccess<T>>(`/api/v1/otop/${id}/`);
+  return data;
+}
+
+

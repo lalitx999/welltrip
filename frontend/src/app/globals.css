@@ -2,43 +2,79 @@
 @tailwind components;
 @tailwind utilities;
 
+/* =========================================================================
+   WellTrip x Travilla — Central Design System (Travilla Luxury Eco-Tourism)
+   Single source of truth for colour, radius, and typography tokens.
+   ========================================================================= */
 @layer base {
   :root {
-    /* WellTrip Community Eco-Premium Theme Tokens
-       - Background: Warm Linen Cream (#FAF8F5 -> HSL 40 25% 97%)
-       - Foreground: Earthy Deep Slate (#26221F -> HSL 30 15% 15%)
-       - Primary: Deep Forest Green (#1B3B2B -> HSL 152 42% 16%)
-       - Secondary: Soft Warm Linen (#F4EFE6 -> HSL 40 30% 93%)
-       - Accent: Muted Gold (#C5A059 -> HSL 40 48% 48%)
-       - Muted: Warm Sand (#F3F0EA -> HSL 40 18% 94%)
-       - Border: Soft Organic Border (#E8E4DD -> HSL 40 15% 88%)
-    */
-    --background: 47 47% 96%;
-    --foreground: 157 43% 17%;
+    /* ---------------------------------------------------------------
+       1. Colour tokens — Travilla Luxury Palette
+       --------------------------------------------------------------- */
+    --wt-forest-dark: #1f2925;    /* Travilla Deep Dark Forest — primary headers / overlays */
+    --wt-forest: #2b3832;         /* Deep Forest Green — primary ink & button background */
+    --wt-forest-deep: #17231e;    /* Deep Forest hover state */
+    --wt-gold: #c49a45;           /* Travilla Accent Gold — badges, active states & CTA accents */
+    --wt-gold-deep: #a88034;      /* Gold hover state */
+    --wt-cream: #faf9f6;          /* Travilla Warm Soft Linen — page background */
+    --wt-surface: #ffffff;        /* Raised Travilla luxury card surface */
+    --wt-ink: #111827;            /* Deep graphite text */
+    --wt-muted: #6b7280;          /* Muted secondary body text */
+    --wt-line: #e5e7eb;           /* Soft border hairline */
+
+    /* Semantic HSL tokens consumed by Tailwind colour utilities */
+    --background: 40 20% 97%;     /* #FAF9F6 */
+    --foreground: 154 17% 16%;    /* #1F2925 */
 
     --card: 0 0% 100%;
-    --card-foreground: 30 15% 15%;
+    --card-foreground: 154 17% 16%;
 
-    --primary: 157 43% 17%; /* #1B3B2B Deep Forest Green */
-    --primary-foreground: 40 25% 97%;
+    --primary: 154 17% 16%;       /* #1F2925 Deep Forest */
+    --primary-foreground: 40 20% 97%;
 
-    --secondary: 40 30% 93%; /* #F4EFE6 Soft Warm Linen */
-    --secondary-foreground: 152 42% 16%;
+    --secondary: 40 15% 93%;
+    --secondary-foreground: 154 17% 16%;
 
-    --muted: 40 18% 94%;
-    --muted-foreground: 30 10% 42%;
+    --muted: 40 10% 94%;
+    --muted-foreground: 215 14% 46%;
 
-    --accent: 40 48% 48%; /* #C5A059 Muted Gold */
-    --accent-foreground: 40 25% 97%;
+    --accent: 41 53% 52%;         /* #C49A45 Travilla Gold */
+    --accent-foreground: 40 20% 97%;
 
     --destructive: 0 72% 45%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 40 15% 88%;
-    --input: 40 15% 88%;
-    --ring: 152 42% 16%;
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 154 17% 16%;
 
-    --radius: 0.75rem;
+    --radius: 1.5rem;             /* 24px radius for Travilla luxury look */
+    --wt-radius: 24px;
+
+    /* ---------------------------------------------------------------
+       2. Typography — font families
+       --------------------------------------------------------------- */
+    --font-body: var(--font-kanit), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --font-display: var(--font-body);
+
+    /* Type scale */
+    --fs-display: clamp(2.5rem, 7vw, 4.5rem);
+    --fs-h1: clamp(1.75rem, 4vw, 2.5rem);
+    --fs-h2: 1.5rem;
+    --fs-h3: 1.125rem;
+    --fs-body: 1rem;
+    --fs-caption: 0.8125rem;
+
+    /* Line height */
+    --lh-display: 1.2;
+    --lh-heading: 1.35;
+    --lh-body: 1.75;
+
+    /* Letter spacing */
+    --ls-display: -0.01em;
+    --ls-th: 0;
+
+    --measure: 65ch;
   }
 
   * {
@@ -47,17 +83,42 @@
 
   html {
     -webkit-text-size-adjust: 100%;
+    scroll-padding-top: 88px;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
   }
 
   body {
     @apply bg-background text-foreground antialiased;
+    font-family: var(--font-body);
+    background-color: var(--wt-cream);
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+    position: relative;
+    -webkit-overflow-scrolling: touch;
   }
 
-  /* 44x44px minimum touch target (spec §7.1). */
   button,
   a,
   input,
   select {
     touch-action: manipulation;
+  }
+}
+
+/* =========================================================================
+   Travilla Shared Editorial Helpers
+   ========================================================================= */
+@layer utilities {
+  .wt-measure {
+    max-width: var(--measure);
+  }
+  .wt-container {
+    width: 100%;
+    max-width: 1200px;
+    margin-inline: auto;
+    padding-inline: 16px;
   }
 }
