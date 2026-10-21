@@ -162,13 +162,27 @@ def my_location_events_view(request):
     })
 
 
-@api_view(["GET"])
+@api_view(["GET", "DELETE"])
 @permission_classes([IsAuthenticated])
 def location_admin(request):
     if not is_content_admin(request.user):
         return api_error("FORBIDDEN", "Super admin access required.", status=403)
+
+    if request.method == "DELETE":
+        log_id = request.query_params.get("log_id")
+        clear_all = request.query_params.get("all") == "true"
+        if log_id:
+            deleted_count, _ = LocationEvent.objects.filter(id=log_id).delete()
+            return api_success({"deleted": True, "count": deleted_count})
+        elif clear_all:
+            deleted_count, _ = LocationEvent.objects.all().delete()
+            return api_success({"deleted": True, "count": deleted_count})
+        return api_error("BAD_REQUEST", "Specify log_id or all=true query parameter.")
+
     # Expires immediately for readers even if the scheduled purge is delayed.
-    rows = LocationEvent.objects.filter(expires_at__gt=timezone.now()).values("id", "outcome", "latitude", "longitude", "accuracy_m", "consent_version", "created_at", "expires_at")[:100]
+    rows = LocationEvent.objects.filter(expires_at__gt=timezone.now()).values(
+        "id", "outcome", "latitude", "longitude", "accuracy_m", "consent_version", "created_at", "expires_at"
+    )[:100]
     response = api_success(list(rows))
     response["Cache-Control"] = "no-store"
     return response
