@@ -27,3 +27,5 @@ out/
 *.png
 *.jpg
 *.jpeg
+.vercel
+.env*

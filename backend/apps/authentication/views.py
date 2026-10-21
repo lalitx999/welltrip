@@ -178,12 +178,138 @@ def me_view(request):
 # ---------------------------------------------------------------------------
 # POST /api/v1/auth/register/merchant/   (vendor onboarding signup)
 # ---------------------------------------------------------------------------
+# POST /api/v1/auth/otp/request/ & verify/  (Email OTP verification)
+# ---------------------------------------------------------------------------
+import secrets
+from datetime import timedelta
 from django.conf import settings
 from django.core.mail import send_mail
-from .models import MerchantProfile, UserRoles
+from django.utils import timezone
+from .models import EmailVerificationOTP, MerchantApprovalStatus, MerchantProfile, UserRoles
 from .serializers import MerchantRegisterSerializer
 
 
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def request_email_otp_view(request):
+    """
+    Generate and dispatch a 6-digit verification OTP to user's email via Hostinger SMTP.
+    Rate limited to 1 request per 60 seconds per email.
+    """
+    email = request.data.get("email", "").strip().lower()
+    purpose = request.data.get("purpose", "MERCHANT_REGISTER")
+
+    if not email or "@" not in email:
+        return api_error("INVALID_EMAIL", "โปรดระบุอีเมลที่ถูกต้อง", status=status.HTTP_400_BAD_REQUEST)
+
+    # Check if email is already taken
+    if User.objects.filter(email__iexact=email).exists():
+        return api_error(
+            "EMAIL_TAKEN",
+            "อีเมลนี้ลงทะเบียนในระบบแล้ว โปรดเข้าสู่ระบบหรือใช้อีเมลอื่น",
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    # Rate limiting: prevent spamming within 60 seconds
+    recent_otp = EmailVerificationOTP.objects.filter(
+        email=email,
+        purpose=purpose,
+        created_at__gte=timezone.now() - timedelta(seconds=60),
+    ).first()
+    if recent_otp:
+        return api_error(
+            "RATE_LIMITED",
+            "โปรดรอ 60 วินาทีก่อนขอรหัส OTP ใหม่อีกครั้ง",
+            status=status.HTTP_429_TOO_MANY_REQUESTS,
+        )
+
+    # Invalidate previous unused OTPs for this email
+    EmailVerificationOTP.objects.filter(email=email, purpose=purpose, is_used=False).update(is_used=True)
+
+    # Generate cryptographically secure 6-digit OTP
+    otp_code = "".join([str(secrets.randbelow(10)) for _ in range(6)])
+    expires_at = timezone.now() + timedelta(minutes=10)
+
+    EmailVerificationOTP.objects.create(
+        email=email,
+        otp_code=otp_code,
+        purpose=purpose,
+        expires_at=expires_at,
+    )
+
+    # Email content in professional Thai
+    subject = f"[WellTrip] รหัสยืนยันตัวตน OTP สำหรับลงทะเบียนเปิดร้าน: {otp_code}"
+    message = (
+        f"เรียน ผู้ประกอบการ WellTrip,\n\n"
+        f"รหัสยืนยันตัวตน (OTP) สำหรับการลงทะเบียนเปิดร้านของคุณคือ:\n\n"
+        f"       >>> {otp_code} <<<\n\n"
+        f"รหัสนี้จะหมดอายุภายใน 10 นาที (เวลาหมดอายุ: {expires_at.strftime('%H:%M:%S น.')})\n"
+        f"หากคุณไม่ได้เป็นผู้ทำรายการ โปรดเพิกเฉยต่ออีเมลฉบับนี้\n\n"
+        f"ด้วยความนับถือ,\n"
+        f"ทีมงาน WellTrip Thailand\n"
+        f"welltripth@welltripthailand.com"
+    )
+
+    from_email = getattr(settings, "DEFAULT_FROM_EMAIL", "WellTrip Thailand <welltripth@welltripthailand.com>")
+
+    try:
+        send_mail(subject, message, from_email, [email], fail_silently=False)
+        return api_success({
+            "sent": True,
+            "expires_in_seconds": 600,
+            "message": "ส่งรหัส OTP ไปยังอีเมลของคุณเรียบร้อยแล้ว",
+        })
+    except Exception as e:
+        import logging
+        logging.getLogger(__name__).warning("SMTP send_mail failed: %s", str(e))
+        return api_error(
+            "EMAIL_SEND_FAILED",
+            f"ไม่สามารถส่งอีเมลได้ โปรดตรวจสอบการตั้งค่าอีเมล ({str(e)})",
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def verify_email_otp_view(request):
+    """
+    Verify the 6-digit OTP code submitted by the user.
+    """
+    email = request.data.get("email", "").strip().lower()
+    otp_code = request.data.get("otp_code", "").strip()
+    purpose = request.data.get("purpose", "MERCHANT_REGISTER")
+
+    if not email or not otp_code:
+        return api_error("INVALID_INPUT", "โปรดระบุอีเมลและรหัส OTP ให้ครบถ้วน", status=status.HTTP_400_BAD_REQUEST)
+
+    record = EmailVerificationOTP.objects.filter(
+        email=email,
+        otp_code=otp_code,
+        purpose=purpose,
+        is_used=False,
+    ).order_by("-created_at").first()
+
+    if not record or not record.is_valid():
+        return api_error(
+            "INVALID_OTP",
+            "รหัส OTP ไม่ถูกต้องหรือหมดอายุแล้ว โปรดขอรหัสใหม่",
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    # Mark as used upon successful validation
+    record.is_used = True
+    record.save(update_fields=["is_used"])
+
+    return api_success({
+        "verified": True,
+        "email": email,
+        "message": "ยืนยันรหัส OTP ถูกต้องเรียบร้อยแล้ว",
+    })
+
+
+# ---------------------------------------------------------------------------
+# POST /api/v1/auth/register/merchant/   (vendor onboarding signup)
+# ---------------------------------------------------------------------------
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def register_merchant_view(request):
@@ -199,6 +325,43 @@ def register_merchant_view(request):
             "A user with this email is already registered.",
             status=status.HTTP_400_BAD_REQUEST,
         )
+
+    # Require OTP verification for merchant registration
+    otp_code = request.data.get("otp_code", "").strip()
+    if not otp_code:
+        return api_error(
+            "OTP_REQUIRED",
+            "โปรดยืนยันรหัส OTP ทางอีเมลก่อนลงทะเบียน",
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    # Verify that this OTP was validated within the last 15 minutes
+    valid_otp = EmailVerificationOTP.objects.filter(
+        email=email,
+        otp_code=otp_code,
+        purpose="MERCHANT_REGISTER",
+        is_used=True,
+        created_at__gte=timezone.now() - timedelta(minutes=15),
+    ).exists()
+
+    if not valid_otp:
+        # Also check if it's currently unused and valid right now
+        live_otp = EmailVerificationOTP.objects.filter(
+            email=email,
+            otp_code=otp_code,
+            purpose="MERCHANT_REGISTER",
+            is_used=False,
+        ).order_by("-created_at").first()
+
+        if live_otp and live_otp.is_valid():
+            live_otp.is_used = True
+            live_otp.save(update_fields=["is_used"])
+        else:
+            return api_error(
+                "INVALID_OTP",
+                "รหัส OTP ไม่ถูกต้องหรือหมดอายุแล้ว โปรดยืนยันตัวตนใหม่อีกครั้ง",
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
     # Map category to role
     cat_to_role = {
@@ -219,7 +382,7 @@ def register_merchant_view(request):
         last_name=data.get("last_name", ""),
         phone_number=data.get("phone_number", ""),
         role=user_role,
-        is_verified=False,
+        is_verified=True,
     )
 
     merchant = MerchantProfile.objects.create(
@@ -231,31 +394,38 @@ def register_merchant_view(request):
         phone_number=data.get("phone_number", ""),
         opening_hours=data.get("opening_hours", "08:00 - 18:00 น."),
         cover_image_url=data.get("cover_image_url", ""),
-        status="PENDING",
+        status=MerchantApprovalStatus.PENDING,
     )
 
-    # Dispatch email notification to Admin (คุณพรหมลิขิต)
+    # Dispatch email notification to Admin via Hostinger SMTP
     try:
         subject = (
             f"[WellTrip Admin] มีผู้ประกอบการใหม่ลงทะเบียน: {merchant.business_name}"
         )
         message = (
-            f"เรียน คุณพรหมลิขิต (ผู้ดูแลระบบ WellTrip),\n\n"
-            f"มีผู้ประกอบการใหม่ลงทะเบียนเข้าระบบและรอการตรวจสอบอนุมัติ:\n"
+            f"เรียน ผู้ดูแลระบบ WellTrip,\n\n"
+            f"มีผู้ประกอบการใหม่ลงทะเบียนผ่านการยืนยัน OTP เรียบร้อยแล้ว และรอการตรวจสอบอนุมัติ:\n"
             f"- ชื่อร้าน/สถานประกอบการ: {merchant.business_name}\n"
             f"- ประเภทธุรกิจ: {merchant.get_business_category_display()}\n"
-            f"- ผู้ติดต่อ: {user.full_name} ({user.email})\n"
+            f"- ผู้ติดต่อ: {user.first_name} {user.last_name} ({user.email})\n"
             f"- เบอร์โทรศัพท์: {merchant.phone_number}\n"
             f"- เวลาทำการ: {merchant.opening_hours}\n"
             f"- ลิงก์แผนที่ Google Maps: {merchant.google_maps_url}\n\n"
             f"คุณสามารถเข้าตรวจสอบรายละเอียดและกดอนุมัติ (Approve) ได้ที่ Admin Console:\n"
-            f"https://www.welltripthailand.com/admin/approvals"
+            f"https://www.welltripthailand.com/admin/approvals\n\n"
+            f"ด้วยความนับถือ,\n"
+            f"ระบบอัตโนมัติ WellTrip Thailand"
         )
+        from_email = getattr(settings, "DEFAULT_FROM_EMAIL", "WellTrip Thailand <welltripth@welltripthailand.com>")
+        admin_recipients = [
+            getattr(settings, "ADMIN_EMAIL", "welltripth@welltripthailand.com"),
+            "phromlikhit@welltripthailand.com",
+        ]
         send_mail(
             subject,
             message,
-            getattr(settings, "DEFAULT_FROM_EMAIL", "noreply@welltripthailand.com"),
-            ["phromlikhit@welltripthailand.com", "admin@welltripthailand.com"],
+            from_email,
+            admin_recipients,
             fail_silently=True,
         )
     except Exception:
@@ -341,7 +511,7 @@ def admin_approval_action_view(request, entity_id):
         return api_error("PERMISSION_DENIED", "Admin access required.", status=status.HTTP_403_FORBIDDEN)
     
     try:
-        profile = MerchantProfile.objects.get(id=entity_id)
+        profile = MerchantProfile.objects.select_related("user").get(id=entity_id)
     except Exception:
         return api_error("NOT_FOUND", "Entity not found or invalid ID.", status=status.HTTP_404_NOT_FOUND)
     
@@ -350,14 +520,59 @@ def admin_approval_action_view(request, entity_id):
         profile.status = new_status
         if request.data.get("rejection_reason"):
             profile.rejection_reason = request.data.get("rejection_reason")
+        elif new_status == "APPROVED":
+            profile.rejection_reason = ""
         profile.save()
 
         if profile.user:
             if new_status == "APPROVED":
                 profile.user.is_verified = True
+                # Automatically activate merchant's accommodations if pending
+                try:
+                    profile.user.accommodations.filter(status="PENDING_VERIFICATION").update(status="ACTIVE")
+                except Exception as e:
+                    logging.getLogger(__name__).warning("Failed to auto-activate accommodations: %s", str(e))
             else:
                 profile.user.is_verified = False
             profile.user.save()
+
+            # Send notification email to the merchant
+            try:
+                from_email = getattr(settings, "DEFAULT_FROM_EMAIL", "welltripth@welltripthailand.com")
+                merchant_email = profile.user.email
+                if merchant_email:
+                    if new_status == "APPROVED":
+                        subject = f"[WellTrip] ยินดีด้วย ร้านค้า {profile.business_name} ได้รับการอนุมัติแล้ว"
+                        message = (
+                            f"เรียน คุณ {profile.user.full_name or profile.business_name},\n\n"
+                            f"ทีมงาน WellTrip ขอแจ้งให้ทราบว่า บัญชีร้านค้า \"{profile.business_name}\" ได้รับการตรวจสอบและอนุมัติ (Approved) เรียบร้อยแล้ว\n\n"
+                            f"ขณะนี้ ข้อมูลร้านค้า รายการห้องพัก อาหารเพื่อสุขภาพ สินค้า OTOP หรือบริการเวลเนสของคุณ ได้เปิดแสดงสู่สายตานักท่องเที่ยวบนแพลตฟอร์ม WellTrip เรียบร้อยแล้ว\n\n"
+                            f"คุณสามารถเข้าสู่ระบบเพื่อจัดการร้านค้า ตรวจสอบการจอง หรืออัปเดตข้อมูลได้ที่:\n"
+                            f"https://welltripthailand.com/portal\n\n"
+                            f"ขอขอบคุณที่ร่วมเป็นส่วนหนึ่งกับ WellTrip\n"
+                            f"ทีมงาน WellTrip Thailand"
+                        )
+                    else:
+                        reason = profile.rejection_reason or "ข้อมูลหรือเอกสารยังไม่ครบถ้วนสมบูรณ์"
+                        subject = f"[WellTrip] แจ้งผลการพิจารณาคำขอเปิดร้านค้า {profile.business_name}"
+                        message = (
+                            f"เรียน คุณ {profile.user.full_name or profile.business_name},\n\n"
+                            f"ทีมงาน WellTrip ได้ตรวจสอบคำขอเปิดร้านค้า \"{profile.business_name}\" เรียบร้อยแล้ว\n"
+                            f"สถานะ: ยังไม่ผ่านการอนุมัติ\n"
+                            f"เหตุผล: {reason}\n\n"
+                            f"ท่านสามารถเข้าสู่ระบบเพื่อแก้ไขหรืออัปเดตข้อมูลเพิ่มเติมได้ที่:\n"
+                            f"https://welltripthailand.com/portal\n\n"
+                            f"ทีมงาน WellTrip Thailand"
+                        )
+                    send_mail(
+                        subject,
+                        message,
+                        from_email,
+                        [merchant_email],
+                        fail_silently=True,
+                    )
+            except Exception as e:
+                logging.getLogger(__name__).warning("Failed to send merchant approval status email: %s", str(e))
 
     return api_success({"id": str(profile.id), "status": profile.status})
 

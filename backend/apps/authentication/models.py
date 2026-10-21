@@ -164,3 +164,25 @@ class MerchantProfile(models.Model):
     def __str__(self):
         return f"{self.business_name} ({self.status}) - {self.user.email}"
 
+
+class EmailVerificationOTP(models.Model):
+    """Temporary 6-digit OTP code sent to user email for verification."""
+    email = models.EmailField(db_index=True)
+    otp_code = models.CharField(max_length=6)
+    purpose = models.CharField(max_length=50, default="MERCHANT_REGISTER")
+    is_used = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField(db_index=True)
+
+    class Meta:
+        db_table = "email_verification_otps"
+        ordering = ("-created_at",)
+
+    def is_valid(self):
+        from django.utils import timezone
+        return not self.is_used and self.expires_at > timezone.now()
+
+    def __str__(self):
+        return f"OTP for {self.email} ({self.otp_code}) - Used: {self.is_used}"
+
+

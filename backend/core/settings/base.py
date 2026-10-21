@@ -206,10 +206,17 @@ DEEPSEEK_API_KEY = env("DEEPSEEK_API_KEY", default="")
 GEMINI_API_KEY = env("GEMINI_API_KEY", default="")
 
 # ---------------------------------------------------------------------------
-# Email Configuration
+# Email Configuration (Hostinger SMTP)
 # ---------------------------------------------------------------------------
-DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="promlikit@sskru.ac.th")
-ADMIN_EMAIL = env("ADMIN_EMAIL", default="promlikit@sskru.ac.th")
+EMAIL_BACKEND = env("EMAIL_BACKEND", default="django.core.mail.backends.smtp.EmailBackend")
+EMAIL_HOST = env("EMAIL_HOST", default="smtp.hostinger.com")
+EMAIL_PORT = env.int("EMAIL_PORT", default=465)
+EMAIL_USE_SSL = env.bool("EMAIL_USE_SSL", default=True)
+EMAIL_USE_TLS = env.bool("EMAIL_USE_TLS", default=False)
+EMAIL_HOST_USER = env("EMAIL_HOST_USER", default="welltripth@welltripthailand.com")
+EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD", default="")
+DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="WellTrip Thailand <welltripth@welltripthailand.com>")
+ADMIN_EMAIL = env("ADMIN_EMAIL", default="welltripth@welltripthailand.com")
 
 
 
