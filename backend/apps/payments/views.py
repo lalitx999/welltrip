@@ -88,9 +88,32 @@ def slip_upload_view(request):
     except ValueError as exc:
         raise ValidationError(str(exc)) from exc
 
+    from django.conf import settings
+    from .services import verify_slip
+
+    if getattr(settings, "SLIP_PROVIDER_API_KEY", ""):
+        try:
+            slip = verify_slip(str(slip.id))
+            if slip.status == "VERIFIED":
+                return api_success(
+                    PaymentSlipSerializer(slip, context={"request": request}).data,
+                    message="ตรวจสอบสลิปการโอนเงินสำเร็จ การจองได้รับการยืนยันเรียบร้อยแล้ว",
+                    status=status.HTTP_200_OK,
+                )
+            else:
+                reject_reason = (slip.provider_response_log or {}).get("reject_reason", "สลิปไม่ผ่านการตรวจสอบ")
+                return api_success(
+                    PaymentSlipSerializer(slip, context={"request": request}).data,
+                    message=f"สลิปไม่ผ่านการตรวจสอบ: {reject_reason}",
+                    status=status.HTTP_200_OK,
+                )
+        except Exception as exc:
+            import logging
+            logging.getLogger(__name__).warning("Automatic slip verification failed: %s", str(exc))
+
     return api_success(
         PaymentSlipSerializer(slip, context={"request": request}).data,
-        message="Slip uploaded. Awaiting verification.",
+        message="อัปโหลดสลิปเรียบร้อยแล้ว อยู่ระหว่างการตรวจสอบยอดเงิน",
         status=status.HTTP_201_CREATED,
     )
 
@@ -140,18 +163,26 @@ def admin_approve_payment_view(request, payment_id):
         raise NotFound("Payment not found.")
     
     req_status = request.data.get("status", "VERIFIED").upper()
+    from common.notifications import (
+        send_payment_confirmed_notifications,
+        send_payment_rejected_notification,
+    )
+
     if req_status in ["REJECTED", "FAILED"]:
         payment.status = PaymentStatus.FAILED
         if payment.booking:
             payment.booking.status = "CANCELLED"
             payment.booking.save()
         message = "Payment rejected."
+        rejection_reason = request.data.get("reason", "เจ้าหน้าที่ตรวจสอบไม่พบยอดเงินโอนเข้าบัญชี หรือข้อมูลสลิปไม่ถูกต้อง")
+        send_payment_rejected_notification(payment, rejection_reason)
     else:
-        payment.status = PaymentStatus.COMPLETED
+        payment.status = PaymentStatus.SUCCESS
         if payment.booking:
             payment.booking.status = "CONFIRMED"
             payment.booking.save()
         message = "Payment approved successfully."
+        send_payment_confirmed_notifications(payment)
 
     payment.save()
     return api_success(PaymentDetailSerializer(payment, context={"request": request}).data, message=message)

@@ -237,36 +237,20 @@ def request_email_otp_view(request):
         expires_at=expires_at,
     )
 
-    # Email content in professional Thai
-    subject = f"[WellTrip] รหัสยืนยันตัวตน OTP สำหรับลงทะเบียนเปิดร้าน: {otp_code}"
-    message = (
-        f"เรียน ผู้ประกอบการ WellTrip,\n\n"
-        f"รหัสยืนยันตัวตน (OTP) สำหรับการลงทะเบียนเปิดร้านของคุณคือ:\n\n"
-        f"       >>> {otp_code} <<<\n\n"
-        f"รหัสนี้จะหมดอายุภายใน 10 นาที (เวลาหมดอายุ: {expires_at.strftime('%H:%M:%S น.')})\n"
-        f"หากคุณไม่ได้เป็นผู้ทำรายการ โปรดเพิกเฉยต่ออีเมลฉบับนี้\n\n"
-        f"ด้วยความนับถือ,\n"
-        f"ทีมงาน WellTrip Thailand\n"
-        f"welltripth@welltripthailand.com"
-    )
-
-    from_email = getattr(settings, "DEFAULT_FROM_EMAIL", "WellTrip Thailand <welltripth@welltripthailand.com>")
-
-    try:
-        send_mail(subject, message, from_email, [email], fail_silently=False)
-        return api_success({
-            "sent": True,
-            "expires_in_seconds": 600,
-            "message": "ส่งรหัส OTP ไปยังอีเมลของคุณเรียบร้อยแล้ว",
-        })
-    except Exception as e:
-        import logging
-        logging.getLogger(__name__).warning("SMTP send_mail failed: %s", str(e))
+    from common.notifications import send_otp_email
+    sent = send_otp_email(email, otp_code, purpose, expires_minutes=10)
+    if not sent:
         return api_error(
             "EMAIL_SEND_FAILED",
-            f"ไม่สามารถส่งอีเมลได้ โปรดตรวจสอบการตั้งค่าอีเมล ({str(e)})",
+            "ไม่สามารถส่งอีเมลรหัส OTP ได้ โปรดตรวจสอบความถูกต้องของอีเมลหรือลองใหม่อีกครั้ง",
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
+
+    return api_success({
+        "sent": True,
+        "expires_in_seconds": 600,
+        "message": "ส่งรหัส OTP ไปยังอีเมลของคุณเรียบร้อยแล้ว",
+    })
 
 
 @api_view(["POST"])
@@ -399,35 +383,8 @@ def register_merchant_view(request):
 
     # Dispatch email notification to Admin via Hostinger SMTP
     try:
-        subject = (
-            f"[WellTrip Admin] มีผู้ประกอบการใหม่ลงทะเบียน: {merchant.business_name}"
-        )
-        message = (
-            f"เรียน ผู้ดูแลระบบ WellTrip,\n\n"
-            f"มีผู้ประกอบการใหม่ลงทะเบียนผ่านการยืนยัน OTP เรียบร้อยแล้ว และรอการตรวจสอบอนุมัติ:\n"
-            f"- ชื่อร้าน/สถานประกอบการ: {merchant.business_name}\n"
-            f"- ประเภทธุรกิจ: {merchant.get_business_category_display()}\n"
-            f"- ผู้ติดต่อ: {user.first_name} {user.last_name} ({user.email})\n"
-            f"- เบอร์โทรศัพท์: {merchant.phone_number}\n"
-            f"- เวลาทำการ: {merchant.opening_hours}\n"
-            f"- ลิงก์แผนที่ Google Maps: {merchant.google_maps_url}\n\n"
-            f"คุณสามารถเข้าตรวจสอบรายละเอียดและกดอนุมัติ (Approve) ได้ที่ Admin Console:\n"
-            f"https://www.welltripthailand.com/admin/approvals\n\n"
-            f"ด้วยความนับถือ,\n"
-            f"ระบบอัตโนมัติ WellTrip Thailand"
-        )
-        from_email = getattr(settings, "DEFAULT_FROM_EMAIL", "WellTrip Thailand <welltripth@welltripthailand.com>")
-        admin_recipients = [
-            getattr(settings, "ADMIN_EMAIL", "welltripth@welltripthailand.com"),
-            "phromlikhit@welltripthailand.com",
-        ]
-        send_mail(
-            subject,
-            message,
-            from_email,
-            admin_recipients,
-            fail_silently=True,
-        )
+        from common.notifications import send_admin_new_merchant_alert
+        send_admin_new_merchant_alert(merchant)
     except Exception:
         pass
 
@@ -538,39 +495,12 @@ def admin_approval_action_view(request, entity_id):
 
             # Send notification email to the merchant
             try:
-                from_email = getattr(settings, "DEFAULT_FROM_EMAIL", "welltripth@welltripthailand.com")
-                merchant_email = profile.user.email
-                if merchant_email:
-                    if new_status == "APPROVED":
-                        subject = f"[WellTrip] ยินดีด้วย ร้านค้า {profile.business_name} ได้รับการอนุมัติแล้ว"
-                        message = (
-                            f"เรียน คุณ {profile.user.full_name or profile.business_name},\n\n"
-                            f"ทีมงาน WellTrip ขอแจ้งให้ทราบว่า บัญชีร้านค้า \"{profile.business_name}\" ได้รับการตรวจสอบและอนุมัติ (Approved) เรียบร้อยแล้ว\n\n"
-                            f"ขณะนี้ ข้อมูลร้านค้า รายการห้องพัก อาหารเพื่อสุขภาพ สินค้า OTOP หรือบริการเวลเนสของคุณ ได้เปิดแสดงสู่สายตานักท่องเที่ยวบนแพลตฟอร์ม WellTrip เรียบร้อยแล้ว\n\n"
-                            f"คุณสามารถเข้าสู่ระบบเพื่อจัดการร้านค้า ตรวจสอบการจอง หรืออัปเดตข้อมูลได้ที่:\n"
-                            f"https://welltripthailand.com/portal\n\n"
-                            f"ขอขอบคุณที่ร่วมเป็นส่วนหนึ่งกับ WellTrip\n"
-                            f"ทีมงาน WellTrip Thailand"
-                        )
-                    else:
-                        reason = profile.rejection_reason or "ข้อมูลหรือเอกสารยังไม่ครบถ้วนสมบูรณ์"
-                        subject = f"[WellTrip] แจ้งผลการพิจารณาคำขอเปิดร้านค้า {profile.business_name}"
-                        message = (
-                            f"เรียน คุณ {profile.user.full_name or profile.business_name},\n\n"
-                            f"ทีมงาน WellTrip ได้ตรวจสอบคำขอเปิดร้านค้า \"{profile.business_name}\" เรียบร้อยแล้ว\n"
-                            f"สถานะ: ยังไม่ผ่านการอนุมัติ\n"
-                            f"เหตุผล: {reason}\n\n"
-                            f"ท่านสามารถเข้าสู่ระบบเพื่อแก้ไขหรืออัปเดตข้อมูลเพิ่มเติมได้ที่:\n"
-                            f"https://welltripthailand.com/portal\n\n"
-                            f"ทีมงาน WellTrip Thailand"
-                        )
-                    send_mail(
-                        subject,
-                        message,
-                        from_email,
-                        [merchant_email],
-                        fail_silently=True,
-                    )
+                from common.notifications import send_merchant_decision_notification
+                send_merchant_decision_notification(
+                    profile,
+                    is_approved=(new_status == "APPROVED"),
+                    rejection_reason=profile.rejection_reason,
+                )
             except Exception as e:
                 logging.getLogger(__name__).warning("Failed to send merchant approval status email: %s", str(e))
 

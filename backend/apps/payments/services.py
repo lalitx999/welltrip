@@ -102,85 +102,126 @@ def create_slip(payment_id, image_file, uploaded_by):
 
 
 def _call_slip_provider(image_file):
-    """Call the Slip Check API and return a normalized payload.
+    """Call the EasySlip API v1 per https://document.easyslip.com/ and return normalized payload.
 
-    Normalized payload keys (the contract between this module and any provider):
-        amount:         Decimal | str  exact amount read from the slip
-        trans_ref:      str            bank transaction reference
-        trans_datetime: datetime|None  when the money moved
-        sender_name:    str|None       who paid (informational only)
+    Normalized payload keys:
+        amount:         Decimal        exact amount read from the slip
+        trans_ref:      str            bank transaction reference (transRef)
+        trans_datetime: datetime       when the transfer occurred
+        sender_name:    str            sender name or account info
+        receiver:       dict           receiver details
+        raw_data:       dict           full response from EasySlip
+        provider:       str            'EasySlip'
     """
+    import logging
+    import requests
+
+    logger = logging.getLogger(__name__)
     api_key = getattr(settings, "SLIP_PROVIDER_API_KEY", "") or ""
-    provider_url = getattr(settings, "SLIP_PROVIDER_URL", "https://developer.easyslip.com/api/v1/verify")
+    if not api_key:
+        raise ValueError(
+            "ระบบยังไม่ได้กำหนดค่า SLIP_PROVIDER_API_KEY กรุณาระบุ API Key ของ EasySlip ในไฟล์ .env ก่อนใช้งาน"
+        )
 
-    if api_key:
-        import json
-        import urllib.request
-        import urllib.error
+    provider_url = getattr(
+        settings, "SLIP_PROVIDER_URL", "https://developer.easyslip.com/api/v1/verify"
+    )
 
-        try:
-            # Read image file bytes for EasySlip API multipart call
-            image_bytes = image_file.read()
-            if hasattr(image_file, "seek"):
-                image_file.seek(0)
+    try:
+        if hasattr(image_file, "seek"):
+            image_file.seek(0)
+        image_bytes = image_file.read()
+        filename = getattr(image_file, "name", "slip.jpg")
+    except Exception as exc:
+        raise ValueError(f"ไม่สามารถอ่านไฟล์ภาพสลิปได้: {str(exc)}") from exc
 
-            boundary = "----WebKitFormBoundaryWellTripEasySlip"
-            body = []
-            body.append(f"--{boundary}".encode("utf-8"))
-            body.append(f'Content-Disposition: form-data; name="file"; filename="{getattr(image_file, "name", "slip.jpg")}"'.encode("utf-8"))
-            body.append(b"Content-Type: image/jpeg\r\n")
-            body.append(image_bytes)
-            body.append(f"--{boundary}--".encode("utf-8"))
-            payload_data = b"\r\n".join(body)
-
-            req = urllib.request.Request(
-                provider_url,
-                data=payload_data,
-                headers={
-                    "Authorization": f"Bearer {api_key}",
-                    "Content-Type": f"multipart/form-data; boundary={boundary}",
-                },
-                method="POST",
-            )
-            with urllib.request.urlopen(req, timeout=10) as resp:
-                res_json = json.loads(resp.read().decode("utf-8"))
-                data = res_json.get("data", {})
-                amount_val = data.get("amount", {}).get("amount") or data.get("amount", 0)
-                return {
-                    "amount": Decimal(str(amount_val)),
-                    "trans_ref": str(data.get("transRef") or data.get("trans_ref") or ""),
-                    "trans_datetime": timezone.now(),
-                    "sender_name": data.get("sender", {}).get("name", "EasySlip Verified"),
-                    "provider": "EasySlip (Live)",
-                }
-        except Exception as exc:
-            pass
-
-    # Fallback / Mock EasySlip response when API key is not configured yet
-    now = timezone.now()
-    ref = f"EASYSLIP-{now.strftime('%Y%m%d%H%M%S')}-{uuid.uuid4().hex[:6].upper()}"
-    return {
-        "amount": getattr(image_file, "_test_amount", None) or Decimal("0.00"),
-        "trans_ref": ref,
-        "trans_datetime": now,
-        "sender_name": "นักท่องเที่ยว (EasySlip Verified)",
-        "provider": "EasySlip (Mock Mode)",
+    headers = {
+        "Authorization": f"Bearer {api_key.strip()}",
+    }
+    files = {
+        "file": (filename, image_bytes, "image/jpeg"),
     }
 
+    try:
+        resp = requests.post(provider_url, headers=headers, files=files, timeout=20)
+    except requests.RequestException as exc:
+        logger.error("EasySlip API connection error: %s", str(exc))
+        raise ValueError(f"ไม่สามารถเชื่อมต่อไปยังเซิร์ฟเวอร์ EasySlip ได้: {str(exc)}") from exc
+
+    try:
+        res_json = resp.json()
+    except Exception:
+        raise ValueError(f"EasySlip ตอบกลับด้วยข้อมูลที่ไม่ใช่ JSON (HTTP {resp.status_code})")
+
+    if resp.status_code != 200:
+        err_msg = res_json.get("message") or res_json.get("error") or f"HTTP {resp.status_code}"
+        raise ValueError(f"EasySlip ตรวจสอบสลิปไม่ผ่าน: {err_msg}")
+
+    data = res_json.get("data", {})
+    if not data:
+        raise ValueError("EasySlip ไม่พบข้อมูลการโอนเงินในรูปภาพที่อัปโหลด")
+
+    # Extract transfer amount
+    amount_obj = data.get("amount", {})
+    if isinstance(amount_obj, dict):
+        amount_raw = amount_obj.get("amount") or 0
+    else:
+        amount_raw = amount_obj or 0
+
+    try:
+        amount = Decimal(str(amount_raw))
+    except Exception as exc:
+        raise ValueError(f"ไม่สามารถอ่านยอดเงินจากสลิปได้: {str(exc)}")
+
+    # Extract transaction reference (transRef)
+    trans_ref = str(data.get("transRef") or data.get("trans_ref") or "").strip()
+    if not trans_ref:
+        raise ValueError("ไม่พบรหัสอ้างอิงธุรกรรม (Transaction Reference) ในสลิป")
+
+    # Extract transfer date/time
+    date_str = data.get("date")
+    trans_dt = timezone.now()
+    if date_str:
+        try:
+            from datetime import datetime
+            clean_date = date_str.replace("Z", "+00:00")
+            trans_dt = datetime.fromisoformat(clean_date)
+            if timezone.is_naive(trans_dt):
+                trans_dt = timezone.make_aware(trans_dt, timezone.utc)
+        except Exception:
+            pass
+
+    sender_info = data.get("sender", {})
+    sender_name_obj = sender_info.get("name", {})
+    if isinstance(sender_name_obj, dict):
+        sender_name = sender_name_obj.get("th") or sender_name_obj.get("en") or ""
+    else:
+        sender_name = str(sender_name_obj or "")
+
+    return {
+        "amount": amount,
+        "trans_ref": trans_ref,
+        "trans_datetime": trans_dt,
+        "sender_name": sender_name,
+        "receiver": data.get("receiver", {}),
+        "raw_data": data,
+        "provider": "EasySlip",
+    }
 
 
 def verify_slip(slip_id, *, provider=None):
     """Run the Slip Check provider + money-safety rules on a pending slip.
 
     Returns the slip with its final status (VERIFIED or REJECTED).
-
-    - provider: injectable callable image_file -> normalized payload dict
-      (see _call_slip_provider). Defaults to the not-yet-implemented real one.
-    - If the provider call itself fails, the exception propagates and the slip
-      stays PENDING_CHECK so the caller can retry later.
+    Dispatches transactional email notifications to Tourist and Merchant.
     """
+    from common.notifications import (
+        send_payment_confirmed_notifications,
+        send_payment_rejected_notification,
+    )
+
     provider = provider or _call_slip_provider
-    slip = PaymentSlip.objects.select_related("payment__booking").filter(
+    slip = PaymentSlip.objects.select_related("payment__booking__user").filter(
         pk=slip_id
     ).first()
     if slip is None:
@@ -193,10 +234,7 @@ def verify_slip(slip_id, *, provider=None):
     trans_ref = str(payload.get("trans_ref") or "").strip()
     trans_at = payload.get("trans_datetime")
 
-    # 2) Transition INSIDE a transaction. Lock ordering (Step 4 agreement):
-    #    lock the BOOKING row first, then its payment, then the slip. The
-    #    expiry worker (bookings/tasks.py) locks the booking first too, so the
-    #    two writers can never deadlock (previously this locked payment first).
+    # 2) Transition INSIDE a transaction.
     with transaction.atomic():
         booking = (
             Booking.objects.select_for_update()
@@ -240,8 +278,6 @@ def verify_slip(slip_id, *, provider=None):
             payment.paid_at = trans_at or timezone.now()
             payment.save(update_fields=["status", "paid_at", "updated_at"])
 
-            # Keep the order in lock-step with its payment (row already locked
-            # above, so this is a plain update of the same locked booking).
             booking.status = BookingStatus.CONFIRMED
             booking.save(update_fields=["status", "updated_at"])
         else:
@@ -260,9 +296,13 @@ def verify_slip(slip_id, *, provider=None):
                     "checked_at",
                 ]
             )
-            # Payment intentionally stays PENDING: the tourist may retry.
 
-        return slip
+    # 3) Dispatch real email notifications (outside DB transaction)
+    if slip.status == SlipVerificationStatus.VERIFIED:
+        send_payment_confirmed_notifications(payment)
+    else:
+        send_payment_rejected_notification(payment, reason)
+    return slip
 
 
 def _check_money_rules(payment, slip, amount, trans_ref, trans_at):
