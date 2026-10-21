@@ -136,11 +136,30 @@ def location_event(request):
     return api_success({"recorded": True}, status=201)
 
 
-@api_view(["DELETE"])
+@api_view(["GET", "DELETE"])
 @permission_classes([IsAuthenticated])
-def delete_my_location_events(request):
-    LocationEvent.objects.filter(user=request.user).delete()
-    return api_success({"deleted": True})
+def my_location_events_view(request):
+    """
+    GET: Retrieve user's latest recorded location from LocationEvent table.
+    DELETE: Delete all location records for the current user.
+    """
+    if request.method == "DELETE":
+        deleted_count, _ = LocationEvent.objects.filter(user=request.user).delete()
+        return api_success({"deleted": True, "count": deleted_count})
+
+    latest = LocationEvent.objects.filter(user=request.user).order_by("-created_at").first()
+    if not latest:
+        return api_success(None)
+
+    return api_success({
+        "id": latest.id,
+        "outcome": latest.outcome,
+        "latitude": float(latest.latitude) if latest.latitude is not None else None,
+        "longitude": float(latest.longitude) if latest.longitude is not None else None,
+        "accuracy_m": latest.accuracy_m,
+        "consent_version": latest.consent_version,
+        "created_at": latest.created_at.isoformat(),
+    })
 
 
 @api_view(["GET"])

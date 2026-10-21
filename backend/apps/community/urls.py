@@ -21,6 +21,6 @@ urlpatterns += [
     path("content-admin/<str:pk>/", experience_api.content_admin_detail, name="content-admin-detail"),
     path("location/policy/", experience_api.location_policy, name="location-policy"),
     path("location/events/", experience_api.location_event, name="location-event"),
-    path("location/my-events/", experience_api.delete_my_location_events, name="location-delete"),
+    path("location/my-events/", experience_api.my_location_events_view, name="location-my-events"),
     path("location/admin/", experience_api.location_admin, name="location-admin"),
 ]
