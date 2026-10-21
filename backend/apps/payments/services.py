@@ -138,8 +138,10 @@ def _call_slip_provider(image_file):
     headers = {
         "Authorization": f"Bearer {api_key.strip()}",
     }
+    is_v2 = "/v2/" in provider_url
+    file_field = "image" if is_v2 else "file"
     files = {
-        "file": (filename, image_bytes, "image/jpeg"),
+        file_field: (filename, image_bytes, "image/jpeg"),
     }
 
     try:
@@ -161,12 +163,16 @@ def _call_slip_provider(image_file):
     if not data:
         raise ValueError("EasySlip ไม่พบข้อมูลการโอนเงินในรูปภาพที่อัปโหลด")
 
+    raw_slip = data.get("rawSlip") or data
+
     # Extract transfer amount
-    amount_obj = data.get("amount", {})
-    if isinstance(amount_obj, dict):
-        amount_raw = amount_obj.get("amount") or 0
-    else:
-        amount_raw = amount_obj or 0
+    amount_raw = data.get("amountInSlip")
+    if amount_raw is None:
+        amount_obj = raw_slip.get("amount", {})
+        if isinstance(amount_obj, dict):
+            amount_raw = amount_obj.get("amount") or 0
+        else:
+            amount_raw = amount_obj or 0
 
     try:
         amount = Decimal(str(amount_raw))
@@ -174,12 +180,12 @@ def _call_slip_provider(image_file):
         raise ValueError(f"ไม่สามารถอ่านยอดเงินจากสลิปได้: {str(exc)}")
 
     # Extract transaction reference (transRef)
-    trans_ref = str(data.get("transRef") or data.get("trans_ref") or "").strip()
+    trans_ref = str(raw_slip.get("transRef") or raw_slip.get("trans_ref") or "").strip()
     if not trans_ref:
         raise ValueError("ไม่พบรหัสอ้างอิงธุรกรรม (Transaction Reference) ในสลิป")
 
     # Extract transfer date/time
-    date_str = data.get("date")
+    date_str = raw_slip.get("date")
     trans_dt = timezone.now()
     if date_str:
         try:
@@ -191,8 +197,8 @@ def _call_slip_provider(image_file):
         except Exception:
             pass
 
-    sender_info = data.get("sender", {})
-    sender_name_obj = sender_info.get("name", {})
+    sender_info = raw_slip.get("sender", {})
+    sender_name_obj = sender_info.get("account", {}).get("name", {}) or sender_info.get("name", {})
     if isinstance(sender_name_obj, dict):
         sender_name = sender_name_obj.get("th") or sender_name_obj.get("en") or ""
     else:
@@ -203,9 +209,10 @@ def _call_slip_provider(image_file):
         "trans_ref": trans_ref,
         "trans_datetime": trans_dt,
         "sender_name": sender_name,
-        "receiver": data.get("receiver", {}),
+        "receiver": raw_slip.get("receiver", {}),
+        "is_duplicate": data.get("isDuplicate", False),
         "raw_data": data,
-        "provider": "EasySlip",
+        "provider": "EasySlip v2" if is_v2 else "EasySlip v1",
     }
 
 

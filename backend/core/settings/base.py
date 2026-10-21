@@ -197,9 +197,8 @@ PAYEE_ACCOUNT_NUMBER = env("PAYEE_ACCOUNT_NUMBER", default="001-1-50448-5")
 PAYEE_ACCOUNT_NAME = env("PAYEE_ACCOUNT_NAME", default="นาย พรหมลิขิต อุรา")
 PAYEE_BANK_NAME = env("PAYEE_BANK_NAME", default="ธนาคารกสิกรไทย")
 
-SLIP_PROVIDER_URL = env("SLIP_PROVIDER_URL", default="https://developer.easyslip.com/api/v1/verify")
+SLIP_PROVIDER_URL = env("SLIP_PROVIDER_URL", default="https://api.easyslip.com/v2/verify/bank")
 SLIP_PROVIDER_API_KEY = env("SLIP_PROVIDER_API_KEY", default="")
-EASYSLIP_MOCK_VERIFY = env.bool("EASYSLIP_MOCK_VERIFY", default=True)
 
 # Dual-AI Architecture Keys (DeepSeek Reasoning + Gemini JSON Matching)
 DEEPSEEK_API_KEY = env("DEEPSEEK_API_KEY", default="")
