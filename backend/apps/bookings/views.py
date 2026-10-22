@@ -25,7 +25,7 @@ from common.permissions import IsTourist
 from common.responses import api_error, api_success
 from common.views import EnvelopeMixin
 
-from .models import Booking, BookingStatus
+from .models import Booking, BookingStatus, BookingItem
 from .serializers import (
     BookingDetailSerializer,
     BookingListSerializer,
@@ -197,3 +197,64 @@ class BookingDetailView(EnvelopeMixin, generics.RetrieveAPIView):
 
     def get_object(self):
         return _get_owned_booking(self.kwargs["booking_id"], self.request.user)
+
+
+# ---------------------------------------------------------------------------
+# GET /api/v1/bookings/vendor/calendar/
+# ---------------------------------------------------------------------------
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def vendor_calendar_bookings_view(request):
+    """List bookings and reservations for the authenticated vendor's calendar."""
+    user = request.user
+    if user.is_superuser or user.role in ("SUPER_ADMIN", "COMMUNITY_ADMIN"):
+        qs = BookingItem.objects.all()
+    else:
+        qs = BookingItem.objects.filter(vendor=user)
+
+    item_type = request.query_params.get("item_type", "ROOM_RESERVATION")
+    if item_type:
+        qs = qs.filter(item_type=item_type)
+
+    room_id = request.query_params.get("room_id")
+    if room_id:
+        qs = qs.filter(entity_id=room_id)
+
+    start_date = request.query_params.get("start_date")
+    end_date = request.query_params.get("end_date")
+    if start_date:
+        qs = qs.filter(scheduled_end_date__gte=start_date)
+    if end_date:
+        qs = qs.filter(scheduled_date__lte=end_date)
+
+    items = qs.select_related("booking", "booking__user").order_by("scheduled_date")
+
+    results = []
+    for item in items:
+        b = item.booking
+        u = b.user if b else None
+        customer_name = ""
+        if u:
+            customer_name = f"{u.first_name} {u.last_name}".strip() or u.username or u.email
+        results.append({
+            "id": item.id,
+            "booking_id": str(b.id) if b else "",
+            "booking_code": b.booking_code if b else "",
+            "customer_name": customer_name or "นักท่องเที่ยว",
+            "customer_phone": u.phone_number if u else "",
+            "customer_email": u.email if u else "",
+            "item_title": item.item_title_snapshot,
+            "entity_id": item.entity_id,
+            "item_type": item.item_type,
+            "quantity": item.quantity,
+            "unit_price": float(item.unit_price_snapshot) if item.unit_price_snapshot else 0.0,
+            "total_price": float(item.total_price) if item.total_price else 0.0,
+            "checkin_date": item.scheduled_date.isoformat() if item.scheduled_date else None,
+            "checkout_date": item.scheduled_end_date.isoformat() if item.scheduled_end_date else None,
+            "scheduled_time_slot": item.scheduled_time_slot,
+            "status": b.status if b else "CONFIRMED",
+            "created_at": b.created_at.isoformat() if b else "",
+        })
+
+    return api_success(results)
+

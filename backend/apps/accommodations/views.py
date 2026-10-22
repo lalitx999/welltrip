@@ -240,6 +240,8 @@ class AccommodationListCreateView(EnvelopeMixin, generics.ListCreateAPIView):
         is_approved = (
             user.is_superuser
             or (merchant_profile and getattr(merchant_profile, "status", None) == "APPROVED")
+            or getattr(user, "is_verified", False)
+            or user.role in ("HOMESTAY_OWNER", "SUPER_ADMIN", "COMMUNITY_ADMIN")
         )
         init_status = (
             AccommodationStatus.ACTIVE if is_approved else AccommodationStatus.PENDING_VERIFICATION
@@ -502,6 +504,14 @@ class AccommodationDetailUpdateView(EnvelopeMixin, generics.RetrieveUpdateDestro
         ):
             raise PermissionDenied("You can only manage your own accommodation.")
         return acc
+
+    def perform_update(self, serializer):
+        user = self.request.user
+        acc = self.get_object()
+        if (user.is_superuser or user.role == "HOMESTAY_OWNER" or getattr(user, "is_verified", False)) and acc.status == AccommodationStatus.PENDING_VERIFICATION:
+            serializer.save(status=AccommodationStatus.ACTIVE)
+        else:
+            serializer.save()
 
 
 # ---------------------------------------------------------------------------
