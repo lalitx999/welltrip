@@ -47,6 +47,7 @@ class AccommodationSerializer(serializers.ModelSerializer):
             "slug",
             "description",
             "address",
+            "google_maps_url",
             "subdistrict",
             "district",
             "province",

@@ -47,6 +47,7 @@ class Accommodation(models.Model):
     slug = models.SlugField(max_length=255, unique=True)
     description = models.TextField(blank=True, default="")
     address = models.TextField(blank=True, default="")
+    google_maps_url = models.URLField(max_length=500, blank=True, default="")
     subdistrict = models.CharField(max_length=100, blank=True, default="")
     district = models.CharField(max_length=100, blank=True, default="")
     province = models.CharField(max_length=100, db_index=True)
