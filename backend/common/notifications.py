@@ -63,10 +63,8 @@ def send_otp_email(to_email: str, otp_code: str, purpose: str = "MERCHANT_REGIST
 def send_admin_new_merchant_alert(merchant_profile) -> bool:
     """Notify admins when a new merchant registers and awaits verification."""
     from_email = _get_from_email()
-    admin_recipients = [
-        "welltripth@welltripthailand.com",
-        "phromlikit@welltripthailand.com",
-    ]
+    admin_email = getattr(settings, "ADMIN_EMAIL", "promlikit@sskru.ac.th") or "promlikit@sskru.ac.th"
+    admin_recipients = [admin_email.strip()]
 
     user = merchant_profile.user
     applicant_name = user.full_name or f"{user.first_name} {user.last_name}".strip() or "-"

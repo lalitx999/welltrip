@@ -215,7 +215,7 @@ EMAIL_USE_TLS = env.bool("EMAIL_USE_TLS", default=False)
 EMAIL_HOST_USER = env("EMAIL_HOST_USER", default="welltripth@welltripthailand.com")
 EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD", default="")
 DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="WellTrip Thailand <welltripth@welltripthailand.com>")
-ADMIN_EMAIL = env("ADMIN_EMAIL", default="welltripth@welltripthailand.com")
+ADMIN_EMAIL = env("ADMIN_EMAIL", default="promlikit@sskru.ac.th")
 
 
 
