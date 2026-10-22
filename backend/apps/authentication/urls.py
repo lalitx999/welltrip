@@ -15,5 +15,6 @@ urlpatterns = [
     path("oauth/google/", views.google_oauth_view, name="google-oauth"),
     path("me/", views.me_view, name="me"),
     path("users/", views.users_list_view, name="users-list"),
+    path("users/<uuid:user_id>/", views.delete_user_view, name="user-delete"),
     path("users/<uuid:user_id>/role/", views.update_user_role_view, name="user-role-update"),
 ]

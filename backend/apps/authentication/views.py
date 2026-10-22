@@ -437,6 +437,52 @@ def update_user_role_view(request, user_id):
     return api_success(UserProfileSerializer(user).data)
 
 
+@api_view(["DELETE"])
+@permission_classes([IsAuthenticated])
+def delete_user_view(request, user_id):
+    """
+    Delete a user account (Admin only).
+    - Prevents self-deletion.
+    - Prevents deleting super admins unless caller is super admin.
+    - Safely handles database integrity (falls back to soft-delete deactivation if historical bookings exist).
+    """
+    if not (request.user.is_superuser or request.user.role in [UserRoles.SUPER_ADMIN, UserRoles.COMMUNITY_ADMIN]):
+        return api_error("PERMISSION_DENIED", "Admin access required.", status=status.HTTP_403_FORBIDDEN)
+
+    if str(request.user.id) == str(user_id):
+        return api_error("CANNOT_DELETE_SELF", "ไม่สามารถลบบัญชีของตนเองได้", status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        target_user = User.objects.get(id=user_id)
+    except User.DoesNotExist:
+        return api_error("NOT_FOUND", "ไม่พบข้อมูลผู้ใช้นี้ในระบบ", status=status.HTTP_404_NOT_FOUND)
+
+    # Hierarchy guard: Only Super Admin can delete other Super Admins or Community Admins
+    if target_user.is_superuser or target_user.role in [UserRoles.SUPER_ADMIN, UserRoles.COMMUNITY_ADMIN]:
+        if not (request.user.is_superuser or request.user.role == UserRoles.SUPER_ADMIN):
+            return api_error("PERMISSION_DENIED", "เฉพาะ Super Admin เท่านั้นที่สามารถลบบัญชีผู้ดูแลระบบได้", status=status.HTTP_403_FORBIDDEN)
+
+    user_email = target_user.email
+    user_name = target_user.full_name or user_email
+
+    try:
+        from django.db import models, transaction
+        with transaction.atomic():
+            target_user.delete()
+        return api_success({"id": str(user_id)}, message=f"ลบบัญชีผู้ใช้ {user_name} ({user_email}) ออกจากระบบเรียบร้อยแล้ว")
+    except (models.ProtectedError, models.RestrictedError):
+        # User has financial/booking history that cannot be deleted per legal & audit rules.
+        # Fall back to soft-delete (deactivate) so they cannot login or appear active.
+        target_user.is_active = False
+        target_user.save(update_fields=["is_active"])
+        return api_success(
+            {"id": str(user_id), "is_active": False},
+            message=f"บัญชี {user_email} มีประวัติการจองหรือธุรกรรมในระบบ จึงทำการปิดการใช้งานบัญชี (Deactivate) แทนการลบถาวร เพื่อรักษาความถูกต้องของข้อมูล",
+        )
+    except Exception as e:
+        return api_error("DELETE_FAILED", f"ไม่สามารถลบผู้ใช้ได้: {str(e)}", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def admin_approvals_list_view(request):
