@@ -35,6 +35,7 @@ from .models import (
     Accommodation,
     AccommodationStatus,
     Room,
+    RoomImage,
     RoomPricingCalendar,
 )
 from .serializers import (
@@ -153,6 +154,10 @@ class AccommodationListCreateView(EnvelopeMixin, generics.ListCreateAPIView):
         if province:
             qs = qs.filter(province__iexact=province.strip())
 
+        district = params.get("district")
+        if district:
+            qs = qs.filter(district__iexact=district.strip())
+
         checkin, checkout = _parse_date_range(self.request)
 
         # ---- guests: keep only accommodations with an active room big enough
@@ -230,8 +235,46 @@ class AccommodationListCreateView(EnvelopeMixin, generics.ListCreateAPIView):
         return free_ids
 
     def perform_create(self, serializer):
-        # owner comes from the authenticated token, never from the request body.
-        serializer.save(owner=self.request.user)
+        user = self.request.user
+        merchant_profile = getattr(user, "merchant_profile", None)
+        is_approved = (
+            user.is_superuser
+            or (merchant_profile and getattr(merchant_profile, "status", None) == "APPROVED")
+        )
+        init_status = (
+            AccommodationStatus.ACTIVE if is_approved else AccommodationStatus.PENDING_VERIFICATION
+        )
+        accommodation = serializer.save(owner=user, status=init_status)
+
+        # Auto-create standard room if price_per_night or initial data is provided
+        data = self.request.data
+        price_raw = data.get("price_per_night") or data.get("base_price_per_night")
+        image_url = str(data.get("image_url", "")).strip()
+
+        if price_raw is not None:
+            try:
+                price_dec = Decimal(str(price_raw))
+                if price_dec > Decimal("0.00"):
+                    default_room = Room.objects.create(
+                        accommodation=accommodation,
+                        name=f"ห้องพักมาตรฐาน ({accommodation.name})",
+                        description=accommodation.description or "ห้องพักมาตรฐานสำหรับ 2 ท่าน พร้อมสิ่งอำนวยความสะดวกครบครัน",
+                        base_capacity=2,
+                        max_capacity=2,
+                        base_price_per_night=price_dec,
+                        total_inventory=1,
+                        amenities={"wifi": True, "aircon": True},
+                        is_active=True,
+                    )
+                    if image_url:
+                        RoomImage.objects.create(
+                            room=default_room,
+                            image_url=image_url,
+                            is_primary=True,
+                            order=0,
+                        )
+            except Exception:
+                pass
 
 
 # ---------------------------------------------------------------------------
@@ -464,8 +507,8 @@ class AccommodationDetailUpdateView(EnvelopeMixin, generics.RetrieveUpdateDestro
 # ---------------------------------------------------------------------------
 # GET/PATCH /api/v1/accommodations/rooms/{id}/
 # ---------------------------------------------------------------------------
-class RoomDetailUpdateView(EnvelopeMixin, generics.RetrieveUpdateAPIView):
-    """Retrieve or update a room by ID."""
+class RoomDetailUpdateView(EnvelopeMixin, generics.RetrieveUpdateDestroyAPIView):
+    """Retrieve, update or delete a room by ID."""
 
     serializer_class = RoomSerializer
     queryset = Room.objects.all()
@@ -474,16 +517,18 @@ class RoomDetailUpdateView(EnvelopeMixin, generics.RetrieveUpdateAPIView):
     def success_message(self):
         if self.request and self.request.method in ("PATCH", "PUT"):
             return "Room updated."
+        if self.request and self.request.method == "DELETE":
+            return "Room deleted."
         return "Room retrieved."
 
     def get_permissions(self):
-        if self.request.method in ("PATCH", "PUT"):
+        if self.request.method in ("PATCH", "PUT", "DELETE"):
             return [IsHomestayOwner()]
         return [AllowAny()]
 
     def get_object(self):
         room = super().get_object()
-        if self.request.method in ("PATCH", "PUT") and not can_manage_vendor_object(
+        if self.request.method in ("PATCH", "PUT", "DELETE") and not can_manage_vendor_object(
             self.request.user, room.accommodation
         ):
             raise PermissionDenied("You can only manage your own room.")

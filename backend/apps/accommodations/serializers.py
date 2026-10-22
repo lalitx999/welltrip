@@ -96,6 +96,7 @@ class RoomSerializer(serializers.ModelSerializer):
     """
 
     images = RoomImageSerializer(many=True, read_only=True)
+    image_url = serializers.CharField(required=False, allow_blank=True, default="")
 
     base_capacity = serializers.IntegerField(min_value=1)
     max_capacity = serializers.IntegerField(min_value=1)
@@ -113,6 +114,7 @@ class RoomSerializer(serializers.ModelSerializer):
             "amenities",
             "is_active",
             "images",
+            "image_url",
         )
         read_only_fields = ("id", "images")
 
@@ -130,6 +132,26 @@ class RoomSerializer(serializers.ModelSerializer):
                 {"max_capacity": "max_capacity cannot be lower than base_capacity."}
             )
         return attrs
+
+    def create(self, validated_data):
+        image_url = validated_data.pop("image_url", "").strip()
+        room = super().create(validated_data)
+        if image_url:
+            RoomImage.objects.create(room=room, image_url=image_url, is_primary=True, order=0)
+        return room
+
+    def update(self, instance, validated_data):
+        image_url = validated_data.pop("image_url", None)
+        room = super().update(instance, validated_data)
+        if image_url is not None:
+            image_url = image_url.strip()
+            primary = room.images.filter(is_primary=True).first()
+            if primary:
+                primary.image_url = image_url
+                primary.save(update_fields=["image_url"])
+            elif image_url:
+                RoomImage.objects.create(room=room, image_url=image_url, is_primary=True, order=0)
+        return room
 
 
 class RoomPublicSerializer(RoomSerializer):
