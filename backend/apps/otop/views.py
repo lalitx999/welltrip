@@ -71,7 +71,12 @@ class OTOPProductListCreateView(EnvelopeMixin, generics.ListCreateAPIView):
         # Spec: category can be a comma-separated list (HERBAL_PRODUCT,TEXTILE).
         category = params.get("category")
         if category:
-            categories = [c.strip() for c in category.split(",") if c.strip()]
+            aliases = {
+                "FOOD_BEVERAGE": OTOPCategory.PROCESSED_FOOD,
+                "HANDICRAFT": OTOPCategory.CRAFT,
+            }
+            raw_categories = [c.strip() for c in category.split(",") if c.strip()]
+            categories = [aliases.get(c, c) for c in raw_categories]
             unknown = [c for c in categories if c not in OTOPCategory.values]
             if unknown:
                 raise ValidationError(

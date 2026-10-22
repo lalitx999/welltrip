@@ -42,6 +42,20 @@ class OTOPProductSerializer(serializers.ModelSerializer):
         )
         read_only_fields = ("id", "sku")
 
+    CATEGORY_ALIASES = {
+        "FOOD_BEVERAGE": "PROCESSED_FOOD",
+        "HANDICRAFT": "CRAFT",
+    }
+
+    def to_internal_value(self, data):
+        # Auto-map front-end category aliases to valid backend DB choices
+        if isinstance(data, dict) and "category" in data:
+            data = data.copy()
+            raw_cat = data.get("category")
+            if raw_cat in self.CATEGORY_ALIASES:
+                data["category"] = self.CATEGORY_ALIASES[raw_cat]
+        return super().to_internal_value(data)
+
 
 class OTOPStockAdjustSerializer(serializers.Serializer):
     """POST /api/v1/otop/{id}/stock/ payload.
