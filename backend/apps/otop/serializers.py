@@ -27,6 +27,10 @@ class OTOPProductSerializer(serializers.ModelSerializer):
     )
     stock_quantity = serializers.IntegerField(min_value=0)
 
+    owner_name = serializers.CharField(source="owner.full_name", read_only=True, default="")
+    owner_email = serializers.CharField(source="owner.email", read_only=True, default="")
+    owner_phone = serializers.CharField(source="owner.phone_number", read_only=True, default="")
+
     class Meta:
         model = OTOPProduct
         fields = (
@@ -39,8 +43,11 @@ class OTOPProductSerializer(serializers.ModelSerializer):
             "stock_quantity",
             "sku",
             "is_active",
+            "owner_name",
+            "owner_email",
+            "owner_phone",
         )
-        read_only_fields = ("id", "sku")
+        read_only_fields = ("id", "sku", "owner_name", "owner_email", "owner_phone")
 
     CATEGORY_ALIASES = {
         "FOOD_BEVERAGE": "PROCESSED_FOOD",

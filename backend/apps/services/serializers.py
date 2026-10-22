@@ -24,6 +24,10 @@ class FoodMenuSerializer(serializers.ModelSerializer):
         max_digits=10, decimal_places=2, min_value=Decimal("0.01")
     )
 
+    owner_name = serializers.CharField(source="owner.full_name", read_only=True, default="")
+    owner_email = serializers.CharField(source="owner.email", read_only=True, default="")
+    owner_phone = serializers.CharField(source="owner.phone_number", read_only=True, default="")
+
     class Meta:
         model = FoodMenu
         fields = (
@@ -35,8 +39,11 @@ class FoodMenuSerializer(serializers.ModelSerializer):
             "calorie_estimate",
             "is_available",
             "image_url",
+            "owner_name",
+            "owner_email",
+            "owner_phone",
         )
-        read_only_fields = ("id",)
+        read_only_fields = ("id", "owner_name", "owner_email", "owner_phone")
 
     def validate_wellness_category(self, value):
         if value not in FoodWellnessCategory.values:
@@ -53,6 +60,9 @@ class WellnessServiceSerializer(serializers.ModelSerializer):
     price = serializers.DecimalField(
         max_digits=10, decimal_places=2, min_value=Decimal("0.01")
     )
+    owner_name = serializers.CharField(source="owner.full_name", read_only=True, default="")
+    owner_email = serializers.CharField(source="owner.email", read_only=True, default="")
+    owner_phone = serializers.CharField(source="owner.phone_number", read_only=True, default="")
 
     class Meta:
         model = WellnessService
@@ -65,8 +75,11 @@ class WellnessServiceSerializer(serializers.ModelSerializer):
             "duration_minutes",
             "max_capacity_per_session",
             "is_active",
+            "owner_name",
+            "owner_email",
+            "owner_phone",
         )
-        read_only_fields = ("id",)
+        read_only_fields = ("id", "owner_name", "owner_email", "owner_phone")
 
 
 class WellnessTimeSlotSerializer(serializers.ModelSerializer):

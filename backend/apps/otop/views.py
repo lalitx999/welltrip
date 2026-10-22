@@ -63,7 +63,7 @@ class OTOPProductListCreateView(EnvelopeMixin, generics.ListCreateAPIView):
 
     def get_queryset(self):
         params = self.request.query_params
-        qs = OTOPProduct.objects.filter(is_active=True)
+        qs = OTOPProduct.objects.filter(is_active=True).select_related("owner")
         # Sandbox gate: hide items belonging to unapproved merchants from public catalog
         if self.request.method == "GET" and not (self.request.user.is_authenticated and self.request.user.is_staff):
             qs = qs.exclude(owner__merchant_profile__status__in=["PENDING", "REJECTED"])

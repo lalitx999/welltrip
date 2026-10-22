@@ -198,7 +198,7 @@ class AccommodationListCreateView(EnvelopeMixin, generics.ListCreateAPIView):
             free_ids = self._accommodations_with_free_room(qs, nights)
             qs = Accommodation.objects.filter(pk__in=free_ids)
 
-        return qs.prefetch_related(
+        return qs.select_related("owner").prefetch_related(
             Prefetch(
                 "rooms",
                 queryset=Room.objects.filter(is_active=True).prefetch_related("images"),

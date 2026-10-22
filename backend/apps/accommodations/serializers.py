@@ -30,6 +30,9 @@ class AccommodationSerializer(serializers.ModelSerializer):
     image_url = serializers.SerializerMethodField()
     min_price_per_night = serializers.SerializerMethodField()
     room_count = serializers.SerializerMethodField()
+    owner_name = serializers.CharField(source="owner.full_name", read_only=True, default="")
+    owner_email = serializers.CharField(source="owner.email", read_only=True, default="")
+    owner_phone = serializers.CharField(source="owner.phone_number", read_only=True, default="")
 
     def get_image_url(self, obj):
         rooms = getattr(obj, "active_rooms", None)
@@ -61,6 +64,9 @@ class AccommodationSerializer(serializers.ModelSerializer):
             "min_price_per_night",
             "room_count",
             "created_at",
+            "owner_name",
+            "owner_email",
+            "owner_phone",
         )
         # Server-managed: client may NOT set these (owner/slug/status/lifecycle).
         read_only_fields = (
@@ -70,6 +76,9 @@ class AccommodationSerializer(serializers.ModelSerializer):
             "min_price_per_night",
             "room_count",
             "created_at",
+            "owner_name",
+            "owner_email",
+            "owner_phone",
         )
 
     def get_min_price_per_night(self, obj):

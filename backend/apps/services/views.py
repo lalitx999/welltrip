@@ -79,7 +79,7 @@ class FoodListCreateView(EnvelopeMixin, generics.ListCreateAPIView):
 
     def get_queryset(self):
         params = self.request.query_params
-        qs = FoodMenu.objects.filter(is_available=True)
+        qs = FoodMenu.objects.filter(is_available=True).select_related("owner")
         # Sandbox gate: hide items belonging to unapproved merchants from public catalog
         if self.request.method == "GET" and not (self.request.user.is_authenticated and self.request.user.is_staff):
             qs = qs.exclude(owner__merchant_profile__status__in=["PENDING", "REJECTED"])
@@ -138,7 +138,7 @@ class WellnessServiceListCreateView(EnvelopeMixin, generics.ListCreateAPIView):
 
     def get_queryset(self):
         # Public list never shows deactivated services (soft-off switch).
-        qs = WellnessService.objects.filter(is_active=True)
+        qs = WellnessService.objects.filter(is_active=True).select_related("owner")
         if self.request.method == "GET" and not (self.request.user.is_authenticated and self.request.user.is_staff):
             qs = qs.exclude(owner__merchant_profile__status__in=["PENDING", "REJECTED"])
         return qs
