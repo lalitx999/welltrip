@@ -67,12 +67,23 @@ def send_admin_new_merchant_alert(merchant_profile) -> bool:
     admin_recipients = [admin_email.strip()]
 
     user = merchant_profile.user
-    applicant_name = user.full_name or f"{user.first_name} {user.last_name}".strip() or "-"
-    email = user.email or "-"
-    phone = user.phone_number or "-"
-    biz_name = merchant_profile.business_name or "-"
-    biz_type = merchant_profile.business_type or "-"
-    address = merchant_profile.address or "-"
+    applicant_name = getattr(user, "full_name", "") or f"{user.first_name} {user.last_name}".strip() or "-"
+    email = getattr(user, "email", "-") or "-"
+    phone = getattr(merchant_profile, "phone_number", None) or getattr(user, "phone_number", "-") or "-"
+    biz_name = getattr(merchant_profile, "business_name", "-") or "-"
+    biz_type = (
+        merchant_profile.get_business_category_display()
+        if hasattr(merchant_profile, "get_business_category_display")
+        else getattr(merchant_profile, "business_category", "-")
+    )
+    maps_url = getattr(merchant_profile, "google_maps_url", "-") or "-"
+    hours = getattr(merchant_profile, "opening_hours", "-") or "-"
+
+    created_time = (
+        merchant_profile.created_at.strftime("%Y-%m-%d %H:%M:%S UTC")
+        if hasattr(merchant_profile, "created_at") and merchant_profile.created_at
+        else timezone.now().strftime("%Y-%m-%d %H:%M:%S UTC")
+    )
 
     subject = f"[WellTrip Admin Alert] มีผู้ประกอบการยื่นขอเปิดร้านใหม่: {biz_name}"
     message = (
@@ -80,12 +91,13 @@ def send_admin_new_merchant_alert(merchant_profile) -> bool:
         f"มีผู้ประกอบการรายใหม่ลงทะเบียนขอเปิดร้านบนแพลตฟอร์ม WellTrip และรอการตรวจสอบ (PENDING):\n\n"
         f"รายละเอียดร้านค้าและผู้สมัคร:\n"
         f"- ชื่อสถานประกอบการ: {biz_name}\n"
-        f"- ประเภทธุรกิจ: {biz_type}\n"
+        f"- หมวดหมู่ธุรกิจ: {biz_type}\n"
         f"- ผู้ยื่นคำขอ: {applicant_name}\n"
         f"- อีเมลติดต่อ: {email}\n"
         f"- เบอร์โทรศัพท์: {phone}\n"
-        f"- ที่ตั้งสถานประกอบการ: {address}\n"
-        f"- วันที่ยื่นคำขอ: {merchant_profile.created_at.strftime('%Y-%m-%d %H:%M:%S UTC')}\n\n"
+        f"- เวลาทำการ: {hours}\n"
+        f"- แผนที่ Google Maps: {maps_url}\n"
+        f"- วันที่ยื่นคำขอ: {created_time}\n\n"
         f"ท่านสามารถเข้าตรวจสอบเอกสาร ข้อมูล และกดอนุมัติ (Approve) ได้ที่ Admin Console:\n"
         f"https://welltripthailand.com/admin/approvals\n\n"
         f"ระบบแจ้งเตือนอัตโนมัติ WellTrip Thailand"

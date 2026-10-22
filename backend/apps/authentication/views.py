@@ -12,7 +12,11 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.views import TokenRefreshView
 
+import logging
+
 from common.responses import api_error, api_success
+
+logger = logging.getLogger(__name__)
 
 from .models import MerchantApprovalStatus, MerchantProfile, User, UserRoles
 from .serializers import (
@@ -385,8 +389,8 @@ def register_merchant_view(request):
     try:
         from common.notifications import send_admin_new_merchant_alert
         send_admin_new_merchant_alert(merchant)
-    except Exception:
-        pass
+    except Exception as exc:
+        logger.error("Failed to dispatch admin merchant alert: %s", exc)
 
     tokens = issue_tokens_for_user(user)
     return api_success(
