@@ -33,4 +33,9 @@ urlpatterns = [
         views.WellnessSlotsView.as_view(),
         name="wellness-slots",
     ),
+    path(
+        "wellness/slots/<int:pk>/",
+        views.WellnessSlotDetailDeleteView.as_view(),
+        name="wellness-slot-delete",
+    ),
 ]

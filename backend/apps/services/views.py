@@ -15,7 +15,7 @@ WHY owner checks live in the view (not only in IsRole):
 from datetime import date
 
 from rest_framework import generics, status
-from rest_framework.exceptions import APIException, NotFound, ValidationError
+from rest_framework.exceptions import APIException, NotFound, PermissionDenied, ValidationError
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -24,7 +24,7 @@ from common.pagination import StandardPagination
 from common.permissions import IsRestaurantOwner, IsWellnessOwner
 from common.views import EnvelopeMixin, can_manage_vendor_object
 
-from .models import FoodMenu, FoodWellnessCategory, WellnessService
+from .models import FoodMenu, FoodWellnessCategory, WellnessService, WellnessTimeSlot
 from .serializers import (
     FoodMenuSerializer,
     WellnessServiceSerializer,
@@ -219,6 +219,20 @@ class WellnessSlotsView(EnvelopeMixin, APIView):
             WellnessTimeSlotSerializer(slot).data,
             status=status.HTTP_201_CREATED,
         )
+
+
+class WellnessSlotDetailDeleteView(EnvelopeMixin, generics.DestroyAPIView):
+    """Delete a time slot by ID (owner only)."""
+
+    permission_classes = [IsWellnessOwner]
+    queryset = WellnessTimeSlot.objects.all()
+
+    def get_object(self):
+        slot = super().get_object()
+        if not can_manage_vendor_object(self.request.user, slot.service):
+            raise PermissionDenied("You can only manage your own wellness time slots.")
+        return slot
+
 
 
 # ---------------------------------------------------------------------------
