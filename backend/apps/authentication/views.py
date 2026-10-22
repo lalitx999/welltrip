@@ -493,8 +493,10 @@ def admin_approvals_list_view(request):
     if not (request.user.is_superuser or request.user.role in [UserRoles.SUPER_ADMIN, UserRoles.COMMUNITY_ADMIN]):
         return api_error("PERMISSION_DENIED", "Admin access required.", status=status.HTTP_403_FORBIDDEN)
     
-    profiles = MerchantProfile.objects.filter(status=MerchantApprovalStatus.PENDING).order_by("-created_at")[:100]
     data = []
+
+    # 1. Pending Merchant Profiles (สมัครเปิดร้านค้าใหม่)
+    profiles = MerchantProfile.objects.filter(status=MerchantApprovalStatus.PENDING).select_related("user").order_by("-created_at")[:100]
     for p in profiles:
         data.append({
             "id": str(p.id),
@@ -505,9 +507,36 @@ def admin_approvals_list_view(request):
             "province": "ศรีสะเกษ",
             "price": 0,
             "image_url": p.cover_image_url or "",
-            "status": p.status,
+            "status": "PENDING",
             "created_at": p.created_at.isoformat(),
         })
+
+    # 2. Pending Accommodations / Homestays (ที่พักรอตรวจสอบ)
+    try:
+        from apps.accommodations.models import Accommodation, AccommodationStatus
+        accs = Accommodation.objects.filter(status=AccommodationStatus.PENDING_VERIFICATION).select_related("owner").order_by("-created_at")[:100]
+        for a in accs:
+            img = ""
+            room = a.rooms.first()
+            if room:
+                rimg = room.images.first()
+                if rimg:
+                    img = rimg.image_url
+            data.append({
+                "id": str(a.id),
+                "title": a.name,
+                "type": "ACCOMMODATION",
+                "owner_name": a.owner.full_name if a.owner else "N/A",
+                "owner_email": a.owner.email if a.owner else "N/A",
+                "province": a.province or "ศรีสะเกษ",
+                "price": 0,
+                "image_url": img,
+                "status": "PENDING",
+                "created_at": a.created_at.isoformat(),
+            })
+    except Exception as e:
+        logger.error("Failed to query pending accommodations: %s", str(e))
+
     return api_success(data)
 
 
@@ -517,13 +546,13 @@ def admin_approval_action_view(request, entity_id):
     if not (request.user.is_superuser or request.user.role in [UserRoles.SUPER_ADMIN, UserRoles.COMMUNITY_ADMIN]):
         return api_error("PERMISSION_DENIED", "Admin access required.", status=status.HTTP_403_FORBIDDEN)
     
+    new_status = request.data.get("status")
+    if new_status not in ["APPROVED", "REJECTED"]:
+        return api_error("INVALID_STATUS", "Status must be APPROVED or REJECTED.", status=status.HTTP_400_BAD_REQUEST)
+
+    # 1. Try MerchantProfile first
     try:
         profile = MerchantProfile.objects.select_related("user").get(id=entity_id)
-    except Exception:
-        return api_error("NOT_FOUND", "Entity not found or invalid ID.", status=status.HTTP_404_NOT_FOUND)
-    
-    new_status = request.data.get("status")
-    if new_status in ["APPROVED", "REJECTED"]:
         profile.status = new_status
         if request.data.get("rejection_reason"):
             profile.rejection_reason = request.data.get("rejection_reason")
@@ -534,16 +563,14 @@ def admin_approval_action_view(request, entity_id):
         if profile.user:
             if new_status == "APPROVED":
                 profile.user.is_verified = True
-                # Automatically activate merchant's accommodations if pending
                 try:
                     profile.user.accommodations.filter(status="PENDING_VERIFICATION").update(status="ACTIVE")
                 except Exception as e:
-                    logging.getLogger(__name__).warning("Failed to auto-activate accommodations: %s", str(e))
+                    logger.warning("Failed to auto-activate accommodations: %s", str(e))
             else:
                 profile.user.is_verified = False
             profile.user.save()
 
-            # Send notification email to the merchant
             try:
                 from common.notifications import send_merchant_decision_notification
                 send_merchant_decision_notification(
@@ -552,9 +579,21 @@ def admin_approval_action_view(request, entity_id):
                     rejection_reason=profile.rejection_reason,
                 )
             except Exception as e:
-                logging.getLogger(__name__).warning("Failed to send merchant approval status email: %s", str(e))
+                logger.warning("Failed to send merchant approval status email: %s", str(e))
 
-    return api_success({"id": str(profile.id), "status": profile.status})
+        return api_success({"id": str(profile.id), "status": profile.status})
+    except (MerchantProfile.DoesNotExist, Exception):
+        pass
+
+    # 2. Try Accommodation
+    try:
+        from apps.accommodations.models import Accommodation, AccommodationStatus
+        acc = Accommodation.objects.get(id=entity_id)
+        acc.status = AccommodationStatus.ACTIVE if new_status == "APPROVED" else AccommodationStatus.SUSPENDED
+        acc.save(update_fields=["status"])
+        return api_success({"id": str(acc.id), "status": new_status})
+    except Exception:
+        return api_error("NOT_FOUND", "Entity not found or invalid ID.", status=status.HTTP_404_NOT_FOUND)
 
 
 

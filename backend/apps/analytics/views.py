@@ -77,7 +77,11 @@ def overview_view(request):
     from apps.otop.models import OTOPProduct
     from apps.bookings.models import Booking
     from apps.payments.models import Payment, PaymentSlip
+    from apps.authentication.models import MerchantProfile, MerchantApprovalStatus
     users = get_user_model().objects.all()
+    pending_merchants = MerchantProfile.objects.filter(status=MerchantApprovalStatus.PENDING).count()
+    pending_accommodations = Accommodation.objects.filter(status="PENDING_VERIFICATION").count()
+
     response = api_success({
         "total_gmv": Payment.objects.filter(status="SUCCESS").aggregate(total=Sum("amount"))["total"] or 0,
         "total_bookings": Booking.objects.count(),
@@ -86,7 +90,7 @@ def overview_view(request):
         "total_accommodations": Accommodation.objects.count(),
         "total_wellness_services": WellnessService.objects.count(),
         "total_otop_products": OTOPProduct.objects.count(),
-        "pending_approvals": Accommodation.objects.filter(status="PENDING_VERIFICATION").count(),
+        "pending_approvals": pending_merchants + pending_accommodations,
         "pending_payments": PaymentSlip.objects.filter(status="PENDING_CHECK").count(),
     })
     response["Cache-Control"] = "no-store"
